@@ -1,6 +1,6 @@
 (in-package :com.ignorama.web)
 
-(defconstant +site-name+ "Ignorama")
+(defparameter *site-name* "Ignorama")
 
 (defparameter *head*
   `((:meta :charset="UTF-8")
@@ -31,7 +31,7 @@
 (define-html-macro :standard-page ((&key title) &body body)
   "The basic format that every page will follow."
   `(:html
-    (:head (:title ,(concatenate 'string title " - " +site-name+))
+    (:head (:title ,(concatenate 'string title " - " *site-name*))
 	   ,@*head*
 	   ,@*header*)
     (:body
