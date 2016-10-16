@@ -1,5 +1,7 @@
 (in-package :cl-user)
 
+(load "~/quicklisp/setup.lisp")
+
 (ql:quickload "aserve")
 (ql:quickload "monkeylib-html")
 
