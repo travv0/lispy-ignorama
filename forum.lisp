@@ -102,11 +102,15 @@
 (define-html-macro :threadtable (query)
   `(:table :class "table table-bordered fixed"
 	   (:tr :class "thread-row"
-		(:th "Thread")
-		(:th "User")
-		(:th "Replies")
-		(:th "Tag(s)")
-		(:th "Latest Post")
+		(:th :class "thread-row" "Thread")
+		(:th :class "thread-row centered col-sm-2 hidden-xs"
+		     "User")
+		(:th :class "thread-row centered col-md-1 col-sm-2 hidden-xs"
+		     "Replies")
+		(:th :class "thread-row centered col-sm-3 col-md-2 hidden-xs"
+		     "Tag(s)")
+		(:th :class "thread-row centered col-sm-2 hidden-xs"
+		     "Latest Post")
 		(let* ((q (prepare *db* ,query))
 		       (result (execute q)))
 		  (loop for row = (fetch result)
@@ -147,9 +151,10 @@
 (define-html-macro :standard-page ((&key title) &body body)
   "The basic format that every page will follow."
   `(:html
-    (:head (:title ,(concatenate 'string title (if (equal title "")
-						   ""
-						   " - ")
+    (:head (:title ,(concatenate 'string
+				 title (if (equal title "")
+					   ""
+					   " - ")
 				 *site-name*))
 	   ,@*head*)
     (:body
@@ -189,6 +194,35 @@
   (:standard-page
    (:title "")
    (:body
+    ;; dropdown only display correctly when I wrap all the buttons in this div
+    (:div :class "dropdown"
+	  (:button :class "btn btn-default btn-sm threads"
+		   :onclick "window.location='newthread'"
+		   "New Thread")
+	  (:form :class "rightbuttons"
+		 :action "php/submitfilter"
+		 :method "post"
+		 (:input :type "button"
+			 :class "btn btn-default btn-sm threads"
+			 :onclick "window.location='hiddenthreads'"
+			 :value "Hidden Threads")
+		 (:input :type "button"
+			 :class "btn btn-default btn-sm threads"
+			 :onclick "window.location='php/resettags'"
+			 :value "Reset Tags")
+		 (:input :type "submit"
+			 :class "btn btn-default btn-sm threads"
+			 :value "Apply Tags")
+
+	   ;; code for tags dropdown
+	   (:a :class "dropdown-toggle btn btn-default btn-sm"
+	       :data-toggle "dropdown"
+	       "Tags" (:b :class "caret"))
+	   (:ul :class "dropdown-menu dropdown-menu-form pull-right"
+		:role "menu"
+		(:label :type "checkbox"
+			(:li "test")))))
+
     (:threadtable *threads-query*))))
 
 (publish-page unicode-test

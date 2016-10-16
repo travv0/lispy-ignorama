@@ -264,3 +264,16 @@ textarea {
     background-color: #330066;
     color: white;
 }
+
+th.thread-row.centered {
+    text-align:center;
+}
+
+.btn.threads {
+    margin-bottom: 5px;
+}
+
+.rightbuttons {
+    float: right;
+    display: block;
+}
