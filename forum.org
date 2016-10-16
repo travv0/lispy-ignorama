@@ -1,7 +1,0 @@
-* TODO Port Ignorama
-** TODO write macros and function to clean up *head* definition
-  - should be function/macro that returns a list to directly pass to
-    *head*
-  - [ ] stylesheet macro
-  - [ ] script macro
-  - [ ] combine all of head with one function and return list to *head*
