@@ -7,7 +7,7 @@
 ;; connect to database (FIXME: don't use root lol)
 (defvar *db* (connect :mysql
 		      :username "root"
-		      :password "***REMOVED***"
+		      :password "password"
 		      :database-name "tssund93_forums"))
 (let* ((q (prepare *db* "SET NAMES utf8")))
   (execute q))
