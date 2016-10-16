@@ -73,6 +73,18 @@
     (:script :src "/js/js.js"))
   "Content that goes in the header of every page.")
 
+(define-html-macro :rightlink (label)
+  `(:a :class "header rightlink"
+       :href ,(string-downcase label)
+       ,label))
+
+(define-html-macro :sociallink (site url)
+  `(:a :class "header rightlink"
+       :target "_blank"
+       :href ,url
+       (:span :class ,(concatenate 'string
+				   "fa fa-"
+				   (string-downcase (symbol-name site))))))
 
 (defparameter *header*
   '((:div :class "header banner"
@@ -90,29 +102,13 @@
 
       ;; right links
       (:div :class "hidden-xs header rightlinks"
-	    ;; social media links
-	    (:a :class "header rightlink"
-		:target "_blank"
-		:href "https://twitter.com/IgnoramaDotNet"
-		(:span :class "fa fa-twitter"))
-	    (:a :class "header rightlink"
-		:target "_blank"
-		:href "https://github.com/tssund93/lispy-ignorama"
-		(:span :class "fa fa-github"))
+	    (:sociallink twitter "https://twitter.com/IgnoramaDotNet")
+	    (:sociallink github "https://github.com/tssund93/lispy-ignorama")
 
-	    ;; other links
-	    (:a :class "header rightlink"
-		:href "following"
-		"Following")
-	    (:a :class "header rightlink"
-		:href "rules"
-		"Rules")
-	    (:a :class "header rightlink"
-		:href "banlog"
-		"Bans")
-	    (:a :class "header rightlink"
-		:href "settings"
-		"Settings"))))))
+	    (:rightlink "Following")
+	    (:rightlink "Rules")
+	    (:rightlink "Bans")
+	    (:rightlink "Settings"))))))
 
 (define-html-macro :standard-page ((&key title) &body body)
   "The basic format that every page will follow."
@@ -148,7 +144,9 @@
 	   (:input :name "password" :type "password")
 	   (:br)
 	   (:input :name "Submit1" :type "submit" :value "Submit")
-	   (:input :type "button" :value "Main Page" :onclick "window.location='../'")))))
+	   (:input :type "button"
+		   :value "Main Page"
+		   :onclick "window.location='../'")))))
 
 (publish-page index
   (:standard-page
