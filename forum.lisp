@@ -1,5 +1,12 @@
 (in-package :com.ignorama.web)
 
+;; connect to database (FIXME: don't use root lol)
+(defvar *db* (connect :mysql
+		      :username "root"
+		      :password "***REMOVED***"
+		      :database-name "tssund93_forums"))
+(query "SET NAMES utf8")
+
 ;; utility functions
 (defun random-elt (choices)
   "Choose an element from a list at random."
@@ -16,7 +23,6 @@
     "The six million dollar forum"
     "We live so you don't have to"
     "No boys allowed"
-    "Register or login"
     "The hippest MRA hangout on the 'net"
     "A safe place to have fun"
     "It's called an irony mark, look it up"
@@ -41,14 +47,19 @@
     "Trigger Warning: Opinions"
     "Now gluten free"
     "<a target='_blank' href='http://ignorama.net/rules.php'>Read the goddamn rules</a>"
-    "Your hobbies are stupid"
-    "We don't censor you"))
+    "Your hobbies are stupid"))
 
 (defparameter *resource-dirs* '("js/" "css/" "img/"))
 ;; publish css, js, img, etc.
 (loop for dir in *resource-dirs*
    do (publish-directory :prefix (concatenate 'string "/" dir)
 			 :destination dir))
+
+(defparameter *threads-query* "SELECT `threads`.*, a.NSFW AS TagNSFW, b.NSFW AS SubTagNSFW, a.AdminOnly AS ForcedTag, b.AdminOnly AS ForcedSubTag, (SELECT MAX(PostTime) FROM `posts` WHERE threads.ThreadID = posts.ThreadID) AS LatestPostTime,
+							(SELECT MAX(PostTime) FROM `posts` WHERE threads.ThreadID = posts.ThreadID AND Bump = 1) AS LatestBump,
+							a.TagName as Tag, a.ModeratorOnly AS ModTag, b.TagName as SubTag, b.ModeratorOnly AS ModSubTag FROM `threads` LEFT JOIN `posts` ON (threads.ThreadID = posts.ThreadID)
+							LEFT JOIN tags a ON a.TagID = threads.TagID LEFT JOIN tags b ON b.TagID = threads.SubTagID GROUP BY threads.ThreadID
+							ORDER BY `Stickied` DESC,`LatestBump` DESC")
 
 (defparameter *head*
   `((:meta :charset="UTF-8")
@@ -73,6 +84,7 @@
     (:script :src "/js/js.js"))
   "Content that goes in the header of every page.")
 
+;;; html macros
 (define-html-macro :rightlink (label)
   `(:a :class "header rightlink"
        :href ,(string-downcase label)
@@ -86,6 +98,27 @@
 				   "fa fa-"
 				   (string-downcase (symbol-name site))))))
 
+(define-html-macro :threadtable (query)
+  `(:table :class "table table-bordered fixed"
+	   (:tr :class "thread-row"
+		(:th "Thread")
+		(:th "User")
+		(:th "Replies")
+		(:th "Tag(s)")
+		(:th "Latest Post")
+		(let* ((q (prepare *db* ,query))
+		       (result (execute q)))
+		  (loop for row = (fetch result)
+		     while row do
+		       (html
+			 (:tr
+			  (:td (:print (getf row :|ThreadSubject|)))
+			  (:td (:print (getf row :|ModName|)))
+			  (:td (:print (getf row :|PostCount|)))
+			  (:td (:print (getf row :|Tag|)))
+			  (:td (:print (getf row :|LatestPostTime|))))))))))
+
+;;; page skeleton
 (defparameter *header*
   '((:div :class "header banner"
      (:div :class "header text"
@@ -113,7 +146,9 @@
 (define-html-macro :standard-page ((&key title) &body body)
   "The basic format that every page will follow."
   `(:html
-    (:head (:title ,(concatenate 'string title " - " *site-name*))
+    (:head (:title ,(concatenate 'string title (if (equal title "")
+						   ""
+						   " - ") *site-name*))
 	   ,@*head*)
     (:body
      (:div :class "container"
@@ -148,8 +183,8 @@
 		   :value "Main Page"
 		   :onclick "window.location='../'")))))
 
-(publish-page index
+(publish-page indexp
   (:standard-page
    (:title "")
    (:body
-    (:p "hello"))))
+    (:threadtable *threads-query*))))
