@@ -12,10 +12,13 @@
 (let* ((q (prepare *db* "SET NAMES utf8")))
   (execute q))
 
-;; utility functions
+;; utility functions and macros
 (defun random-elt (choices)
   "Choose an element from a list at random."
   (elt choices (random (length choices))))
+
+(defmacro echo (html)
+  `(format (request-reply-stream request) "~a" ,html))
 
 ;; site setup
 (defparameter *site-name* "Ignorama")
@@ -53,6 +56,16 @@
     "Now gluten free"
     "<a target='_blank' href='http://ignorama.net/rules.php'>Read the goddamn rules</a>"
     "Your hobbies are stupid"))
+
+(defparameter *fake-copyright* "
+<div style='text-align:center;font-size:9pt;'>
+  <p>
+    All trademarks and copyrights are owned by their respective parties.
+    Comments and uploaded images are the responsibility of the poster.
+  </p>
+  <p>Copyright © 2014 Ignorama. All rights reserved.</p>
+</div>
+<br/>")
 
 (defparameter *resource-dirs* '("js/" "css/" "img/"))
 ;; publish css, js, img, etc.
@@ -99,7 +112,7 @@
 				   "fa fa-"
 				   (string-downcase (symbol-name site))))))
 
-(define-html-macro :threadtable (query)
+(define-html-macro :indextable (query)
   `(:table :class "table table-bordered fixed"
 	   (:tr :class "thread-row"
 		(:th :class "thread-row" "Thread")
@@ -123,6 +136,36 @@
 			  (:td (:print (getf row :|Tag|)))
 			  (:td (:print (getf row :|LatestPostTime|))))))))))
 
+(define-html-macro :indexbuttons ()
+        ;; dropdown only display correctly when I wrap all the buttons in this div
+    `(:div :class "dropdown"
+	  (:button :class "btn btn-default btn-sm threads"
+		   :onclick "window.location='newthread'"
+		   "New Thread")
+	  (:form :class "rightbuttons"
+		 :action "php/submitfilter"
+		 :method "post"
+		 (:input :type "button"
+			 :class "btn btn-default btn-sm threads"
+			 :onclick "window.location='hiddenthreads'"
+			 :value "Hidden Threads")
+		 (:input :type "button"
+			 :class "btn btn-default btn-sm threads"
+			 :onclick "window.location='php/resettags'"
+			 :value "Reset Tags")
+		 (:input :type "submit"
+			 :class "btn btn-default btn-sm threads"
+			 :value "Apply Tags")
+
+	   ;; code for tags dropdown
+	   (:a :class "dropdown-toggle btn btn-default btn-sm"
+	       :data-toggle "dropdown"
+	       "Tags" (:b :class "caret"))
+	   (:ul :class "dropdown-menu dropdown-menu-form pull-right"
+		:role "menu"
+		(:label :type "checkbox"
+			(:li "test"))))))
+
 ;;; page skeleton
 (defparameter *header*
   '((:div :class "header banner"
@@ -133,7 +176,7 @@
 	     (:a :href "/index"
 		 (:img :class "header logo" :src "/img/ignorama.png"))
 	     (:b :class "hidden-sm header slogan"
-		 (format (request-reply-stream request) "~a" (random-elt *slogans*))))
+		 (echo (random-elt *slogans*))))
       (:span :class "visible-xs-inline"
 	     (:a :href "/index"
 		 (:img :class "header logo small" :src "/img/ignoramasmall.png")))
@@ -194,36 +237,9 @@
   (:standard-page
    (:title "")
    (:body
-    ;; dropdown only display correctly when I wrap all the buttons in this div
-    (:div :class "dropdown"
-	  (:button :class "btn btn-default btn-sm threads"
-		   :onclick "window.location='newthread'"
-		   "New Thread")
-	  (:form :class "rightbuttons"
-		 :action "php/submitfilter"
-		 :method "post"
-		 (:input :type "button"
-			 :class "btn btn-default btn-sm threads"
-			 :onclick "window.location='hiddenthreads'"
-			 :value "Hidden Threads")
-		 (:input :type "button"
-			 :class "btn btn-default btn-sm threads"
-			 :onclick "window.location='php/resettags'"
-			 :value "Reset Tags")
-		 (:input :type "submit"
-			 :class "btn btn-default btn-sm threads"
-			 :value "Apply Tags")
-
-	   ;; code for tags dropdown
-	   (:a :class "dropdown-toggle btn btn-default btn-sm"
-	       :data-toggle "dropdown"
-	       "Tags" (:b :class "caret"))
-	   (:ul :class "dropdown-menu dropdown-menu-form pull-right"
-		:role "menu"
-		(:label :type "checkbox"
-			(:li "test")))))
-
-    (:threadtable *threads-query*))))
+    (:indexbuttons)
+    (:indextable *threads-query*)
+    (echo *fake-copyright*))))
 
 (publish-page unicode-test
   (:standard-page
