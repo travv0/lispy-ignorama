@@ -1,11 +1,16 @@
-(in-package :com.ignorama.web)
+;; -*- coding:utf-8 -*-
+
+(in-package :net.ignorama.web)
+
+(setf *default-aserve-external-format* :utf-8)
 
 ;; connect to database (FIXME: don't use root lol)
 (defvar *db* (connect :mysql
 		      :username "root"
 		      :password "***REMOVED***"
 		      :database-name "tssund93_forums"))
-(query "SET NAMES utf8")
+(let* ((q (prepare *db* "SET NAMES utf8")))
+  (execute q))
 
 ;; utility functions
 (defun random-elt (choices)
@@ -55,11 +60,7 @@
    do (publish-directory :prefix (concatenate 'string "/" dir)
 			 :destination dir))
 
-(defparameter *threads-query* "SELECT `threads`.*, a.NSFW AS TagNSFW, b.NSFW AS SubTagNSFW, a.AdminOnly AS ForcedTag, b.AdminOnly AS ForcedSubTag, (SELECT MAX(PostTime) FROM `posts` WHERE threads.ThreadID = posts.ThreadID) AS LatestPostTime,
-							(SELECT MAX(PostTime) FROM `posts` WHERE threads.ThreadID = posts.ThreadID AND Bump = 1) AS LatestBump,
-							a.TagName as Tag, a.ModeratorOnly AS ModTag, b.TagName as SubTag, b.ModeratorOnly AS ModSubTag FROM `threads` LEFT JOIN `posts` ON (threads.ThreadID = posts.ThreadID)
-							LEFT JOIN tags a ON a.TagID = threads.TagID LEFT JOIN tags b ON b.TagID = threads.SubTagID GROUP BY threads.ThreadID
-							ORDER BY `Stickied` DESC,`LatestBump` DESC")
+(defparameter *threads-query* "CALL QueryThreads;")
 
 (defparameter *head*
   `((:meta :charset="UTF-8")
@@ -148,7 +149,8 @@
   `(:html
     (:head (:title ,(concatenate 'string title (if (equal title "")
 						   ""
-						   " - ") *site-name*))
+						   " - ")
+				 *site-name*))
 	   ,@*head*)
     (:body
      (:div :class "container"
@@ -160,7 +162,7 @@
   `(progn
      (defun ,name (request entity)
        (with-http-response (request entity :content-type "text/html")
-	 (with-http-body (request entity)
+	 (with-http-body (request entity :external-format :utf8-base)
 	   (with-html-output ((request-reply-stream request))
 	     (html
 	       ,@body)))))
@@ -183,8 +185,14 @@
 		   :value "Main Page"
 		   :onclick "window.location='../'")))))
 
-(publish-page indexp
+(publish-page index
   (:standard-page
    (:title "")
    (:body
     (:threadtable *threads-query*))))
+
+(publish-page unicode-test
+  (:standard-page
+   (:title "Unicode Test")
+   (:body
+    (:p "これは機械翻訳です。"))))
