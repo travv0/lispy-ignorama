@@ -17,6 +17,9 @@
   "Choose an element from a list at random."
   (elt choices (random (length choices))))
 
+(defun universal-to-unix (time)
+  (timestamp-to-unix (universal-to-timestamp time)))
+
 (defmacro echo (html)
   `(format (request-reply-stream request) "~a" ,html))
 
@@ -146,38 +149,39 @@
 			    (:td (:print (getf thread :|PostCount|)))
 			    (:td (:print (getf thread :|Tag|)))
 			    (:td :class "time"
-				 (:print (timestamp-to-unix (universal-to-timestamp
-							     (getf thread :|LatestPostTime|)))))))))))))
+				 (:print (universal-to-unix
+					  (getf thread
+						:|LatestPostTime|))))))))))))
 
 (define-html-macro :indexbuttons ()
-        ;; dropdown only display correctly when I wrap all the buttons in this div
-    `(:div :class "dropdown"
-	  (:button :class "btn btn-default btn-sm threads"
-		   :onclick "window.location='newthread'"
-		   "New Thread")
-	  (:form :class "rightbuttons"
-		 :action "b/submitfilter"
-		 :method "post"
-		 (:input :type "button"
-			 :class "btn btn-default btn-sm threads"
-			 :onclick "window.location='hiddenthreads'"
-			 :value "Hidden Threads")
-		 (:input :type "button"
-			 :class "btn btn-default btn-sm threads"
-			 :onclick "window.location='b/resettags'"
-			 :value "Reset Tags")
-		 (:input :type "submit"
-			 :class "btn btn-default btn-sm threads"
-			 :value "Apply Tags")
+  ;; dropdown only display correctly when I wrap all the buttons in this div
+  `(:div :class "dropdown"
+	 (:button :class "btn btn-default btn-sm threads"
+		  :onclick "window.location='newthread'"
+		  "New Thread")
+	 (:form :class "rightbuttons"
+		:action "b/submitfilter"
+		:method "post"
+		(:input :type "button"
+			:class "btn btn-default btn-sm threads"
+			:onclick "window.location='hiddenthreads'"
+			:value "Hidden Threads")
+		(:input :type "button"
+			:class "btn btn-default btn-sm threads"
+			:onclick "window.location='b/resettags'"
+			:value "Reset Tags")
+		(:input :type "submit"
+			:class "btn btn-default btn-sm threads"
+			:value "Apply Tags")
 
-	   ;; code for tags dropdown
-	   (:a :class "dropdown-toggle btn btn-default btn-sm"
-	       :data-toggle "dropdown"
-	       "Tags" (:b :class "caret"))
-	   (:ul :class "dropdown-menu dropdown-menu-form pull-right"
-		:role "menu"
-		(:label :type "checkbox"
-			(:li "test"))))))
+		;; code for tags dropdown
+		(:a :class "dropdown-toggle btn btn-default btn-sm"
+		    :data-toggle "dropdown"
+		    "Tags" (:b :class "caret"))
+		(:ul :class "dropdown-menu dropdown-menu-form pull-right"
+		     :role "menu"
+		     (:label :type "checkbox"
+			     (:li "test"))))))
 
 ;;; page skeleton
 (defparameter *header*
