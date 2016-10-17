@@ -174,7 +174,7 @@
 					      :|LatestPostTime|)))))))))))
 
 (define-html-macro :indexbuttons ()
-  ;; dropdown only display correctly when I wrap all the buttons in this div
+  ;; dropdown only displays correctly when I wrap all the buttons in this div
   `(:div :class "dropdown"
 	 (:button :class "btn btn-default btn-sm threads"
 		  :onclick "window.location='newthread'"
