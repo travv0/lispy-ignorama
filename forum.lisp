@@ -102,6 +102,11 @@
   "Content that goes in the header of every page.")
 
 ;;; html macros
+(define-html-macro :print-username (name)
+  `(:print (if ,name
+	       ,name
+	       "Anonymous")))
+
 (define-html-macro :rightlink (label)
   `(:a :class "header rightlink"
        :href ,(string-downcase label)
@@ -114,6 +119,18 @@
        (:span :class ,(concatenate 'string
 				   "fa fa-"
 				   (string-downcase (symbol-name site))))))
+
+(define-html-macro :print-link-to-thread (thread-id thread-title &key locked read-only stickied)
+  `(let* ((q (prepare *db*
+		      "SELECT PostContent FROM `posts` WHERE ThreadID = ?"))
+	  (result (execute q ,thread-id))
+	  (op (fetch result)))
+     (html (:a :title (:print (getf op :|PostContent|))
+	       :href (:print
+		      (concatenate 'string
+				   "viewthread?thread="
+				   (write-to-string ,thread-id)))
+	       (:print ,thread-title)))))
 
 (define-html-macro :indextable (query)
   `(:table :class "table table-bordered fixed"
@@ -132,26 +149,21 @@
 		       (result (execute q)))
 		  (loop for thread = (fetch result)
 		     while thread do
-		       (let* ((thread-id (getf thread :|ThreadID|))
-			      (q (prepare *db*
-					  "SELECT PostContent FROM `posts` WHERE ThreadID = ?"))
-			      (result (execute q thread-id))
-			      (op (fetch result)))
-			 (html
-			   (:tr
-			    (:td (:a :title (:print (getf op :|PostContent|))
-				     :href (:print
-					    (concatenate 'string
-							 "viewthread?thread="
-							 (write-to-string thread-id)))
-				     (:print (getf thread :|ThreadSubject|))))
-			    (:td (:print (getf thread :|ModName|)))
-			    (:td (:print (getf thread :|PostCount|)))
-			    (:td (:print (getf thread :|Tag|)))
-			    (:td :class "time"
-				 (:print (universal-to-unix
-					  (getf thread
-						:|LatestPostTime|))))))))))))
+		       (html
+			 (:tr
+			  (:td :class "thread-name centered"
+			       (:print-link-to-thread (getf thread :|ThreadID|)
+						      (getf thread :|ThreadSubject|)))
+			  (:td :class "thread-row centered"
+			       (:print-username (getf thread :|ModName|)))
+			  (:td :class "thread-row centered"
+			       (:print (getf thread :|PostCount|)))
+			  (:td :class "thread-row centered"
+			       (:print (getf thread :|Tag|)))
+			  (:td :class "time thread-row centered"
+			       (:print (universal-to-unix
+					(getf thread
+					      :|LatestPostTime|)))))))))))
 
 (define-html-macro :indexbuttons ()
   ;; dropdown only display correctly when I wrap all the buttons in this div

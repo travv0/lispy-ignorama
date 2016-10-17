@@ -260,13 +260,18 @@ textarea {
     resize: vertical;
 }
 
-.thread-row {
+th.thread-row {
     background-color: #330066;
     color: white;
 }
 
-th.thread-row.centered {
+.thread-row.centered {
     text-align:center;
+    vertical-align:middle;
+}
+
+.thread-name.centered {
+    vertical-align:middle;
 }
 
 .btn.threads {
