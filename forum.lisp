@@ -115,7 +115,8 @@
 (define-html-macro :indextable (query)
   `(:table :class "table table-bordered fixed"
 	   (:tr :class "thread-row"
-		(:th :class "thread-row" "Thread")
+		(:th :class "thread-row"
+		     "Thread")
 		(:th :class "thread-row centered col-sm-2 hidden-xs"
 		     "User")
 		(:th :class "thread-row centered col-md-1 col-sm-2 hidden-xs"
@@ -126,15 +127,27 @@
 		     "Latest Post")
 		(let* ((q (prepare *db* ,query))
 		       (result (execute q)))
-		  (loop for row = (fetch result)
-		     while row do
-		       (html
-			 (:tr
-			  (:td (:print (getf row :|ThreadSubject|)))
-			  (:td (:print (getf row :|ModName|)))
-			  (:td (:print (getf row :|PostCount|)))
-			  (:td (:print (getf row :|Tag|)))
-			  (:td (:print (getf row :|LatestPostTime|))))))))))
+		  (loop for thread = (fetch result)
+		     while thread do
+		       (let* ((thread-id (getf thread :|ThreadID|))
+			      (q (prepare *db*
+					  "SELECT PostContent FROM `posts` WHERE ThreadID = ?"))
+			      (result (execute q thread-id))
+			      (op (fetch result)))
+			 (html
+			   (:tr
+			    (:td (:a :title (:print (getf op :|PostContent|))
+				     :href (:print
+					    (concatenate 'string
+							 "viewthread?thread="
+							 (write-to-string thread-id)))
+				     (:print (getf thread :|ThreadSubject|))))
+			    (:td (:print (getf thread :|ModName|)))
+			    (:td (:print (getf thread :|PostCount|)))
+			    (:td (:print (getf thread :|Tag|)))
+			    (:td :class "time"
+				 (:print (timestamp-to-unix (universal-to-timestamp
+							     (getf thread :|LatestPostTime|)))))))))))))
 
 (define-html-macro :indexbuttons ()
         ;; dropdown only display correctly when I wrap all the buttons in this div
@@ -143,7 +156,7 @@
 		   :onclick "window.location='newthread'"
 		   "New Thread")
 	  (:form :class "rightbuttons"
-		 :action "php/submitfilter"
+		 :action "b/submitfilter"
 		 :method "post"
 		 (:input :type "button"
 			 :class "btn btn-default btn-sm threads"
@@ -151,7 +164,7 @@
 			 :value "Hidden Threads")
 		 (:input :type "button"
 			 :class "btn btn-default btn-sm threads"
-			 :onclick "window.location='php/resettags'"
+			 :onclick "window.location='b/resettags'"
 			 :value "Reset Tags")
 		 (:input :type "submit"
 			 :class "btn btn-default btn-sm threads"
@@ -246,3 +259,7 @@
    (:title "Unicode Test")
    (:body
     (:p "これは機械翻訳です。"))))
+
+(publish-page b/resettags
+  (:standard-page
+   (:title "Test")))
