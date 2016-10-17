@@ -282,3 +282,7 @@ th.thread-row {
     float: right;
     display: block;
 }
+
+.thread-icon {
+    color: #330066;
+}

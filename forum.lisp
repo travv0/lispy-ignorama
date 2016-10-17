@@ -4,7 +4,7 @@
 
 (setf *default-aserve-external-format* :utf-8)
 
-;; connect to database (FIXME: don't use root lol)
+;;; connect to database (FIXME: don't use root lol)
 (defvar *db* (connect :mysql
 		      :username "root"
 		      :password "password"
@@ -12,7 +12,7 @@
 (let* ((q (prepare *db* "SET NAMES utf8")))
   (execute q))
 
-;; utility functions and macros
+;;; utility functions and macros
 (defun random-elt (choices)
   "Choose an element from a list at random."
   (elt choices (random (length choices))))
@@ -23,7 +23,7 @@
 (defmacro echo (html)
   `(format (request-reply-stream request) "~a" ,html))
 
-;; site setup
+;;; site setup
 (defparameter *site-name* "Ignorama")
 (defparameter *slogans*
   '("I should've made it blue"
@@ -71,7 +71,7 @@
 <br/>")
 
 (defparameter *resource-dirs* '("js/" "css/" "img/"))
-;; publish css, js, img, etc.
+;;; publish css, js, img, etc.
 (loop for dir in *resource-dirs*
    do (publish-directory :prefix (concatenate 'string "/" dir)
 			 :destination dir))
@@ -102,11 +102,6 @@
   "Content that goes in the header of every page.")
 
 ;;; html macros
-(define-html-macro :print-username (name)
-  `(:print (if ,name
-	       ,name
-	       "Anonymous")))
-
 (define-html-macro :rightlink (label)
   `(:a :class "header rightlink"
        :href ,(string-downcase label)
@@ -120,11 +115,22 @@
 				   "fa fa-"
 				   (string-downcase (symbol-name site))))))
 
-(define-html-macro :print-link-to-thread (thread-id thread-title &key locked read-only stickied)
+(define-html-macro :print-username (name)
+  `(:print (if ,name
+	       ,name
+	       "Anonymous")))
+
+(define-html-macro :print-link-to-thread (thread-id thread-title &key locked stickied)
   `(let* ((q (prepare *db*
 		      "SELECT PostContent FROM `posts` WHERE ThreadID = ?"))
 	  (result (execute q ,thread-id))
 	  (op (fetch result)))
+     (if (= ,stickied 1)
+	 (html (:span :class "thread-icon glyphicon glyphicon-bookmark")
+	       (echo "&nbsp;")))
+     (if (= ,locked 1)
+	 (html (:span :class "thread-icon glyphicon glyphicon-lock")
+	       (echo "&nbsp;")))
      (html (:a :title (:print (getf op :|PostContent|))
 	       :href (:print
 		      (concatenate 'string
@@ -153,7 +159,9 @@
 			 (:tr
 			  (:td :class "thread-name centered"
 			       (:print-link-to-thread (getf thread :|ThreadID|)
-						      (getf thread :|ThreadSubject|)))
+						      (getf thread :|ThreadSubject|)
+						      :locked (getf thread :|Locked|)
+						      :stickied (getf thread :|Stickied|)))
 			  (:td :class "thread-row centered"
 			       (:print-username (getf thread :|ModName|)))
 			  (:td :class "thread-row centered"
