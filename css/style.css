@@ -274,13 +274,10 @@ th.thread-row {
     vertical-align:middle;
 }
 
-.btn.threads {
-    margin-bottom: 5px;
-}
-
 .rightbuttons {
     float: right;
     display: block;
+    margin-bottom: 5px;
 }
 
 .thread-icon {
