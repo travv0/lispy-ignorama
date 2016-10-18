@@ -22,7 +22,10 @@ CREATE
 	a.TagName as Tag,
 	a.ModeratorOnly AS ModTag,
 	b.TagName as SubTag,
-	b.ModeratorOnly AS ModSubTag
+	b.ModeratorOnly AS ModSubTag,
+	(SELECT COUNT(1)
+	 FROM `posts`
+	 WHERE threads.ThreadID = posts.ThreadID) - 1 AS PostCount
  FROM `threads`
  LEFT JOIN `posts` ON (threads.ThreadID = posts.ThreadID)
  LEFT JOIN tags a ON a.TagID = threads.TagID
