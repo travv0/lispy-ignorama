@@ -17,28 +17,28 @@
 
 ;;; stuff to go in the <head> tags (minus <title>)
 (eval-when (:compile-toplevel :load-toplevel :execute)
-(defparameter *head*
-  `((:meta :charset="UTF-8")
-    (:meta :name "viewport"
-	   :content "width=device-width, initial-scale=1, maximum-scale=1")
+  (defparameter *head*
+    `((:meta :charset="UTF-8")
+      (:meta :name "viewport"
+	     :content "width=device-width, initial-scale=1, maximum-scale=1")
 
-    (:link :rel "shortcut icon"
-	   :type "image/png"
-	   :href "/img/favicon.png")
+      (:link :rel "shortcut icon"
+	     :type "image/png"
+	     :href "/img/favicon.png")
 
-    (:link :rel "stylesheet"
-	   :href "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css")
-    (:link :rel "stylesheet"
-	   :href "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css")
-    (:link :rel "stylesheet"
-	   :href "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")
-    (:link :rel "stylesheet"
-	   :href "/css/style.css")
+      (:link :rel "stylesheet"
+	     :href "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css")
+      (:link :rel "stylesheet"
+	     :href "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css")
+      (:link :rel "stylesheet"
+	     :href "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")
+      (:link :rel "stylesheet"
+	     :href "/css/style.css")
 
-    (:script :src "//code.jquery.com/jquery-1.11.0.min.js")
-    (:script :src "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
-    (:script :src "/js/js.js"))
-  "Content that goes in the header of every page."))
+      (:script :src "//code.jquery.com/jquery-1.11.0.min.js")
+      (:script :src "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
+      (:script :src "/js/js.js"))
+    "Content that goes in the header of every page."))
 
 ;;; page skeleton
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -64,17 +64,17 @@
 ;;; The basic format that every viewable page will follow.
 (define-html-macro :standard-page ((&key title) &body body)
   `(:html
-    (:head (:title ,(concatenate 'string
-				 title (if (equal title "")
-					   ""
-					   " - ")
-				 *site-name*))
-	   ,@*head*)
-    (:body
-     (:div :class "container"
-	   ,@*header*
-	   (:h2 ,title)
-	   ,@body))))
+     (:head (:title ,(concatenate 'string
+				  title (if (equal title "")
+					    ""
+					    " - ")
+				  *site-name*))
+	    ,@*head*)
+     (:body
+      (:div :class "container"
+	    ,@*header*
+	    (:h2 ,title)
+	    ,@body))))
 
 ;;; this function creates and publishes page <name> at https://your-site.com/<name>
 (defmacro publish-page (name &body body)
@@ -89,7 +89,18 @@
 		      (concatenate 'string "/" (symbol-name name)))
 	      :function ',name)))
 
+;; publish index to /
+(publish :path "/" :function 'index)
+
 ;;; web pages beyond here
+(publish-page index
+  (:standard-page
+   (:title "")
+   (:body
+    (:indexbuttons)
+    (:indextable *threads-query*)
+    (echo *fake-copyright*))))
+
 (publish-page login
   (:standard-page
    (:title "Login")
@@ -103,17 +114,6 @@
 	   (:input :type "button"
 		   :value "Main Page"
 		   :onclick "window.location='../'")))))
-
-(publish-page index
-  (:standard-page
-   (:title "")
-   (:body
-    (:indexbuttons)
-    (:indextable *threads-query*)
-    (echo *fake-copyright*))))
-
-;; publish index to /
-(publish :path "/" :function 'index)
 
 (publish-page unicode-test
   (:standard-page
