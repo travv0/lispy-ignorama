@@ -14,6 +14,14 @@
        :href ,(string-downcase label)
        ,label))
 
+(define-html-macro :rightlinks ()
+`(html (:sociallinks)
+
+       (:rightlink "Following")
+       (:rightlink "Rules")
+       (:rightlink "Bans")
+       (:rightlink "Settings")))
+
 (define-html-macro :print-username (name)
   `(:print (if ,name
 	       ,name

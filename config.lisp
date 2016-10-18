@@ -59,17 +59,9 @@
 
 (defparameter *nameless-name* "Anonymous")
 
-;;; the links that show up on the right side of the header
 ;;; links to external social sites:
 ;;;		(:sociallink :name-of-social-site "https://site-url.com/your-site.html")
 ;;;	go to http://fontawesome.io/icons/ to see choices for :name-of-social-site
-;;; links to other pages on this site:
-;;;		(:rightlink "Pagename") will take you to https://your-site/pagename
-(define-html-macro :rightlinks ()
+(define-html-macro :sociallinks ()
   `(html (:sociallink :twitter "https://twitter.com/IgnoramaDotNet")
-	 (:sociallink :github "https://github.com/tssund93/lispy-ignorama")
-
-	 (:rightlink "Following")
-	 (:rightlink "Rules")
-	 (:rightlink "Bans")
-	 (:rightlink "Settings")))
+	 (:sociallink :github "https://github.com/tssund93/lispy-ignorama")))
