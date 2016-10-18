@@ -10,7 +10,7 @@
 (defparameter *site-name* "Ignorama")
 
 ;;; will load random slogan on each page load
-;;; for a single slogan, just include on string in the list
+;;; for a single slogan, just include one string in the list
 ;;; for no slogan, leave it empty or nil
 (defparameter *slogans*
   '("I should've made it blue"
