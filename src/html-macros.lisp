@@ -23,7 +23,8 @@
        (:rightlink "Settings")))
 
 (define-html-macro :print-username (name)
-  `(:print (if ,name
+  `(:print (if (and ,name
+		    (not *force-anonymity*))
 	       ,name
 	       *nameless-name*)))
 
