@@ -16,6 +16,7 @@
 			 :destination dir))
 
 ;;; stuff to go in the <head> tags (minus <title>)
+(eval-when (:compile-toplevel :load-toplevel :execute)
 (defparameter *head*
   `((:meta :charset="UTF-8")
     (:meta :name "viewport"
@@ -37,27 +38,28 @@
     (:script :src "//code.jquery.com/jquery-1.11.0.min.js")
     (:script :src "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
     (:script :src "/js/js.js"))
-  "Content that goes in the header of every page.")
+  "Content that goes in the header of every page."))
 
 ;;; page skeleton
-(defparameter *header*
-  '((:div :class "header banner"
-     (:div :class "header text"
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defparameter *header*
+    '((:div :class "header banner"
+       (:div :class "header text"
 
-      ;; logo and slogans
-      (:span :class "hidden-xs"
-	     (:a :href "/index"
-		 (:img :class "header logo" :src "/img/ignorama.png"))
-	     (if *slogans*
-		 (html (:b :class "hidden-sm header slogan"
+	;; logo and slogans
+	(:span :class "hidden-xs"
+	       (:a :href "/"
+		   (:img :class "header logo" :src "/img/ignorama.png"))
+	       (if *slogans*
+		   (html (:b :class "hidden-sm header slogan"
 			     (echo (random-elt *slogans*))))))
-      (:span :class "visible-xs-inline"
-	     (:a :href "/index"
-		 (:img :class "header logo small" :src "/img/ignoramasmall.png")))
+	(:span :class "visible-xs-inline"
+	       (:a :href "/index"
+		   (:img :class "header logo small" :src "/img/ignoramasmall.png")))
 
-      ;; right links
-      (:div :class "hidden-xs header rightlinks"
-	    (:rightlinks))))))
+	;; right links
+	(:div :class "hidden-xs header rightlinks"
+	      (:rightlinks)))))))
 
 ;;; The basic format that every viewable page will follow.
 (define-html-macro :standard-page ((&key title) &body body)
@@ -108,7 +110,9 @@
    (:body
     (:indexbuttons)
     (:indextable *threads-query*)
-    (echo *fake-copyright*))))
+    (echo *fake-copyright*)))
+  ;; publish index to /
+  (publish :path "/" :function 'index))
 
 (publish-page unicode-test
   (:standard-page
