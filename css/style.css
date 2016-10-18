@@ -186,7 +186,7 @@ textarea{
     height: 242px;
 }
 
-#topbutton{
+#topbutton {
     text-align: center;
     position: fixed;
     right: 20px;
@@ -195,17 +195,27 @@ textarea{
     bottom: -2px;
 }
 
-.searchbox{
+.searchbox {
     height:30px;
-    margin-right:-1px;
+    margin-right:-5px;
 }
 
-.hljs{
+.searchform {
+    display: inline-block;
+    float: right;
+}
+
+.searchbutton {
+    margin-top: -3px;
+    margin-right: 4px;
+}
+
+.hljs {
     border: 1px solid #DDD;
     background: none repeat scroll 0% 0% #F5F5F5;
 }
 
-pre{
+pre {
     border: 0px;
     padding: 0px;
     display: auto;

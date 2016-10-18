@@ -96,6 +96,7 @@
 	 (:button :class "btn btn-default btn-sm threads"
 		  :onclick "window.location='newthread'"
 		  "New Thread")
+
 	 (:form :class "rightbuttons"
 		:action "b/submitfilter"
 		:method "post"
@@ -118,4 +119,15 @@
 		(:ul :class "dropdown-menu dropdown-menu-form pull-right"
 		     :role "menu"
 		     (:label :type "checkbox"
-			     (:li "test"))))))
+			     (:li "test"))))
+
+	 (:form :action "/"
+		:method "get"
+		:class "hidden-xs searchform"
+		(:input :class "searchbox"
+			:name "search"
+			:type "textbox")
+		(:button :style "margin-top: -3px; margin-right: 4px;"
+			 :class "btn btn-default btn-sm"
+			 :type "submit"
+			 (:span :class "glyphicon glyphicon-search")))))
