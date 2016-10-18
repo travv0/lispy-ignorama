@@ -59,6 +59,9 @@
 
 (defparameter *nameless-name* "Anonymous")
 
+(defparameter *allow-anonymity* t)
+(defparameter *force-anonymity* nil)
+
 ;;; links to external social sites:
 ;;;		(:sociallink :name-of-social-site "https://site-url.com/your-site.html")
 ;;;	go to http://fontawesome.io/icons/ to see choices for :name-of-social-site
