@@ -110,9 +110,10 @@
    (:body
     (:indexbuttons)
     (:indextable *threads-query*)
-    (echo *fake-copyright*)))
-  ;; publish index to /
-  (publish :path "/" :function 'index))
+    (echo *fake-copyright*))))
+
+;; publish index to /
+(publish :path "/" :function 'index)
 
 (publish-page unicode-test
   (:standard-page
