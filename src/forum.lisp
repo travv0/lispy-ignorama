@@ -7,7 +7,7 @@
 (let* ((q (prepare *db* "SET NAMES utf8")))
   (execute q))
 
-(defparameter *threads-query* "CALL QueryThreads;")
+(defparameter *threads-query* "SELECT * FROM IndexThreads LIMIT 0,200")
 
 (defparameter *resource-dirs* '("js/" "css/" "img/"))
 ;;; publish css, js, img, etc.
