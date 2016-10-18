@@ -109,7 +109,7 @@
   (:standard-page
    (:title "Login")
    (:body
-    (:form :method "POST" :action "/admin/verify"
+    (:form :method "POST" :action "/b/login"
 	   (:input :name "username" :type "text")
 	   (:br)
 	   (:input :name "password" :type "password")
@@ -125,6 +125,11 @@
    (:body
     (:p "これは機械翻訳です。"))))
 
-(publish-page b/resettags
-  (:standard-page
-   (:title "Test")))
+(publish :path "/b/login"
+	 :content-type "text/html"
+	 :function
+	 #'(lambda (request entity)
+	     (with-http-response (request entity :response *response-found*)
+	       (set-cookie-header request :name "TestCookie" :value "TestValue")
+	       (setf (reply-header-slot-value request :location) "http://localhost:2001/")
+	       (with-http-body (request entity)))))

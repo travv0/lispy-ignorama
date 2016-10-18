@@ -15,12 +15,21 @@
        ,label))
 
 (define-html-macro :rightlinks ()
-`(html (:sociallinks)
+  `(html (:sociallinks)
 
-       (:rightlink "Following")
-       (:rightlink "Rules")
-       (:rightlink "Bans")
-       (:rightlink "Settings")))
+	 (:rightlink "Following")
+	 (:rightlink "Rules")
+	 (:rightlink "Bans")
+	 (:rightlink "Settings")
+
+	 (:br)
+
+	 (:div :class "header loginlinks"
+	       (:a :class "header rightlink"
+		   :href "/signup" "Sign up")
+	       (echo "&nbsp;/&nbsp;")
+	       (:a :class "header rightlink"
+		   :href "/login" "Log in"))))
 
 (define-html-macro :print-username (name)
   `(:print (if (and ,name
