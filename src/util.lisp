@@ -7,7 +7,8 @@
   (elt choices (random (length choices))))
 
 (defun universal-to-unix (time)
-  (timestamp-to-unix (universal-to-timestamp time)))
+  (if time
+      (timestamp-to-unix (universal-to-timestamp time))))
 
 (defmacro echo (html)
   `(format (request-reply-stream request) "~a" ,html))

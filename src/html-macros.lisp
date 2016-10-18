@@ -58,9 +58,9 @@
 			 (:tr
 			  (:td :class "thread-name centered"
 			       (:print-link-to-thread (getf thread :|ThreadID|)
-						      (getf thread :|ThreadSubject|)
-						      :locked (getf thread :|Locked|)
-						      :stickied (getf thread :|Stickied|)))
+			  			      (getf thread :|ThreadSubject|)
+			  			      :locked (getf thread :|Locked|)
+			  			      :stickied (getf thread :|Stickied|)))
 			  (:td :class "thread-row centered"
 			       (:print-username (getf thread :|ModName|)))
 			  (:td :class "thread-row centered"
