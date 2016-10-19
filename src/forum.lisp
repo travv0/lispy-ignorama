@@ -144,14 +144,14 @@
     (if (setf user-status (get-user-status (query-param "username")))
 	(let ((sessionid nil))
 	  ;; find an id not in use and set it to sessionid
-	  (loop while (gethash (setf sessionid (make-v4-uuid)) *sessions*))
+	  (loop while (gethash (setf sessionid (intern (write-to-string (make-v4-uuid)))) *sessions*))
 
-	  (let ((session (gethash sessionid *sessions*)))
-	    (setf session (make-hash-table))
-	    (setf (gethash 'username session) (query-param "username"))
-	    (setf (gethash 'userstatus session) user-status)
-	    (setf (gethash 'userlastactive session )(get-universal-time))
+	  ;; TODO: make it easier to query session variables
+	  (setf (gethash sessionid *sessions*) (make-hash-table))
+	  (setf (gethash 'username (gethash sessionid *sessions*)) (query-param "username"))
+	  (setf (gethash 'userstatus (gethash sessionid *sessions*)) user-status)
+	  (setf (gethash 'userlastactive (gethash sessionid *sessions*)) (get-universal-time))
 
-	    (set-cookie-header request :name "sessionid" :value (write-to-string sessionid))
-	    (setf (reply-header-slot-value request :location) "/")))
+	  (set-cookie-header request :name "sessionid" :value (symbol-name sessionid))
+	  (setf (reply-header-slot-value request :location) "/"))
 	(setf (reply-header-slot-value request :location) "/loginfailed"))))

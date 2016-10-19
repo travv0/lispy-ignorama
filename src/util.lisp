@@ -23,4 +23,11 @@
   `(cdr (assoc ,param (request-query request) :test #'equal)))
 
 (defun get-user-status (user)
-  nil)
+  (let* ((q (prepare *db*
+		     "SELECT UserStatusDesc
+                      FROM `admin` A
+                      JOIN UserStatuses US ON A.UserStatusID = US.UserStatusID
+                      WHERE Username = ?"))
+	 (result (execute q user))
+	 (user-status (fetch result)))
+    (getf user-status :|UserStatusDesc|)))
