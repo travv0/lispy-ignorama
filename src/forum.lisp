@@ -86,11 +86,15 @@
 (defmacro publish-page (name &body body)
   `(progn
      (defun ,name (request entity)
-       (with-http-response (request entity :content-type "text/html")
-	 (with-http-body (request entity :external-format :utf8-base)
-	   (with-html-output ((request-reply-stream request))
-	     (html
-	       ,@body)))))
+       (macrolet ((echo (html)
+		    `(format (request-reply-stream request) "~a" ,html))
+		  (query-param (param)
+		    `(cdr (assoc ,param (request-query request) :test #'equal))))
+	 (with-http-response (request entity :content-type "text/html")
+	   (with-http-body (request entity :external-format :utf8-base)
+	     (with-html-output ((request-reply-stream request))
+	       (html
+		 ,@body))))))
      (publish :path ,(string-downcase
 		      (concatenate 'string "/" (symbol-name name)))
 	      :function ',name)))
