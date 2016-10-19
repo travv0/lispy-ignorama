@@ -90,6 +90,15 @@
 					(getf thread
 					      :|LatestPostTime|)))))))))))
 
+(define-html-macro :tagsdropdown ()
+  `(html (:a :class "dropdown-toggle btn btn-default btn-sm"
+	     :data-toggle "dropdown"
+	     "Tags" (:b :class "caret"))
+	 (:ul :class "dropdown-menu dropdown-menu-form pull-right"
+	      :role "menu"
+	      (:label :type "checkbox"
+		      (:li "test")))))
+
 (define-html-macro :indexbuttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
   `(:div :class "dropdown"
@@ -112,14 +121,7 @@
 			:class "btn btn-default btn-sm threads"
 			:value "Apply Tags")
 
-		;; code for tags dropdown
-		(:a :class "dropdown-toggle btn btn-default btn-sm"
-		    :data-toggle "dropdown"
-		    "Tags" (:b :class "caret"))
-		(:ul :class "dropdown-menu dropdown-menu-form pull-right"
-		     :role "menu"
-		     (:label :type "checkbox"
-			     (:li "test"))))
+		(:tagsdropdown))
 
 	 (:form :action "/"
 		:method "get"
