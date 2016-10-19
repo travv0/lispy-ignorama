@@ -8,6 +8,7 @@
 (ql:quickload "cl-dbi")
 (ql:quickload "monkeylib-html")
 (ql:quickload "local-time")
+(ql:quickload "uuid")
 
 (require "asdf")
 (asdf:load-system :ignorama)

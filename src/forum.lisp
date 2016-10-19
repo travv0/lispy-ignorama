@@ -7,6 +7,8 @@
 (let* ((q (prepare *db* "SET NAMES utf8")))
   (execute q))
 
+(defvar *sessions* (make-hash-table))
+
 (defparameter *threads-query* "SELECT * FROM IndexThreads LIMIT 0,200")
 
 (defparameter *resource-dirs* '("js/" "css/" "img/"))
@@ -93,6 +95,17 @@
 		      (concatenate 'string "/" (symbol-name name)))
 	      :function ',name)))
 
+;;; this is for pages that don't show anything, only run logic then redirect
+(defmacro publish-script (name &body body)
+  `(publish :path ,(string-downcase
+		    (concatenate 'string "/" (symbol-name name)))
+	    :content-type "text/html"
+	    :function
+	 #'(lambda (request entity)
+	     (with-http-response (request entity :response *response-found*)
+	       ,@body
+	       (with-http-body (request entity))))))
+
 ;; publish index to /
 (publish :path "/" :function 'index)
 
@@ -125,11 +138,20 @@
    (:body
     (:p "これは機械翻訳です。"))))
 
-(publish :path "/b/login"
-	 :content-type "text/html"
-	 :function
-	 #'(lambda (request entity)
-	     (with-http-response (request entity :response *response-found*)
-	       (set-cookie-header request :name "TestCookie" :value "TestValue")
-	       (setf (reply-header-slot-value request :location) "http://localhost:2001/")
-	       (with-http-body (request entity)))))
+(publish-script b/login
+  (let ((user-status nil))
+    ;; if no status, user doesn't exist
+    (if (setf user-status (get-user-status (query-param "username")))
+	(let ((sessionid nil))
+	  ;; find an id not in use and set it to sessionid
+	  (loop while (gethash (setf sessionid (make-v4-uuid)) *sessions*))
+
+	  (let ((session (gethash sessionid *sessions*)))
+	    (setf session (make-hash-table))
+	    (setf (gethash 'username session) (query-param "username"))
+	    (setf (gethash 'userstatus session) user-status)
+	    (setf (gethash 'userlastactive session )(get-universal-time))
+
+	    (set-cookie-header request :name "sessionid" :value (write-to-string sessionid))
+	    (setf (reply-header-slot-value request :location) "/")))
+	(setf (reply-header-slot-value request :location) "/loginfailed"))))
