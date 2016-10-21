@@ -2,7 +2,8 @@
 (in-package :net.ignorama.web)
 
 (defvar *app* (make-instance '<app>))
-(setf *prologue* "<!DOCTYPE html>")
+(setf (html-mode) :html5)
+(setf *attribute-quote-char* #\")
 
 ;;; site setup
 (let* ((q (prepare *db* "SET NAMES utf8")))
@@ -47,67 +48,67 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *header*
     '((:div :class "header banner"
-       (:div :class "header text"
+            (:div :class "header text"
 
-        ;; logo and slogans
-        (:span :class "hidden-xs"
-	       (:a :href "/"
-		   (:img :class "header logo" :src "/static/ignorama.png"))
-	       (if *slogans*
-		   (htm (:b :class "hidden-sm header slogan"
-			    (str (random-elt *slogans*))))))
-        (:span :class "visible-xs-inline"
-	       (:a :href "/index"
-		   (:img :class "header logo small" :src "/static/ignoramasmall.png")))
+                  ;; logo and slogans
+                  (:span :class "hidden-xs"
+                         (:a :href "/"
+                             (:img :class "header logo" :src "/static/ignorama.png"))
+                         (if *slogans*
+                             (htm (:b :class "hidden-sm header slogan"
+                                      (str (random-elt *slogans*))))))
+                  (:span :class "visible-xs-inline"
+                         (:a :href "/index"
+                             (:img :class "header logo small" :src "/static/ignoramasmall.png")))
 
-        ;; right links
-        (:div :class "hidden-xs header rightlinks"
-	      (rightlinks)))))))
+                  ;; right links
+                  (:div :class "hidden-xs header rightlinks"
+                        (rightlinks)))))))
 
 ;;; The basic format that every viewable page will follow.
 (defmacro standard-page ((&key title) &body body)
   `(htm
-    (:html
-      (:head (:title ,(concatenate 'string
-				   title (if (equal title "")
-					     ""
-					     " - ")
-				   *site-name*))
-	     ,@*head*)
-      (:body
-       (:div :class "container"
-	     ,@*header*
-	     (:h2 ,title)
-	     ,@body)))))
+     (:html
+       (:head (:title ,(concatenate 'string
+                                    title (if (equal title "")
+                                              ""
+                                              " - ")
+                                    *site-name*))
+              ,@*head*)
+       (:body
+         (:div :class "container"
+               ,@*header*
+               (:h2 ,title)
+               ,@body)))))
 
 ;;; this macro creates and publishes page <name> at https://your-site.com/<name>
 (defmacro publish-page (name &body body)
   `(setf (ningle:route *app* (concatenate 'string "/" ,name))
-	 (with-html-output-to-string (*standard-output* nil :prologue t)
-	   (htm ,@body))))
+         (with-html-output-to-string (*standard-output* nil :prologue t)
+                                     (htm ,@body))))
 
 ;;; this is for pages that don't show anything, only run logic then redirect
 (defmacro publish-script (name &body body)
   `(publish :path ,(string-downcase
-                    (concatenate 'string "/" (symbol-name name)))
+                     (concatenate 'string "/" (symbol-name name)))
             :content-type "text/html"
             :function
             #'(lambda (request entity)
                 (macrolet ((query-param (param)
-                             `(cdr (assoc ,param (request-query request) :test #'equal))))
+                                        `(cdr (assoc ,param (request-query request) :test #'equal))))
                   (with-http-response (request entity :response *response-found*)
-                    ,@body
-                    (with-http-body (request entity)))))))
+                                      ,@body
+                                      (with-http-body (request entity)))))))
 
 ;;; web pages beyond here
 (publish-page ""
-  (standard-page
-      (:title "")
-    (:body
-     (indexbuttons)
-     (indextable *threads-query*)
-     ;; (echo *fake-copyright*)
-     )))
+              (standard-page
+                (:title "")
+                (:body
+                  (indexbuttons)
+                  (indextable *threads-query*)
+                  ;; (echo *fake-copyright*)
+                  )))
 
 ;; (publish-page "viewthread"
 ;;   (:standard-page
@@ -116,24 +117,24 @@
 ;;     (:print (get-thread-title (query-param "thread"))))))
 
 (publish-page "login"
-  (standard-page
-      (:title "Login")
-    (:body
-     (:form :method "POST" :action "/b/login"
-	    (:input :name "username" :type "text")
-	    (:br)
-	    (:input :name "password" :type "password")
-	    (:br)
-	    (:input :name "Submit1" :type "submit" :value "Submit")
-	    (:input :type "button"
-		    :value "Main Page"
-		    :onclick "window.location='../'")))))
+              (standard-page
+                (:title "Login")
+                (:body
+                  (:form :method "POST" :action "/b/login"
+                         (:input :name "username" :type "text")
+                         (:br)
+                         (:input :name "password" :type "password")
+                         (:br)
+                         (:input :name "Submit1" :type "submit" :value "Submit")
+                         (:input :type "button"
+                                 :value "Main Page"
+                                 :onclick "window.location='../'")))))
 
 (publish-page "unicode-test"
-  (standard-page
-      (:title "Unicode Test")
-    (:body
-     (:p "これは機械翻訳です。"))))
+              (standard-page
+                (:title "Unicode Test")
+                (:body
+                  (:p "これは機械翻訳です。"))))
 
 ;; (publish-script b/login
 ;;   (let ((user-status nil))

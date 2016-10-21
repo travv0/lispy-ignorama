@@ -1,8 +1,8 @@
 ;; -*- coding:utf-8 -*-
 (in-package :cl-user)
-(import '(lack.builder:builder))
 
 (load "load.lisp")
+(import '(lack.builder:builder))
 
 (in-package :net.ignorama.web)
 (clack:clackup (lack:builder
