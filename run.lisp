@@ -1,6 +1,12 @@
 ;; -*- coding:utf-8 -*-
 (in-package :cl-user)
+(import '(lack.builder:builder))
 
 (load "load.lisp")
 
-(net.aserve:start :port 2001)
+(in-package :net.ignorama.web)
+(clack:clackup (lack:builder
+		(:static
+		 :path "/static/"
+		 :root #p"static/")
+		*app*))

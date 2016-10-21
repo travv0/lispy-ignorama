@@ -65,6 +65,6 @@
 ;;; links to external social sites:
 ;;;		(:sociallink :name-of-social-site "https://site-url.com/your-site.html")
 ;;;	go to http://fontawesome.io/icons/ to see choices for :name-of-social-site
-(define-html-macro :sociallinks ()
-  `(html (:sociallink :twitter "https://twitter.com/IgnoramaDotNet")
-	 (:sociallink :github "https://github.com/tssund93/lispy-ignorama")))
+(defmacro sociallinks ()
+  `(htm (sociallink :twitter "https://twitter.com/IgnoramaDotNet")
+	(sociallink :github "https://github.com/tssund93/lispy-ignorama")))

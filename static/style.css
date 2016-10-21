@@ -8,7 +8,7 @@ h3{
     color: #330066;
 }
 body{
-    background: url('/img/banner.png') repeat-x;
+    background: url('/static/banner.png') repeat-x;
     background-color: #E8E8E8;
 }
 tr{

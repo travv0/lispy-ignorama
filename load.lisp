@@ -4,9 +4,12 @@
 (SETF SB-IMPL::*DEFAULT-EXTERNAL-FORMAT* :UTF-8)
 
 (load "~/quicklisp/setup.lisp")
-(ql:quickload "aserve")
+(ql:quickload "clack")
+(ql:quickload "lack-middleware-static")
+(ql:quickload "clack-errors")
+(ql:quickload "ningle")
 (ql:quickload "cl-dbi")
-(ql:quickload "monkeylib-html")
+(ql:quickload "cl-who")
 (ql:quickload "local-time")
 (ql:quickload "uuid")
 
