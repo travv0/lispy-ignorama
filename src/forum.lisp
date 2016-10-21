@@ -122,11 +122,11 @@
     (:indextable *threads-query*)
     (echo *fake-copyright*))))
 
-(publish-page viewthread
-  (:standard-page
-   (:title (concatenate 'string (get-thread-title (query-param "thread"))))
-   (:body
-    (:print (get-thread-title (query-param "thread"))))))
+;; (publish-page viewthread
+;;   (:standard-page
+;;    (:title (concatenate 'string (get-thread-title (query-param "thread"))))
+;;    (:body
+;;     (:print (get-thread-title (query-param "thread"))))))
 
 (publish-page login
   (:standard-page
