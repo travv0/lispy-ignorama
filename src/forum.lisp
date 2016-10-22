@@ -2,8 +2,6 @@
 (in-package :net.ignorama.web)
 
 (defvar *app* (make-instance '<app>))
-(setf (html-mode) :html5)
-(setf *attribute-quote-char* #\")
 
 ;;; site setup
 (let* ((q (prepare *db* "SET NAMES utf8")))
@@ -13,16 +11,10 @@
 
 (defparameter *threads-query* "SELECT * FROM IndexThreads LIMIT 0,200")
 
-;; (defparameter *resource-dirs* '("js/" "css/" "img/"))
-;; ;;; publish css, js, img, etc.
-;; (loop for dir in *resource-dirs*
-;;       do (publish-directory :prefix (concatenate 'string "/" dir)
-;;                             :destination dir))
-
 ;;; stuff to go in the <head> tags (minus <title>)
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *head*
-    `((:meta :charset="UTF-8")
+    `((:meta :charset "UTF-8")
       (:meta :name "viewport"
              :content "width=device-width, initial-scale=1, maximum-scale=1")
 
@@ -55,8 +47,8 @@
                          (:a :href "/"
                              (:img :class "header logo" :src "/static/ignorama.png"))
                          (if *slogans*
-                             (htm (:b :class "hidden-sm header slogan"
-                                      (str (random-elt *slogans*))))))
+                             (:b :class "hidden-sm header slogan"
+                                 (random-elt *slogans*))))
                   (:span :class "visible-xs-inline"
                          (:a :href "/index"
                              (:img :class "header logo small" :src "/static/ignoramasmall.png")))
@@ -67,54 +59,58 @@
 
 ;;; The basic format that every viewable page will follow.
 (defmacro standard-page ((&key title) &body body)
-  `(htm
+  `(with-html-string
+     (:doctype)
      (:html
-       (:head (:title ,(concatenate 'string
-                                    title (if (equal title "")
-                                              ""
-                                              " - ")
+       (:head (:title (concatenate 'string
+                                    ,title
+                                    (if (equal ,title "")
+                                        ""
+                                        " - ")
                                     *site-name*))
               ,@*head*)
        (:body
          (:div :class "container"
                ,@*header*
                (:h2 ,title)
-               ,@body)))))
+               ,@body
+               )))))
 
 ;;; this macro creates and publishes page <name> at https://your-site.com/<name>
-(defmacro publish-page (name &body body)
+(defmacro publish-page (name &key (method :GET) &body body)
   `(setf (ningle:route *app* (concatenate 'string "/" ,name))
-         (with-html-output-to-string (*standard-output* nil :prologue t)
-                                     (htm ,@body))))
+         #'(lambda (params)
+             (macrolet ((query-param (param)
+                          `(cdr (assoc ,param params :test #'string=))))
+               ,@body))))
 
-;;; this is for pages that don't show anything, only run logic then redirect
-(defmacro publish-script (name &body body)
-  `(publish :path ,(string-downcase
-                     (concatenate 'string "/" (symbol-name name)))
-            :content-type "text/html"
-            :function
-            #'(lambda (request entity)
-                (macrolet ((query-param (param)
-                                        `(cdr (assoc ,param (request-query request) :test #'equal))))
-                  (with-http-response (request entity :response *response-found*)
-                                      ,@body
-                                      (with-http-body (request entity)))))))
+; ;;; this is for pages that don't show anything, only run logic then redirect
+; (defmacro publish-script (name &body body)
+;   `(publish :path ,(string-downcase
+;                      (concatenate 'string "/" (symbol-name name)))
+;             :content-type "text/html"
+;             :function
+;             #'(lambda (request entity)
+;                 (macrolet ((query-param (param)
+;                                         `(cdr (assoc ,param (request-query request) :test #'equal))))
+;                   (with-http-response (request entity :response *response-found*)
+;                                       ,@body
+;                                       (with-http-body (request entity)))))))
 
 ;;; web pages beyond here
 (publish-page ""
               (standard-page
                 (:title "")
-                (:body
-                  (indexbuttons)
-                  (indextable *threads-query*)
-                  ;; (echo *fake-copyright*)
-                  )))
+                (:body (indexbuttons)
+                       (indextable *threads-query*)
+                       ; (*fake-copyright*)
+                       )))
 
-;; (publish-page "viewthread"
-;;   (:standard-page
-;;    (:title (concatenate 'string (get-thread-title (query-param "thread"))))
-;;    (:body
-;;     (:print (get-thread-title (query-param "thread"))))))
+(publish-page "viewthread"
+              (standard-page
+                (:title (get-thread-title (query-param "thread")))
+                (:body
+                  (get-thread-title (query-param "thread")))))
 
 (publish-page "login"
               (standard-page
@@ -136,22 +132,22 @@
                 (:body
                   (:p "これは機械翻訳です。"))))
 
-;; (publish-script b/login
-;;   (let ((user-status nil))
-;;     ;; if no status, user doesn't exist
-;;     (if (setf user-status (get-user-status (query-param "username")))
-;;         (let ((sessionid nil))
-;;           ;; find an id not in use and set it to sessionid
-;;           (loop while (gethash (setf sessionid (intern (write-to-string (make-v4-uuid)))) *sessions*))
+(publish-page "b/login"
+  (let ((user-status nil))
+    ;; if no status, user doesn't exist
+    (if (setf user-status (get-user-status (query-param "username")))
+        (let ((sessionid nil))
+          ;; find an id not in use and set it to sessionid
+          (loop while (gethash (setf sessionid (intern (write-to-string (make-v4-uuid)))) *sessions*))
 
-;;           ;; TODO: make it easier to query session variables
-;;           (setf (gethash sessionid *sessions*) (make-hash-table))
-;;           (setf (gethash 'username (gethash sessionid *sessions*)) (query-param "username"))
-;;           (setf (gethash 'userstatus (gethash sessionid *sessions*)) user-status)
-;;           (setf (gethash 'userlastactive (gethash sessionid *sessions*)) (get-universal-time))
+          ;; TODO: make it easier to query session variables
+          (setf (gethash sessionid *sessions*) (make-hash-table))
+          (setf (gethash 'username (gethash sessionid *sessions*)) (query-param "username"))
+          (setf (gethash 'userstatus (gethash sessionid *sessions*)) user-status)
+          (setf (gethash 'userlastactive (gethash sessionid *sessions*)) (get-universal-time))
 
-;;           (set-cookie-header request :name "sessionid" :value (symbol-name sessionid))
-;;           (setf (reply-header-slot-value request :location) "/"))
-;;         (setf (reply-header-slot-value request :location) "/loginfailed"))))
-
-;;(clackup *app*)
+          (ningle:route *app* "/")
+          ; (set-cookie-header request :name "sessionid" :value (symbol-name sessionid))
+          ; (setf (reply-header-slot-value request :location) "/"))
+        ; (setf (reply-header-slot-value request :location) "/loginfailed")
+        ))))

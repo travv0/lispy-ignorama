@@ -26,12 +26,12 @@
          (user-status (fetch result)))
     (getf user-status :|UserStatusDesc|)))
 
-;; (eval-when (:compile-toplevel :load-toplevel :execute)
-;;   (define-html-macro :get-thread-title (thread-id)
-;;     `(let* ((q (prepare *db*
-;;                         "SELECT ThreadSubject
-;;                          FROM threads
-;;                          WHERE ThreadID = ?"))
-;;             (result (execute q ,thread-id))
-;;             (thread-subject (fetch result)))
-;;        (getf thread-subject :|ThreadSubject|))))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defmacro get-thread-title (thread-id)
+    `(let* ((q (prepare *db*
+                        "SELECT ThreadSubject
+                         FROM threads
+                         WHERE ThreadID = ?"))
+            (result (execute q ,thread-id))
+            (thread-subject (fetch result)))
+       (getf thread-subject :|ThreadSubject|))))

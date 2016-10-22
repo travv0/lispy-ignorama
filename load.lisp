@@ -9,7 +9,7 @@
 (ql:quickload "clack-errors")
 (ql:quickload "ningle")
 (ql:quickload "cl-dbi")
-(ql:quickload "cl-who")
+(ql:quickload "spinneret")
 (ql:quickload "local-time")
 (ql:quickload "uuid")
 
