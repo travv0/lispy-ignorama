@@ -2,5 +2,11 @@
 (in-package :cl-user)
 
 (load "load.lisp")
+(import '(lack.builder:builder))
 
-(net.aserve:start :port 2001)
+(in-package :net.ignorama.web)
+(clack:clackup (lack:builder
+		(:static
+		 :path "/static/"
+		 :root #p"static/")
+		*app*))

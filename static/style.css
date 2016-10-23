@@ -8,7 +8,7 @@ h3{
     color: #330066;
 }
 body{
-    background: url('/img/banner.png') repeat-x;
+    background: url('/static/banner.png') repeat-x;
     background-color: #E8E8E8;
 }
 tr{
@@ -297,4 +297,17 @@ th.thread-row {
 
 .thread-icon {
     color: #330066;
+}
+
+.post-content {
+    vertical-align: top;
+}
+
+.main-table {
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.fake-copyright {
+    padding-top: 20px;
 }

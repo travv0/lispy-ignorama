@@ -27,7 +27,7 @@
     (getf user-status :|UserStatusDesc|)))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (define-html-macro :get-thread-title (thread-id)
+  (defmacro get-thread-title (thread-id)
     `(let* ((q (prepare *db*
                         "SELECT ThreadSubject
                          FROM threads
@@ -35,3 +35,10 @@
             (result (execute q ,thread-id))
             (thread-subject (fetch result)))
        (getf thread-subject :|ThreadSubject|))))
+
+;; (defmacro get-sess-var (var)
+;;   `(gethash ,var (gethash ,(lack.request:request-cookies *response*)
+;;                             *response*) *sessions*))
+
+(defmacro set-cookie (name value)
+  `(format nil "~a=~a; path=/" ,name ,value))
