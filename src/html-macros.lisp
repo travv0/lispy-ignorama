@@ -26,7 +26,7 @@
               (:div :class "header loginlinks"
                     (:a :class "header rightlink"
                         :href "/signup" "Sign up")
-                    ; (str "&nbsp;/&nbsp;")
+                    ("/")
                     (:a :class "header rightlink"
                         :href "/login" "Log in"))))
 
@@ -42,13 +42,11 @@
                      (result (execute q ,thread-id))
                      (op (fetch result)))
                 (if (= ,stickied 1)
-                    (:span :class "thread-icon glyphicon glyphicon-bookmark"
-                           ; (str "&nbsp;")
-                           ))
+                    (progn (:span :class "thread-icon glyphicon glyphicon-bookmark")
+                           ("&nbsp;")))
                 (if (= ,locked 1)
-                    (:span :class "thread-icon glyphicon glyphicon-lock"
-                           ; (str "&nbsp;")
-                           ))
+                    (progn (:span :class "thread-icon glyphicon glyphicon-lock")
+                           ("&nbsp;")))
                 (:a :title (getf op :|PostContent|)
                     :href
                     (concatenate 'string
@@ -56,8 +54,8 @@
                                  (write-to-string ,thread-id))
                     ,thread-title))))
 
-(defmacro indextable (query)
-  `(with-html (:table :class "table table-bordered fixed"
+(defmacro threads-table (query)
+  `(with-html (:table :class "table table-bordered fixed main-table"
                       (:tr :class "thread-row"
                            (:th :class "thread-row"
                                 "Thread")
@@ -73,24 +71,24 @@
                                   (result (execute q)))
                              (loop for thread = (fetch result)
                                    while thread do
-                                   (:tr
-                                     (:td :class "thread-name centered"
-                                          (print-link-to-thread (getf thread :|ThreadID|)
-                                                                (getf thread :|ThreadSubject|)
-                                                                :locked (getf thread :|Locked|)
-                                                                :stickied (getf thread :|Stickied|)))
-                                     (:td :class "thread-row centered"
-                                          (print-username (getf thread :|ModName|)))
-                                     (:td :class "thread-row centered"
-                                          (getf thread :|PostCount|))
-                                     (:td :class "thread-row centered"
-                                          (getf thread :|Tag|))
-                                     (:td :class "time thread-row centered"
-                                          (universal-to-unix
+                                     (:tr
+                                      (:td :class "thread-name centered"
+                                           (print-link-to-thread (getf thread :|ThreadID|)
+                                                                 (getf thread :|ThreadSubject|)
+                                                                 :locked (getf thread :|Locked|)
+                                                                 :stickied (getf thread :|Stickied|)))
+                                      (:td :class "thread-row centered"
+                                           (print-username (getf thread :|ModName|)))
+                                      (:td :class "thread-row centered"
+                                           (getf thread :|PostCount|))
+                                      (:td :class "thread-row centered"
+                                           (getf thread :|Tag|))
+                                      (:td :class "time thread-row centered"
+                                           (universal-to-unix
                                             (getf thread
                                                   :|LatestPostTime|))))))))))
 
-(defmacro tagsdropdown ()
+(defmacro tags-dropdown ()
   `(with-html (:a :class "dropdown-toggle btn btn-default btn-sm"
                   :data-toggle "dropdown"
                   "Tags" (:b :class "caret")
@@ -101,12 +99,12 @@
                               (result (execute q)))
                          (loop for tag = (fetch result)
                                while tag do
-                               (:li (:label
-                                      (:input :type "checkbox"
-                                              :name  (getf tag :|TagID|))
-                                      (getf tag :|TagName|)))))))))
+                                 (:li (:label
+                                       (:input :type "checkbox"
+                                               :name (getf tag :|TagID|))
+                                       (getf tag :|TagName|)))))))))
 
-(defmacro indexbuttons ()
+(defmacro index-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
   `(with-html (:div :class "dropdown"
                     (:button :class "btn btn-default btn-sm threads"
@@ -128,7 +126,7 @@
                                    :class "btn btn-default btn-sm threads"
                                    :value "Apply Tags")
 
-                           (tagsdropdown))
+                           (tags-dropdown))
 
                     (:form :action "/"
                            :method "get"
@@ -140,3 +138,42 @@
                                     :class "btn btn-default btn-sm"
                                     :type "submit"
                                     (:span :class "glyphicon glyphicon-search"))))))
+
+(defmacro posts-table (query &rest params)
+  `(with-html (:table :class "table table-bordered fixed main-table"
+                      (let* ((q (prepare *db* ,query))
+                             (result (execute q ,@params)))
+                        (loop for post = (fetch result)
+                              while post do
+                                (:tr :id (concatenate 'string
+                                                      "post"
+                                                      (write-to-string
+                                                       (getf post :|PostID|)))
+                                     (:td :class "col-sm-3 hidden-xs thread-row centered"
+                                          (print-username (getf post :|ModName|))
+                                          (:br)
+                                          (:br)
+                                          (:span :class "time" (getf post :|PostTime|)))
+                                     (:td :class "col-sm-9 post-content centered"
+                                          (getf post :|PostContent|))))))))
+
+(defmacro thread-buttons ()
+  ;; dropdown only displays correctly when I wrap all the buttons in this div
+  `(with-html
+     (:button :class "btn btn-default btn-sm"
+              :onclick (format nil "window.location='newpost?thread=~d'"
+                               (query-param "thread"))
+              "Reply")
+     (:button :class "btn btn-default btn-sm"
+              :onclick "window.location='/'"
+              "Main Page")))
+
+(defmacro thread-dropdown ()
+  `(with-html
+     (:span :class "btn-group rightbuttons"
+            (:a :class "btn btn-default btn-sm dropdown-toggle"
+                :data-toggle "dropdown"
+                :href "#"
+                (:span :class "caret"))
+            (:ul :class "dropdown-menu pull-right"
+                 "TODO - add stuff here"))))

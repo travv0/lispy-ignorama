@@ -40,114 +40,109 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *header*
     '((:div :class "header banner"
-            (:div :class "header text"
+       (:div :class "header text"
 
-                  ;; logo and slogans
-                  (:span :class "hidden-xs"
-                         (:a :href "/"
-                             (:img :class "header logo" :src "/static/ignorama.png"))
-                         (if *slogans*
-                             (:b :class "hidden-sm header slogan"
-                                 (random-elt *slogans*))))
-                  (:span :class "visible-xs-inline"
-                         (:a :href "/index"
-                             (:img :class "header logo small" :src "/static/ignoramasmall.png")))
+        ;; logo and slogans
+        (:span :class "hidden-xs"
+               (:a :href "/"
+                   (:img :class "header logo" :src "/static/ignorama.png"))
+               (if *slogans*
+                   (:b :class "hidden-sm header slogan"
+                       (:raw (random-elt *slogans*)))))
+        (:span :class "visible-xs-inline"
+               (:a :href "/index"
+                   (:img :class "header logo small" :src "/static/ignoramasmall.png")))
 
-                  ;; right links
-                  (:div :class "hidden-xs header rightlinks"
-                        (rightlinks)))))))
+        ;; right links
+        (:div :class "hidden-xs header rightlinks"
+              (rightlinks)))))))
 
 ;;; The basic format that every viewable page will follow.
 (defmacro standard-page ((&key title) &body body)
   `(with-html-string
      (:doctype)
      (:html
-       (:head (:title (concatenate 'string
-                                    ,title
-                                    (if (equal ,title "")
-                                        ""
-                                        " - ")
-                                    *site-name*))
-              ,@*head*)
-       (:body
-         (:div :class "container"
-               ,@*header*
-               (:h2 ,title)
-               ,@body
-               )))))
+      (:head (:title (concatenate 'string
+                                  ,title
+                                  (if (equal ,title "")
+                                      ""
+                                      " - ")
+                                  *site-name*))
+             ,@*head*)
+      (:body
+       (:div :class "container"
+             ,@*header*
+             (:h2 ,title)
+             ,@body
+             )))))
 
 ;;; this macro creates and publishes page <name> at https://your-site.com/<name>
-(defmacro publish-page (name &key (method :GET) &body body)
-  `(setf (ningle:route *app* (concatenate 'string "/" ,name))
-         #'(lambda (params)
-             (macrolet ((query-param (param)
-                          `(cdr (assoc ,param params :test #'string=))))
-               ,@body))))
-
-; ;;; this is for pages that don't show anything, only run logic then redirect
-; (defmacro publish-script (name &body body)
-;   `(publish :path ,(string-downcase
-;                      (concatenate 'string "/" (symbol-name name)))
-;             :content-type "text/html"
-;             :function
-;             #'(lambda (request entity)
-;                 (macrolet ((query-param (param)
-;                                         `(cdr (assoc ,param (request-query request) :test #'equal))))
-;                   (with-http-response (request entity :response *response-found*)
-;                                       ,@body
-;                                       (with-http-body (request entity)))))))
+(defmacro publish-page (name (&body body) &key (method :GET))
+  `(progn (defun ,name (params)
+            (macrolet ((query-param (param)
+                         `(cdr (assoc ,param params :test #'string=))))
+              ,@body))
+          (setf (ningle:route *app*
+                              ,(string-downcase
+                                (concatenate 'string "/" (symbol-name name)))
+                              :method ,method)
+                #',name)))
 
 ;;; web pages beyond here
-(publish-page ""
-              (standard-page
-                (:title "")
-                (:body (indexbuttons)
-                       (indextable *threads-query*)
-                       ; (*fake-copyright*)
-                       )))
+(publish-page index
+  ((standard-page
+       (:title "")
+     (:body (index-buttons)
+            (threads-table *threads-query*)
+            (:div :class "fake-copyright"
+                  (:raw *fake-copyright*))))))
 
-(publish-page "viewthread"
-              (standard-page
-                (:title (get-thread-title (query-param "thread")))
-                (:body
-                  (get-thread-title (query-param "thread")))))
+(setf (ningle:route *app* "/") #'index)
 
-(publish-page "login"
-              (standard-page
-                (:title "Login")
-                (:body
-                  (:form :method "POST" :action "/b/login"
-                         (:input :name "username" :type "text")
-                         (:br)
-                         (:input :name "password" :type "password")
-                         (:br)
-                         (:input :name "Submit1" :type "submit" :value "Submit")
-                         (:input :type "button"
-                                 :value "Main Page"
-                                 :onclick "window.location='../'")))))
+(publish-page viewthread
+  ((standard-page
+       (:title (get-thread-title (query-param "thread")))
+     (:body (thread-buttons)
+            (thread-dropdown)
+            (posts-table "SELECT *
+                          FROM posts
+                          WHERE ThreadID = ?"
+                         (query-param "thread"))
+            (thread-buttons)
+            (:div :class "fake-copyright"
+                  (:raw *fake-copyright*))))))
 
-(publish-page "unicode-test"
-              (standard-page
-                (:title "Unicode Test")
-                (:body
-                  (:p "これは機械翻訳です。"))))
+(publish-page login
+  ((standard-page
+       (:title "Login")
+     (:body
+      (:form :method "POST" :action "/b/login"
+             (:input :name "username" :type "text")
+             (:br)
+             (:input :name "password" :type "password")
+             (:br)
+             (:input :name "Submit1" :type "submit" :value "Submit")
+             (:input :type "button"
+                     :value "Main Page"
+                     :onclick "window.location='../'"))))))
 
-(publish-page "b/login"
-  (let ((user-status nil))
-    ;; if no status, user doesn't exist
-    (if (setf user-status (get-user-status (query-param "username")))
-        (let ((sessionid nil))
-          ;; find an id not in use and set it to sessionid
-          (loop while (gethash (setf sessionid (intern (write-to-string (make-v4-uuid)))) *sessions*))
+(publish-page b/login
+  ((let ((user-status nil))
+     ;; if no status, user doesn't exist
+     (if (setf user-status (get-user-status (query-param "username")))
+         (let ((session-id nil))
+           ;; find an id not in use and set it to session-id
+           (loop while (gethash
+                        (setf session-id (intern (write-to-string (make-v4-uuid))))
+                        *sessions*))
 
-          ;; TODO: make it easier to query session variables
-          (setf (gethash sessionid *sessions*) (make-hash-table))
-          (setf (gethash 'username (gethash sessionid *sessions*)) (query-param "username"))
-          (setf (gethash 'userstatus (gethash sessionid *sessions*)) user-status)
-          (setf (gethash 'userlastactive (gethash sessionid *sessions*)) (get-universal-time))
+           ;; TODO: make it easier to query session variables
+           (setf (gethash session-id *sessions*) (make-hash-table))
+           (setf (gethash 'username (gethash session-id *sessions*)) (query-param "username"))
+           (setf (gethash 'userstatus (gethash session-id *sessions*)) user-status)
+           (setf (gethash 'userlastactive (gethash session-id *sessions*)) (get-universal-time))
 
-          (ningle:route *app* "/")
-          ; (set-cookie-header request :name "sessionid" :value (symbol-name sessionid))
-          ; (setf (reply-header-slot-value request :location) "/"))
-        ; (setf (reply-header-slot-value request :location) "/loginfailed")
-        ))))
+           `(301 (:location "/"
+                  :set-cookie ,(set-cookie "sessionid" session-id))))
+         '(301 (:location "/loginfailed")))))
+  :method :POST)
