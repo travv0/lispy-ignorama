@@ -151,7 +151,7 @@
      (:body (:p "And it's surely better that way.")
             (:p (:button :class "btn btn-default btn-sm"
                          :onclick "window.location='./'"
-                         "Back"))))))
+                         "Main Page"))))))
 
 (publish-page new-thread
   ((standard-page
