@@ -13,8 +13,8 @@
 (defmethod print-object ((object hash-table) stream)
   (format stream "#HASH{~{~{(~a : ~a)~}~^ ~}}"
           (loop for key being the hash-keys of object
-                  using (hash-value value)
-                collect (list key value))))
+             using (hash-value value)
+             collect (list key value))))
 
 (defun get-user-status (user)
   (let* ((q (prepare *db*
@@ -36,9 +36,14 @@
             (thread-subject (fetch result)))
        (getf thread-subject :|ThreadSubject|))))
 
-;; (defmacro get-sess-var (var)
-;;   `(gethash ,var (gethash ,(lack.request:request-cookies *response*)
-;;                             *response*) *sessions*))
-
 (defmacro set-cookie (name value)
   `(format nil "~a=~a; path=/" ,name ,value))
+
+(defun thread-locked-p (thread-id)
+  (let* ((q (prepare *db*
+                     "SELECT Locked
+                      FROM `threads`
+                      WHERE ThreadID = ?"))
+         (result (execute q thread-id))
+         (locked (fetch result)))
+    (if (equal (getf locked :|Locked|) 1) t)))

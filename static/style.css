@@ -311,3 +311,9 @@ th.thread-row {
 .fake-copyright {
     padding-top: 20px;
 }
+
+.invisiblebutton {
+    background: transparent;
+    border: none !important;
+    font-size: 0;
+}

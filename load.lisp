@@ -12,6 +12,9 @@
 (ql:quickload "spinneret")
 (ql:quickload "local-time")
 (ql:quickload "uuid")
+(ql:quickload "parenscript")
+
+(setf parenscript:*js-string-delimiter* #\')
 
 (require "asdf")
 (asdf:load-system :ignorama)
