@@ -142,7 +142,7 @@
                                  :rows "7"
                                  :class "col-xs-12"
                                  :required t)
-                      ;; (reply-buttons)
+                      (reply-buttons)
                       (image-upload-form))))))))
 
 (publish-page locked

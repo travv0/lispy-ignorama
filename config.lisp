@@ -1,6 +1,8 @@
 ;; -*- coding:utf-8 -*-
 (in-package :net.ignorama.web)
 
+(defparameter *port* 5000)
+
 ;;; connect to database (FIXME: don't use root lol)
 (defvar *db* (connect :mysql
                       :username "root"

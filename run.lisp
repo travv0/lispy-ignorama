@@ -6,7 +6,7 @@
 
 (in-package :net.ignorama.web)
 (clack:clackup (lack:builder
-		(:static
-		 :path "/static/"
-		 :root #p"static/")
-		*app*))
+    (:static
+     :path "/static/"
+     :root #p"static/")
+    *app*) :port *port*)

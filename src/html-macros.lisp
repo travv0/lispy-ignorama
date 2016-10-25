@@ -198,7 +198,28 @@
                     :name "filename"
                     :value "none"))))
 
-;; (defmacro reply-buttons ()
-;;   `(with-html
-;;      (:div :class "reply-checkboxes"
-;;            )))
+(defmacro reply-buttons ()
+  `(with-html
+     (:span :class "reply button-row checkboxes"
+           (if (is-op-p (query-param "thread"))
+               (:input :name "RevealOP"
+                       :type "checkbox"
+                       "Reveal OP Status?")
+               (:input :name "Bump"
+                       :type "checkbox"
+                       "Bump!"))
+           (if (logged-in-p)
+               (:input :name "Anonymous"
+                       :type "checkbox"
+                       "Post Anonymously")))
+     (:span :class "reply button-row buttons"
+           (:input :id "submitbutton"
+                   :class "btn btn-default btn-sm"
+                   :name "Submit"
+                   :type "submit"
+                   :value "Submit")
+           (:input :type "button"
+                   :class "btn btn-default btn-sm"
+                   :value "Back"
+                   :onclick (format nil "window.location='./viewthread?thread=~d"
+                                    (query-param "thread"))))))

@@ -317,3 +317,11 @@ th.thread-row {
     border: none !important;
     font-size: 0;
 }
+
+.reply.button-row {
+    margin: 5px;
+}
+
+.reply.button-row.buttons {
+    float: right;
+}

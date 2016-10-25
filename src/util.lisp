@@ -47,3 +47,11 @@
          (result (execute q thread-id))
          (locked (fetch result)))
     (if (equal (getf locked :|Locked|) 1) t)))
+
+;; TODO: this function
+(defun is-op-p (thread-id)
+  t)
+
+;; TODO: this function
+(defun logged-in-p ()
+  t)

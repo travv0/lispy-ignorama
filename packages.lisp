@@ -1,4 +1,3 @@
-;; -*- coding:utf-8 -*-
 (in-package :cl-user)
 
 (defpackage :net.ignorama.web
