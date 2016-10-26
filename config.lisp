@@ -5,8 +5,11 @@
 
 ;;; connect to database (FIXME: don't use root lol)
 (defvar *db* (connect :mysql
-                      :username "root"
-                      :password "password"
+                      :host (format nil "jdbc:mysql://~a~a"
+                                    (quri:uri-host *uri*)
+                                    (quri:uri-path *uri*))
+                      :username (first (split-sequence:split-sequence #\: (quri:uri-userinfo *db-url*)))
+                      :password (second (split-sequence:split-sequence #\: (quri:uri-userinfo *db-url*)))
                       :database-name "tssund93_forums"))
 
 (defparameter *site-name* "Ignorama")

@@ -12,6 +12,7 @@
 (ql:quickload "local-time")
 (ql:quickload "uuid")
 (ql:quickload "parenscript")
+(ql:quickload "quri")
 
 (setf parenscript:*js-string-delimiter* #\')
 
