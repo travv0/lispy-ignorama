@@ -4,7 +4,7 @@
 
 (load (merge-pathnames "ignorama.asd" *build-dir*))
 
-(ql:quickload :ignorama)
+(asdf:load-system :ignorama)
 
 ;;; Redefine / extend heroku-toplevel here if necessary.
 
