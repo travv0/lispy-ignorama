@@ -29,7 +29,7 @@
       (:link :rel "stylesheet"
              :href "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")
       (:link :rel "stylesheet"
-             :href "/css/style.css")
+             :href "/static/style.css")
 
       (:script :src "//code.jquery.com/jquery-1.11.0.min.js")
       (:script :src "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
