@@ -2,8 +2,8 @@
 
 (print ">>> Building system....")
 
-(require "asdf")
-(asdf:load-system :ignorama)
+(require 'asdf)
+(load (merge-pathnames "ignorama.asd" *build-dir*))
 
 ;;; Redefine / extend heroku-toplevel here if necessary.
 
