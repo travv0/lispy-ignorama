@@ -3,7 +3,6 @@
 
 (SETF SB-IMPL::*DEFAULT-EXTERNAL-FORMAT* :UTF-8)
 
-(load "~/quicklisp/setup.lisp")
 (ql:quickload "clack")
 (ql:quickload "lack-middleware-static")
 (ql:quickload "clack-errors")
