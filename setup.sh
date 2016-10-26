@@ -13,4 +13,8 @@ if [ ! -f /usr/lib/x86_64-linux-gnu/libmysqlclient_r.so ]; then
     ln -s /usr/lib/x86_64-linux-gnu/libmysqlclient.so /usr/lib/x86_64-linux-gnu/libmysqlclient_r.so
 fi
 
+git clone https://github.com/tssund93/lispy-ignorama
+
+cd lispy-ignorama
 ./runscripts.sh
+sbcl --load run.lisp
