@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+apt update
 apt install vim gcc git sbcl curl libmysqlclient-dev mysql-server -y
 
 /etc/init.d/mysql restart
