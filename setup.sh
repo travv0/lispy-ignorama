@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-sudo apt install sbcl curl libmysqlclient-dev -y
+apt install gcc git sbcl curl libmysqlclient-dev -y
 
 if [ ! -f quicklisp.lisp ]; then
     curl -O https://beta.quicklisp.org/quicklisp.lisp
@@ -8,5 +8,5 @@ if [ ! -f quicklisp.lisp ]; then
 fi
 
 if [ ! -f /usr/lib/x86_64-linux-gnu/libmysqlclient_r.so ]; then
-    sudo ln -s /usr/lib/x86_64-linux-gnu/libmysqlclient.so /usr/lib/x86_64-linux-gnu/libmysqlclient_r.so
+    ln -s /usr/lib/x86_64-linux-gnu/libmysqlclient.so /usr/lib/x86_64-linux-gnu/libmysqlclient_r.so
 fi
