@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-apt install gcc git sbcl curl libmysqlclient-dev -y
+apt install vim gcc git sbcl curl libmysqlclient-dev mysql-server -y
+
+/etc/init.d/mysql restart
 
 if [ ! -f quicklisp.lisp ]; then
     curl -O https://beta.quicklisp.org/quicklisp.lisp
@@ -10,3 +12,5 @@ fi
 if [ ! -f /usr/lib/x86_64-linux-gnu/libmysqlclient_r.so ]; then
     ln -s /usr/lib/x86_64-linux-gnu/libmysqlclient.so /usr/lib/x86_64-linux-gnu/libmysqlclient_r.so
 fi
+
+./runscripts.sh
