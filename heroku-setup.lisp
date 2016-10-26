@@ -4,7 +4,7 @@
 
 (require 'asdf)
 (load (merge-pathnames "ignorama.asd" *build-dir*))
-(load "load.lisp")
+(load (merge-pathnames "load.lisp"*build-dir*))
 
 (in-package :net.ignorama.web)
 (defun heroku-toplevel ()
