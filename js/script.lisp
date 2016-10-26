@@ -37,8 +37,8 @@
          ;;                                        :target iframe-name)))))))
          ))))
 
-(setf (ningle:route *app* "/js/script.js")
-      #'(lambda (params)
-          (setf (lack.response:response-headers *response*)
-                '(:content-type "text/javascript"))
-          *js*))
+;; (setf (ningle:route *app* "/js/script.js")
+;;       #'(lambda (params)
+;;           (setf (lack.response:response-headers *response*)
+;;                 '(:content-type "text/javascript"))
+;;           *js*))

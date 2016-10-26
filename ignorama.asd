@@ -3,7 +3,7 @@
   :version "0.0.1"
   :author "Travis"
   :licence "AGPL-3.0"
-  :depends-on ("clack" "ningle" "spinneret" "uuid" "clack-errors" "cl-dbi" "local-time" "parenscript")
+  :depends-on ("hunchentoot" "spinneret" "uuid" "clack-errors" "cl-dbi" "local-time" "parenscript")
   :components ((:file "packages")
                (:file "src/util")
                (:file "src/html-macros" :depends-on ("packages"))

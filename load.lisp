@@ -3,16 +3,13 @@
 
 (SETF SB-IMPL::*DEFAULT-EXTERNAL-FORMAT* :UTF-8)
 
-(ql:quickload "clack")
-(ql:quickload "lack-middleware-static")
-(ql:quickload "clack-errors")
-(ql:quickload "ningle")
 (ql:quickload "cl-dbi")
 (ql:quickload "spinneret")
 (ql:quickload "local-time")
 (ql:quickload "uuid")
 (ql:quickload "parenscript")
 (ql:quickload "quri")
+(ql:quickload "hunchentoot")
 
 (setf parenscript:*js-string-delimiter* #\')
 

@@ -67,42 +67,44 @@
                                 "Tag(s)")
                            (:th :class "thread-row centered col-sm-2 hidden-xs"
                                 "Latest Post")
-                           (let* ((q (prepare *db* ,query))
-                                  (result (execute q)))
-                             (loop for thread = (fetch result)
-                                while thread do
-                                  (:tr
-                                   (:td :class "thread-name centered"
-                                        (print-link-to-thread (getf thread :|ThreadID|)
-                                                              (getf thread :|ThreadSubject|)
-                                                              :locked (getf thread :|Locked|)
-                                                              :stickied (getf thread :|Stickied|)))
-                                   (:td :class "thread-row centered"
-                                        (print-username (getf thread :|ModName|)))
-                                   (:td :class "thread-row centered"
-                                        (getf thread :|PostCount|))
-                                   (:td :class "thread-row centered"
-                                        (getf thread :|Tag|))
-                                   (:td :class "time thread-row centered"
-                                        (universal-to-unix
-                                         (getf thread
-                                               :|LatestPostTime|))))))))))
+                           ;; (let* ((q (prepare *db* ,query))
+                           ;;        (result (execute q)))
+                           ;;   (loop for thread = (fetch result)
+                           ;;      while thread do
+                           ;;        (:tr
+                           ;;         (:td :class "thread-name centered"
+                           ;;              (print-link-to-thread (getf thread :|ThreadID|)
+                           ;;                                    (getf thread :|ThreadSubject|)
+                           ;;                                    :locked (getf thread :|Locked|)
+                           ;;                                    :stickied (getf thread :|Stickied|)))
+                           ;;         (:td :class "thread-row centered"
+                           ;;              (print-username (getf thread :|ModName|)))
+                           ;;         (:td :class "thread-row centered"
+                           ;;              (getf thread :|PostCount|))
+                           ;;         (:td :class "thread-row centered"
+                           ;;              (getf thread :|Tag|))
+                           ;;         (:td :class "time thread-row centered"
+                           ;;              (universal-to-unix
+                           ;;               (getf thread
+                           ;;                     :|LatestPostTime|))))))
+                           ))))
 
 (defmacro tags-dropdown ()
-  `(with-html (:a :class "dropdown-toggle btn btn-default btn-sm"
-                  :data-toggle "dropdown"
-                  "Tags" (:b :class "caret")
-                  (:ul :class "dropdown-menu dropdown-menu-form pull-right"
-                       :role "menu"
-                       (let* ((q (prepare *db*
-                                          "SELECT TagID, TagName FROM `tags`"))
-                              (result (execute q)))
-                         (loop for tag = (fetch result)
-                            while tag do
-                              (:li (:label
-                                    (:input :type "checkbox"
-                                            :name (getf tag :|TagID|))
-                                    (getf tag :|TagName|)))))))))
+  ;; `(with-html (:a :class "dropdown-toggle btn btn-default btn-sm"
+  ;;                 :data-toggle "dropdown"
+  ;;                 "Tags" (:b :class "caret")
+  ;;                 (:ul :class "dropdown-menu dropdown-menu-form pull-right"
+  ;;                      :role "menu"
+  ;;                      (let* ((q (prepare *db*
+  ;;                                         "SELECT TagID, TagName FROM `tags`"))
+  ;;                             (result (execute q)))
+  ;;                        (loop for tag = (fetch result)
+  ;;                           while tag do
+  ;;                             (:li (:label
+  ;;                                   (:input :type "checkbox"
+  ;;                                           :name (getf tag :|TagID|))
+  ;;                                   (getf tag :|TagName|))))))))
+  )
 
 (defmacro index-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
