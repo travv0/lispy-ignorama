@@ -1,7 +1,7 @@
 ;; -*- coding:utf-8 -*-
 (in-package :net.ignorama.web)
 
-(load "js/script.lisp")
+;; (load "js/script.lisp")
 
 ;;; site setup
 (let* ((q (prepare *db* "SET NAMES utf8")))
