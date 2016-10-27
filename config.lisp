@@ -5,17 +5,15 @@
   #+ccl (getenv target)
   #+sbcl (sb-posix:getenv target))
 
-(format t "~%~%~%~a~%~%~%" (heroku-getenv "DATABASE_URL"))
-(defparameter *db-url* (quri:uri (heroku-getenv "DATABASE_URL")))
-
 ;;; connect to database
 (defmacro with-db (conn &body body)
-  `(with-connection (,conn :postgres
-                           :host ,(format nil "~a" (quri:uri-host *db-url*))
-                           :username ,(first (split-sequence:split-sequence #\: (quri:uri-userinfo *db-url*)))
-                           :password ,(second (split-sequence:split-sequence #\: (quri:uri-userinfo *db-url*)))
-                           :database-name ,(format nil "~a" (string-left-trim '(#\/) (quri:uri-path *db-url*))))
-     ,@body))
+  `(let ((db-url (quri:uri (heroku-getenv "DATABASE_URL"))))
+     (with-connection (,conn :postgres
+                             :host (format nil "~a" (quri:uri-host db-url))
+                             :username (first (split-sequence:split-sequence #\: (quri:uri-userinfo db-url)))
+                             :password (second (split-sequence:split-sequence #\: (quri:uri-userinfo db-url)))
+                             :database-name (format nil "~a" (string-left-trim '(#\/) (quri:uri-path db-url))))
+       ,@body)))
 
 (defparameter *site-name* "Ignorama")
 
