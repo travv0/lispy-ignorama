@@ -1,12 +1,7 @@
-;; -*- coding:utf-8 -*-
 (in-package :cl-user)
 
 (load "load.lisp")
-(import '(lack.builder:builder))
+(load "js/script.lisp")
 
-(in-package :net.ignorama.web)
-(clack:clackup (lack:builder
-    (:static
-     :path "/static/"
-     :root #p"static/")
-    *app*) :port *port*)
+(setf hunchentoot:*acceptor* (hunchentoot:start (make-instance 'hunchentoot:easy-acceptor :port 4242)))
+(setf (hunchentoot:acceptor-document-root hunchentoot:*acceptor*) "./")
