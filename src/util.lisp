@@ -7,8 +7,9 @@
   (elt choices (random (length choices))))
 
 (defun universal-to-unix (time)
-  (if time
-      (timestamp-to-unix (universal-to-timestamp time))))
+  ;; (if time
+  ;;     (timestamp-to-unix (universal-to-timestamp time)))
+  time)
 
 (defmethod print-object ((object hash-table) stream)
   (format stream "#HASH{~{~{(~a : ~a)~}~^ ~}}"

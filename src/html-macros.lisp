@@ -38,16 +38,16 @@
 
 (defmacro print-link-to-thread (thread-id thread-title &key locked stickied)
   `(with-html (with-db conn (let* ((q (prepare conn
-                                               "SELECT ?"))
+                                               "SELECT PostContent FROM posts WHERE ThreadID = ?"))
                                    (result (execute q ,thread-id))
                                    (op (fetch result)))
-                              (if (= ,stickied 1)
+                              (if ,stickied
                                   (progn (:span :class "thread-icon glyphicon glyphicon-bookmark")
                                          ("&nbsp;")))
-                              (if (= ,locked 1)
+                              (if ,locked
                                   (progn (:span :class "thread-icon glyphicon glyphicon-lock")
                                          ("&nbsp;")))
-                              (:a :title (getf op :|PostContent|)
+                              (:a :title (getf op :|postcontent|)
                                   :href
                                   (concatenate 'string
                                                "view-thread?thread="
@@ -74,22 +74,21 @@
                                   while thread do
                                     (:tr
                                      (:td :class "thread-name centered"
-                                          (format nil "~a" thread)
-                                          ;; (print-link-to-thread (getf thread :|ThreadID|)
-                                          ;;                       (getf thread :|ThreadSubject|)
-                                          ;;                       :locked (getf thread :|Locked|)
-                                          ;;                       :stickied (getf thread :|Stickied|))
+                                          (print-link-to-thread (getf thread :|threadid|)
+                                                                (getf thread :|threadsubject|)
+                                                                :locked (getf thread :|locked|)
+                                                                :stickied (getf thread :|stickied|))
                                           )
                                      (:td :class "thread-row centered"
-                                          (print-username (getf thread :|ModName|)))
+                                          (print-username (getf thread :|modname|)))
                                      (:td :class "thread-row centered"
-                                          (getf thread :|PostCount|))
+                                          (getf thread :|postcount|))
                                      (:td :class "thread-row centered"
-                                          (getf thread :|Tag|))
+                                          (getf thread :|tag|))
                                      (:td :class "time thread-row centered"
                                           (universal-to-unix
                                            (getf thread
-                                                 :|LatestPostTime|)))))))))))
+                                                 :|latestposttime|)))))))))))
 
 (defmacro tags-dropdown ()
   `(with-html (:a :class "dropdown-toggle btn btn-default btn-sm"
@@ -103,11 +102,10 @@
                                 (result (execute q)))
                            (loop for tag = (fetch result)
                               while tag do
-                                (:h1 (format nil "~a" tag))
                                 (:li (:label
                                       (:input :type "checkbox"
-                                              :name (getf tag 'TagID))
-                                      (getf tag 'TagName)))))))))
+                                              :name (getf tag :|tagid|))
+                                      (getf tag :|tagname|)))))))))
   )
 
 (defmacro index-buttons ()
@@ -154,14 +152,14 @@
                                            (:tr :id (concatenate 'string
                                                                  "post"
                                                                  (write-to-string
-                                                                  (getf post :|PostID|)))
+                                                                  (getf post :|postid|)))
                                                 (:td :class "col-sm-3 hidden-xs thread-row centered"
-                                                     (print-username (getf post :|ModName|))
+                                                     (print-username (getf post :|modname|))
                                                      (:br)
                                                      (:br)
-                                                     (:span :class "time" (getf post :|PostTime|)))
+                                                     (:span :class "time" (getf post :|posttime|)))
                                                 (:td :class "col-sm-9 post-content centered"
-                                                     (getf post :|PostContent|)))))))))
+                                                     (getf post :|postcontent|)))))))))
 
 (defmacro thread-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
