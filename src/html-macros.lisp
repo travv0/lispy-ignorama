@@ -38,7 +38,7 @@
 
 (defmacro print-link-to-thread (thread-id thread-title &key locked stickied)
   `(with-html (with-db conn (let* ((q (prepare conn
-                                               "SELECT PostContent FROM `posts` WHERE ThreadID = ?"))
+                                               "SELECT ?"))
                                    (result (execute q ,thread-id))
                                    (op (fetch result)))
                               (if (= ,stickied 1)
@@ -74,10 +74,12 @@
                                   while thread do
                                     (:tr
                                      (:td :class "thread-name centered"
-                                          (print-link-to-thread (getf thread :|ThreadID|)
-                                                                (getf thread :|ThreadSubject|)
-                                                                :locked (getf thread :|Locked|)
-                                                                :stickied (getf thread :|Stickied|)))
+                                          (format nil "~a" thread)
+                                          ;; (print-link-to-thread (getf thread :|ThreadID|)
+                                          ;;                       (getf thread :|ThreadSubject|)
+                                          ;;                       :locked (getf thread :|Locked|)
+                                          ;;                       :stickied (getf thread :|Stickied|))
+                                          )
                                      (:td :class "thread-row centered"
                                           (print-username (getf thread :|ModName|)))
                                      (:td :class "thread-row centered"
@@ -97,14 +99,16 @@
                        :role "menu"
                        (with-db conn
                          (let* ((q (prepare conn
-                                            "SELECT TagID, TagName FROM `tags`"))
+                                            "SELECT TagID, TagName FROM tags"))
                                 (result (execute q)))
                            (loop for tag = (fetch result)
                               while tag do
+                                (:h1 (format nil "~a" tag))
                                 (:li (:label
                                       (:input :type "checkbox"
-                                              :name (getf tag :|TagID|))
-                                      (getf tag :|TagName|))))))))))
+                                              :name (getf tag 'TagID))
+                                      (getf tag 'TagName)))))))))
+  )
 
 (defmacro index-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div

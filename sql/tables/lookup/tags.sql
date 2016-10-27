@@ -1,48 +1,29 @@
--- phpMyAdmin SQL Dump
--- version 4.5.4.1deb2ubuntu2
--- http://www.phpmyadmin.net
 --
--- Host: localhost
--- Generation Time: Oct 19, 2016 at 08:15 PM
--- Server version: 5.7.15-0ubuntu0.16.04.1
--- PHP Version: 7.0.8-0ubuntu0.16.04.3
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Database: `tssund93_forums`
+-- Database: tssund93_forums
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `tags`
+-- Table structure for table tags
 --
 
-DROP TABLE IF EXISTS `tags`;
-CREATE TABLE `tags` (
-  `TagID` int(11) NOT NULL AUTO_INCREMENT,
-  `TagName` varchar(20) NOT NULL,
-  `IsActive` tinyint(1) NOT NULL,
-  `AdminOnly` tinyint(1) NOT NULL,
-  `ModeratorOnly` tinyint(1) NOT NULL,
-  `NSFW` tinyint(1) NOT NULL,
-  PRIMARY KEY (`TagID`),
-  UNIQUE KEY `TagName` (`TagName`)
+DROP TABLE IF EXISTS tags;
+CREATE TABLE tags (
+  TagID int NOT NULL, --AUTO_INCREMENT,
+  TagName varchar(20) NOT NULL,
+  IsActive tinyint NOT NULL,
+  AdminOnly tinyint NOT NULL,
+  ModeratorOnly tinyint NOT NULL,
+  NSFW tinyint NOT NULL,
+  PRIMARY KEY (TagID)
 ) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `tags`
+-- Dumping data for table tags
 --
 
-INSERT INTO `tags` (`TagID`, `TagName`, `IsActive`, `AdminOnly`, `ModeratorOnly`, `NSFW`) VALUES
+INSERT INTO tags (TagID, TagName, IsActive, AdminOnly, ModeratorOnly, NSFW) VALUES
 (1, 'Anime & Manga', 1, 0, 0, 0),
 (2, 'Video Games', 1, 0, 0, 0),
 (5, 'Literature', 1, 0, 0, 0),
@@ -121,12 +102,8 @@ INSERT INTO `tags` (`TagID`, `TagName`, `IsActive`, `AdminOnly`, `ModeratorOnly`
 (80, 'Conventions', 1, 0, 0, 0),
 (81, 'Social Justice', 0, 0, 0, 0),
 (82, 'Religion', 1, 0, 0, 0),
-(83, 'Let\'s Play', 0, 0, 0, 0),
+(83, 'Let''s Play', 0, 0, 0, 0),
 (85, 'Moderator', 1, 0, 1, 0),
 (86, 'Informational', 1, 0, 0, 0),
 (87, 'Socially Retarded', 1, 0, 0, 0),
 (88, 'Travel', 1, 0, 0, 0);
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
