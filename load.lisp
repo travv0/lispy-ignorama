@@ -4,6 +4,7 @@
 (SETF SB-IMPL::*DEFAULT-EXTERNAL-FORMAT* :UTF-8)
 
 (ql:quickload "cl-dbi")
+(ql:quickload "dbd-postgres")
 (ql:quickload "spinneret")
 (ql:quickload "local-time")
 (ql:quickload "uuid")
@@ -14,5 +15,4 @@
 (setf parenscript:*js-string-delimiter* #\')
 
 (require "asdf")
-(asdf:load-system :dbd-postgres)
 (asdf:load-system :ignorama)
