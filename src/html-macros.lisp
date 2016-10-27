@@ -37,22 +37,22 @@
         *nameless-name*))
 
 (defmacro print-link-to-thread (thread-id thread-title &key locked stickied)
-  `(with-html (let* ((q (prepare *db*
-                                 "SELECT PostContent FROM `posts` WHERE ThreadID = ?"))
-                     (result (execute q ,thread-id))
-                     (op (fetch result)))
-                (if (= ,stickied 1)
-                    (progn (:span :class "thread-icon glyphicon glyphicon-bookmark")
-                           ("&nbsp;")))
-                (if (= ,locked 1)
-                    (progn (:span :class "thread-icon glyphicon glyphicon-lock")
-                           ("&nbsp;")))
-                (:a :title (getf op :|PostContent|)
-                    :href
-                    (concatenate 'string
-                                 "view-thread?thread="
-                                 (write-to-string ,thread-id))
-                    ,thread-title))))
+  `(with-html (with-db conn (let* ((q (prepare conn
+                                               "SELECT PostContent FROM `posts` WHERE ThreadID = ?"))
+                                   (result (execute q ,thread-id))
+                                   (op (fetch result)))
+                              (if (= ,stickied 1)
+                                  (progn (:span :class "thread-icon glyphicon glyphicon-bookmark")
+                                         ("&nbsp;")))
+                              (if (= ,locked 1)
+                                  (progn (:span :class "thread-icon glyphicon glyphicon-lock")
+                                         ("&nbsp;")))
+                              (:a :title (getf op :|PostContent|)
+                                  :href
+                                  (concatenate 'string
+                                               "view-thread?thread="
+                                               (write-to-string ,thread-id))
+                                  ,thread-title)))))
 
 (defmacro threads-table (query)
   `(with-html (:table :class "table table-bordered fixed main-table"
@@ -67,50 +67,50 @@
                                 "Tag(s)")
                            (:th :class "thread-row centered col-sm-2 hidden-xs"
                                 "Latest Post")
-                           ;; (let* ((q (prepare *db* ,query))
-                           ;;        (result (execute q)))
-                           ;;   (loop for thread = (fetch result)
-                           ;;      while thread do
-                           ;;        (:tr
-                           ;;         (:td :class "thread-name centered"
-                           ;;              (print-link-to-thread (getf thread :|ThreadID|)
-                           ;;                                    (getf thread :|ThreadSubject|)
-                           ;;                                    :locked (getf thread :|Locked|)
-                           ;;                                    :stickied (getf thread :|Stickied|)))
-                           ;;         (:td :class "thread-row centered"
-                           ;;              (print-username (getf thread :|ModName|)))
-                           ;;         (:td :class "thread-row centered"
-                           ;;              (getf thread :|PostCount|))
-                           ;;         (:td :class "thread-row centered"
-                           ;;              (getf thread :|Tag|))
-                           ;;         (:td :class "time thread-row centered"
-                           ;;              (universal-to-unix
-                           ;;               (getf thread
-                           ;;                     :|LatestPostTime|))))))
-                           ))))
+                           (with-db conn
+                             (let* ((q (prepare conn ,query))
+                                    (result (execute q)))
+                               (loop for thread = (fetch result)
+                                  while thread do
+                                    (:tr
+                                     (:td :class "thread-name centered"
+                                          (print-link-to-thread (getf thread :|ThreadID|)
+                                                                (getf thread :|ThreadSubject|)
+                                                                :locked (getf thread :|Locked|)
+                                                                :stickied (getf thread :|Stickied|)))
+                                     (:td :class "thread-row centered"
+                                          (print-username (getf thread :|ModName|)))
+                                     (:td :class "thread-row centered"
+                                          (getf thread :|PostCount|))
+                                     (:td :class "thread-row centered"
+                                          (getf thread :|Tag|))
+                                     (:td :class "time thread-row centered"
+                                          (universal-to-unix
+                                           (getf thread
+                                                 :|LatestPostTime|)))))))))))
 
 (defmacro tags-dropdown ()
-  ;; `(with-html (:a :class "dropdown-toggle btn btn-default btn-sm"
-  ;;                 :data-toggle "dropdown"
-  ;;                 "Tags" (:b :class "caret")
-  ;;                 (:ul :class "dropdown-menu dropdown-menu-form pull-right"
-  ;;                      :role "menu"
-  ;;                      (let* ((q (prepare *db*
-  ;;                                         "SELECT TagID, TagName FROM `tags`"))
-  ;;                             (result (execute q)))
-  ;;                        (loop for tag = (fetch result)
-  ;;                           while tag do
-  ;;                             (:li (:label
-  ;;                                   (:input :type "checkbox"
-  ;;                                           :name (getf tag :|TagID|))
-  ;;                                   (getf tag :|TagName|))))))))
-  )
+  `(with-html (:a :class "dropdown-toggle btn btn-default btn-sm"
+                  :data-toggle "dropdown"
+                  "Tags" (:b :class "caret")
+                  (:ul :class "dropdown-menu dropdown-menu-form pull-right"
+                       :role "menu"
+                       (with-db conn
+                         (let* ((q (prepare conn
+                                            "SELECT TagID, TagName FROM `tags`"))
+                                (result (execute q)))
+                           (loop for tag = (fetch result)
+                              while tag do
+                                (:li (:label
+                                      (:input :type "checkbox"
+                                              :name (getf tag :|TagID|))
+                                      (getf tag :|TagName|))))))))))
 
 (defmacro index-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
   `(with-html (:div :class "dropdown"
                     (:button :class "btn btn-default btn-sm threads"
-                             :onclick "window.location='newthread'"
+                             :onclick "window.location='new-thread'"
                              "New Thread")
 
                     (:form :class "rightbuttons"
@@ -143,28 +143,28 @@
 
 (defmacro posts-table (query &rest params)
   `(with-html (:table :class "table table-bordered fixed main-table"
-                      (let* ((q (prepare *db* ,query))
-                             (result (execute q ,@params)))
-                        (loop for post = (fetch result)
-                           while post do
-                             (:tr :id (concatenate 'string
-                                                   "post"
-                                                   (write-to-string
-                                                    (getf post :|PostID|)))
-                                  (:td :class "col-sm-3 hidden-xs thread-row centered"
-                                       (print-username (getf post :|ModName|))
-                                       (:br)
-                                       (:br)
-                                       (:span :class "time" (getf post :|PostTime|)))
-                                  (:td :class "col-sm-9 post-content centered"
-                                       (getf post :|PostContent|))))))))
+                      (with-db conn (let* ((q (prepare conn ,query))
+                                           (result (execute q ,@params)))
+                                      (loop for post = (fetch result)
+                                         while post do
+                                           (:tr :id (concatenate 'string
+                                                                 "post"
+                                                                 (write-to-string
+                                                                  (getf post :|PostID|)))
+                                                (:td :class "col-sm-3 hidden-xs thread-row centered"
+                                                     (print-username (getf post :|ModName|))
+                                                     (:br)
+                                                     (:br)
+                                                     (:span :class "time" (getf post :|PostTime|)))
+                                                (:td :class "col-sm-9 post-content centered"
+                                                     (getf post :|PostContent|)))))))))
 
 (defmacro thread-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
   `(with-html
      (:button :class "btn btn-default btn-sm"
               :onclick (format nil "window.location='new-reply?thread=~d'"
-                               (query-param "thread"))
+                               (get-parameter "thread"))
               "Reply")
      (:button :class "btn btn-default btn-sm"
               :onclick "window.location='/'"
@@ -203,25 +203,25 @@
 (defmacro reply-buttons ()
   `(with-html
      (:span :class "reply button-row checkboxes"
-           (if (is-op-p (query-param "thread"))
-               (:input :name "RevealOP"
-                       :type "checkbox"
-                       "Reveal OP Status?")
-               (:input :name "Bump"
-                       :type "checkbox"
-                       "Bump!"))
-           (if (logged-in-p)
-               (:input :name "Anonymous"
-                       :type "checkbox"
-                       "Post Anonymously")))
+            (if (is-op-p (get-parameter "thread"))
+                (:input :name "RevealOP"
+                        :type "checkbox"
+                        "Reveal OP Status?")
+                (:input :name "Bump"
+                        :type "checkbox"
+                        "Bump!"))
+            (if (logged-in-p)
+                (:input :name "Anonymous"
+                        :type "checkbox"
+                        "Post Anonymously")))
      (:span :class "reply button-row buttons"
-           (:input :id "submitbutton"
-                   :class "btn btn-default btn-sm"
-                   :name "Submit"
-                   :type "submit"
-                   :value "Submit")
-           (:input :type "button"
-                   :class "btn btn-default btn-sm"
-                   :value "Back"
-                   :onclick (format nil "window.location='./viewthread?thread=~d"
-                                    (query-param "thread"))))))
+            (:input :id "submitbutton"
+                    :class "btn btn-default btn-sm"
+                    :name "Submit"
+                    :type "submit"
+                    :value "Submit")
+            (:input :type "button"
+                    :class "btn btn-default btn-sm"
+                    :value "Back"
+                    :onclick (format nil "window.location='./viewthread?thread=~d"
+                                     (get-parameter "thread"))))))

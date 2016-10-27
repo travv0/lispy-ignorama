@@ -1,16 +1,24 @@
 ;; -*- coding:utf-8 -*-
 (in-package :net.ignorama.web)
 
-(defparameter *port* 5000)
+(defun heroku-getenv (target)
+  #+ccl (getenv target)
+  #+sbcl (sb-posix:getenv target))
 
-(defvar *db-url* (quri:uri "mysql://ba744961246c99:bb7fb44f@us-cdbr-iron-east-04.cleardb.net/heroku_cb03cff5bc034d1?reconnect=true"))
+;; (defparameter *db-url* (quri:uri (heroku-getenv "DATABASE_URL")))
+
+(defparameter *db-url* (quri:uri "mysql://ba744961246c99:bb7fb44f@us-cdbr-iron-east-04.cleardb.net/heroku_cb03cff5bc034d1?reconnect=true"))
 
 ;;; connect to database (FIXME: don't use root lol)
-(defvar *db* (connect :mysql
-                      :host (format nil "~a" (quri:uri-host *db-url*))
-                      :username (first (split-sequence:split-sequence #\: (quri:uri-userinfo *db-url*)))
-                      :password (second (split-sequence:split-sequence #\: (quri:uri-userinfo *db-url*)))
-                      :database-name (format nil "~a" (string-left-trim '(#\/) (quri:uri-path *db-url*)))))
+(defmacro with-db (conn &body body)
+  `(with-connection (,conn :mysql
+                           :host ,(format nil "~a" (quri:uri-host *db-url*))
+                           :username ,(first (split-sequence:split-sequence #\: (quri:uri-userinfo *db-url*)))
+                           :password ,(second (split-sequence:split-sequence #\: (quri:uri-userinfo *db-url*)))
+                           :database-name ,(format nil "~a" (string-left-trim '(#\/) (quri:uri-path *db-url*))))
+     (let ((ignore (execute (prepare conn
+                                     "SET NAMES utf8"))))
+       ,@body)))
 
 (defparameter *site-name* "Ignorama")
 
