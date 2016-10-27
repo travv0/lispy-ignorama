@@ -5,17 +5,15 @@
   #+ccl (getenv target)
   #+sbcl (sb-posix:getenv target))
 
-;; (defparameter *db-url* (quri:uri (heroku-getenv "DATABASE_URL")))
+(defparameter *db-url* (quri:uri (heroku-getenv "DATABASE_URL")))
 
-;; (defparameter *db-url* (quri:uri "mysql://ba744961246c99:bb7fb44f@us-cdbr-iron-east-04.cleardb.net/heroku_cb03cff5bc034d1?reconnect=true"))
-
-;;; connect to database (FIXME: don't use root lol)
+;;; connect to database
 (defmacro with-db (conn &body body)
   `(with-connection (,conn :postgres
-                           :host "127.0.0.1" ;,(format nil "~a" (quri:uri-host *db-url*))
-                           :username "travis" ;,(first (split-sequence:split-sequence #\: (quri:uri-userinfo *db-url*)))
-                           :password "password" ;,(second (split-sequence:split-sequence #\: (quri:uri-userinfo *db-url*)))
-                           :database-name "travis") ;,(format nil "~a" (string-left-trim '(#\/) (quri:uri-path *db-url*))))
+                           :host ,(format nil "~a" (quri:uri-host *db-url*))
+                           :username ,(first (split-sequence:split-sequence #\: (quri:uri-userinfo *db-url*)))
+                           :password ,(second (split-sequence:split-sequence #\: (quri:uri-userinfo *db-url*)))
+                           :database-name ,(format nil "~a" (string-left-trim '(#\/) (quri:uri-path *db-url*))))
      ,@body))
 
 (defparameter *site-name* "Ignorama")
