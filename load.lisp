@@ -14,4 +14,5 @@
 (setf parenscript:*js-string-delimiter* #\')
 
 (require "asdf")
+(asdf:load-system :dbd-postgres)
 (asdf:load-system :ignorama)
