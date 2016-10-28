@@ -88,12 +88,21 @@
                         ,(generate-dropdown-links rightlinks)
                         ,(generate-dropdown-links-social *sociallinks*)))))))
 
-(defmacro print-username (name)
-  `(if (and ,name
-            (not (equal ,name ""))
-            (not *force-anonymity*))
-       ,name
-       *nameless-name*))
+(defmacro print-username (post-id)
+  `(with-db conn
+    (let* ((q (prepare conn "SELECT ModName,
+                                    Anonymous
+                             FROM posts
+                             WHERE PostID = ?"))
+           (result (execute q ,post-id))
+           (user (fetch result)))
+      (if (or (and (getf user :|modname|)
+                   (not *force-anonymity*)
+                   (not (getf user :|anonymous|)))
+              (and (not *allow-anonymity*)
+                   (not (equal (getf user :|modname|) ""))))
+          (getf user :|modname|)
+          *nameless-name*))))
 
 (defmacro print-link-to-thread (thread-id thread-title &key locked stickied)
   `(with-html (with-db conn (let* ((q (prepare conn
@@ -165,10 +174,10 @@
                                                                          :|latestposttime|)))))
                                                  (:br)
                                                  (print-username
-                                                  (getf thread :|modname|))))
+                                                  (getf thread :|postid|))))
 
                                      (:td :class "hidden-xs thread-row centered"
-                                          (print-username (getf thread :|modname|)))
+                                          (print-username (getf thread :|postid|)))
                                      (:td :class "hidden-xs thread-row centered"
                                           (getf thread :|postcount|))
                                      (:td :class "hidden-xs thread-row centered"
@@ -251,7 +260,7 @@
                                                                  (write-to-string
                                                                   (getf post :|postid|)))
                                                 (:td :class "col-sm-3 hidden-xs thread-row centered"
-                                                     (print-username (getf post :|modname|))
+                                                     (print-username (getf post :|postid|))
                                                      (:br)
                                                      (:br)
                                                      (:span :class "time" (getf post :|posttime|)))
