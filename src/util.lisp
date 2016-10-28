@@ -18,7 +18,7 @@
                               "SELECT UserStatusDesc FROM admin A JOIN UserStatuses US ON A.UserStatusID = US.UserStatusID WHERE lower(Username) = lower(?)"))
                   (result (execute q user))
                   (user-status (fetch result)))
-             (getf user-status :|userstatusdesc|))))
+             (getf user-status :|userstatusrank|))))
 
 (defun get-thread-title (thread-id)
   (with-db conn
