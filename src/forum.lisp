@@ -47,7 +47,7 @@
                              (:b :class "hidden-sm header slogan"
                                  (:raw (random-elt *slogans*)))))
                   (:span :class "visible-xs-inline"
-                         (:a :href "/index"
+                         (:a :href "/"
                              (:img :class "header logo small" :src "/static/ignoramasmall.png")))
 
                   ;; right links
