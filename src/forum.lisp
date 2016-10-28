@@ -160,7 +160,7 @@
 
                       ;; TODO: make it easier to query session variables
                       (setf (gethash session-id *sessions*) (make-hash-table))
-                      (setf (gethash 'username (gethash session-id *sessions*)) (get-parameter "username"))
+                      (setf (gethash 'username (gethash session-id *sessions*)) (post-parameter "username"))
                       (setf (gethash 'userstatus (gethash session-id *sessions*)) user-status)
                       (setf (gethash 'userlastactive (gethash session-id *sessions*)) (get-universal-time))
 
