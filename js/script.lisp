@@ -9,8 +9,7 @@
     ($ (lambda ()
          ($ ".time"
             (each (lambda ()
-                    (let ((date (new (*date (* ($ this (html))
-                                               1000)))))
+                    (let ((date (new (*date ($ this (html))))))
                       ($ this (text (chain date (to-locale-string))))))))
 
          ;; ($ "#uploadForm" (submit
