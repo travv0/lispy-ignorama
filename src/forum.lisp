@@ -70,7 +70,8 @@
        (:div :class "container"
              ,@*header*
              (:h2 ,title)
-             ,@body)))))
+             (with-db conn
+               ,@body))))))
 
 ;;; this macro creates and publishes page <name> at https://your-site.com/<name>
 (defmacro publish-page (name &body body)
