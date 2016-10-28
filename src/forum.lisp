@@ -70,8 +70,7 @@
        (:div :class "container"
              ,@*header*
              (:h2 ,title)
-             (with-db conn
-               ,@body))))))
+             ,@body)))))
 
 ;;; this macro creates and publishes page <name> at https://your-site.com/<name>
 (defmacro publish-page (name &body body)
@@ -81,7 +80,8 @@
                                                 "/"
                                                 (concatenate 'string "/" (symbol-name name))))) (params)
      (setf (hunchentoot:content-type*) "text/html")
-     ,@body))
+     (with-db conn
+       ,@body)))
 
 ;;; web pages beyond here
 (publish-page index
