@@ -15,7 +15,10 @@
 (defun get-user-status (user)
   (with-db conn
            (let* ((q (prepare conn
-                              "SELECT UserStatusDesc FROM admin A JOIN UserStatuses US ON A.UserStatusID = US.UserStatusID WHERE lower(Username) = lower(?)"))
+                              "SELECT UserStatusRank
+                               FROM admin A
+                               JOIN UserStatuses US ON A.UserStatusID = US.UserStatusID
+                               WHERE lower(Username) = lower(?)"))
                   (result (execute q user))
                   (user-status (fetch result)))
              (getf user-status :|userstatusrank|))))
@@ -43,3 +46,16 @@
 ;; TODO: this function
 (defun logged-in-p ()
   t)
+
+(defun user-authority-check-p (required-rank)
+  (with-db conn
+    (let ((session (gethash (cookie-in "sessionid") *sessions*)))
+         (if session
+             (let* ((q (prepare conn
+                                "SELECT UserStatusRank FROM UserStatuses WHERE UserStatusDesc = ?"))
+                    (result (execute q required-rank))
+                    (rank (fetch result)))
+               (<= (gethash 'userstatus
+                            (gethash (cookie-in "sessionid")
+                                     *sessions*))
+                   (getf rank :|userstatusrank|)))))))

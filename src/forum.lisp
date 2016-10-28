@@ -4,7 +4,7 @@
 ;; (load "js/script.lisp")
 
 ;;; site setup
-(defvar *sessions* (make-hash-table))
+(defvar *sessions* (make-hash-table :test 'equal))
 
 (defparameter *threads-query* "SELECT * FROM IndexThreads LIMIT 200")
 
@@ -154,11 +154,11 @@
         (let ((session-id nil))
           ;; find an id not in use and set it to session-id
           (loop while (gethash
-                       (setf session-id (intern (write-to-string (make-v4-uuid))))
+                       (setf session-id (write-to-string (make-v4-uuid)))
                        *sessions*))
 
           ;; TODO: make it easier to query session variables
-          (setf (gethash session-id *sessions*) (make-hash-table))
+          (setf (gethash session-id *sessions*) (make-hash-table :test 'equal))
           (setf (gethash 'username (gethash session-id *sessions*)) (post-parameter "username"))
           (setf (gethash 'userstatus (gethash session-id *sessions*)) user-status)
           (setf (gethash 'userlastactive (gethash session-id *sessions*)) (get-universal-time))
