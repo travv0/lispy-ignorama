@@ -69,27 +69,46 @@
                            (:th :class "thread-row centered col-sm-2 hidden-xs"
                                 "Latest Post")
                            (with-db conn
-                             (let* ((q (prepare conn ,query))
-                                    (result (execute q)))
-                               (loop for thread = (fetch result)
-                                  while thread do
-                                    (:tr
-                                     (:td :class "thread-name centered"
-                                          (print-link-to-thread (getf thread :|threadid|)
-                                                                (getf thread :|threadsubject|)
-                                                                :locked (getf thread :|locked|)
-                                                                :stickied (getf thread :|stickied|))
-                                          )
-                                     (:td :class "thread-row centered"
-                                          (print-username (getf thread :|modname|)))
-                                     (:td :class "thread-row centered"
-                                          (getf thread :|postcount|))
-                                     (:td :class "thread-row centered"
-                                          (getf thread :|tag|))
-                                     (:td :class "time thread-row centered"
-                                          (universal-to-unix
-                                           (getf thread
-                                                 :|latestposttime|)))))))))))
+                                    (let* ((q (prepare conn ,query))
+                                           (result (execute q)))
+                                      (loop for thread = (fetch result)
+                                            while thread do
+                                            (:tr
+                                              (:td :class "thread-name centered"
+                                                   (print-link-to-thread (getf thread :|threadid|)
+                                                                         (getf thread :|threadsubject|)
+                                                                         :locked (getf thread :|locked|)
+                                                                         :stickied (getf thread :|stickied|))
+
+                                                   ;; stuff for mobile
+                                                   (:span :class "visible-xs-inline"
+                                                          (format nil " (~d)"
+                                                                  (getf thread :|postcount|))
+                                                          (:br)
+                                                          (format nil "Tags: ~a"
+                                                                  (getf thread :|tag|))
+                                                          (:br)
+                                                          (:raw
+                                                            (format nil "Latest Post: ~a"
+                                                                    (with-html-string
+                                                                      (:span :class "time"
+                                                                             (universal-to-unix
+                                                                               (getf thread
+                                                                                     :|latestposttime|))))))
+                                                          (:br)
+                                                          (print-username
+                                                            (getf thread :|modname|))))
+
+                                              (:td :class "hidden-xs thread-row centered"
+                                                   (print-username (getf thread :|modname|)))
+                                              (:td :class "hidden-xs thread-row centered"
+                                                   (getf thread :|postcount|))
+                                              (:td :class "hidden-xs thread-row centered"
+                                                   (getf thread :|tag|))
+                                              (:td :class "hidden-xs time thread-row centered"
+                                                   (universal-to-unix
+                                                     (getf thread
+                                                           :|latestposttime|)))))))))))
 
 (defmacro tags-dropdown ()
   `(with-html (:a :class "dropdown-toggle btn btn-default btn-sm"
@@ -106,8 +125,7 @@
                                     (:li (:label
                                            (:input :type "checkbox"
                                                    :name (getf tag :|tagid|))
-                                           (getf tag :|tagname|))))))))
-  )
+                                           (getf tag :|tagname|)))))))))
 
 (defmacro index-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
@@ -119,17 +137,28 @@
                     (:form :class "rightbuttons"
                            :action "b/submitfilter"
                            :method "post"
+
+                           ;; non-mobile buttons
                            (:input :type "button"
-                                   :class "btn btn-default btn-sm threads"
+                                   :class "btn btn-default btn-sm hidden-xs threads"
                                    :onclick "window.location='hiddenthreads'"
                                    :value "Hidden Threads")
                            (:input :type "button"
-                                   :class "btn btn-default btn-sm threads"
+                                   :class "btn btn-default btn-sm hidden-xs threads"
                                    :onclick "window.location='b/resettags'"
                                    :value "Reset Tags")
                            (:input :type "submit"
-                                   :class "btn btn-default btn-sm threads"
+                                   :class "btn btn-default btn-sm hidden-xs threads"
                                    :value "Apply Tags")
+
+                           ;; mobile buttons
+                           (:input :type "button"
+                                   :class "btn btn-default btn-sm visible-xs-inline threads"
+                                   :onclick "window.location='b/resettags'"
+                                   :value "Reset")
+                           (:input :type "submit"
+                                   :class "btn btn-default btn-sm visible-xs-inline threads"
+                                   :value "Apply")
 
                            (tags-dropdown))
 
@@ -149,18 +178,18 @@
                       (with-db conn (let* ((q (prepare conn ,query))
                                            (result (execute q ,@params)))
                                       (loop for post = (fetch result)
-                                         while post do
-                                           (:tr :id (concatenate 'string
-                                                                 "post"
-                                                                 (write-to-string
-                                                                  (getf post :|postid|)))
-                                                (:td :class "col-sm-3 hidden-xs thread-row centered"
-                                                     (print-username (getf post :|modname|))
-                                                     (:br)
-                                                     (:br)
-                                                     (:span :class "time" (getf post :|posttime|)))
-                                                (:td :class "col-sm-9 post-content centered"
-                                                     (getf post :|postcontent|)))))))))
+                                            while post do
+                                            (:tr :id (concatenate 'string
+                                                                  "post"
+                                                                  (write-to-string
+                                                                    (getf post :|postid|)))
+                                                 (:td :class "col-sm-3 hidden-xs thread-row centered"
+                                                      (print-username (getf post :|modname|))
+                                                      (:br)
+                                                      (:br)
+                                                      (:span :class "time" (getf post :|posttime|)))
+                                                 (:td :class "col-sm-9 post-content centered"
+                                                      (getf post :|postcontent|)))))))))
 
 (defmacro thread-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
