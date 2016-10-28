@@ -1,16 +1,22 @@
 ;; -*- coding:utf-8 -*-
 (in-package :net.ignorama.web)
 
-(defun site-name-to-fontawesome-class (site-name)
+(defun site-symbol-to-fontawesome-class (site-symbol)
   (concatenate 'string
                "fa fa-"
-               (string-downcase (symbol-name site-name))))
+               (string-downcase (symbol-name site-symbol))))
 
-(defmacro sociallink (site url)
+(defun site-symbol-to-name (site-symbol custom)
+  (if custom
+      custom
+      (string-capitalize (symbol-name site-symbol))))
+
+(defmacro sociallink (site url &optional custom-name)
   `(with-html (:a :class "header rightlink"
                   :target "_blank"
                   :href ,url
-                  (:span :class ,(site-name-to-fontawesome-class site)))))
+                  :title ,(site-symbol-to-name site custom-name)
+                  (:span :class ,(site-symbol-to-fontawesome-class site)))))
 
 (defmacro rightlink (label)
   `(with-html (:a :class "header rightlink"
@@ -28,7 +34,9 @@
 (defun generate-sociallinks (sites)
   (let ((result '(progn)))
     (dolist (site sites)
-      (setf result (append result (list `(sociallink ,(first site) ,(second site))))))
+      (setf result (append result (list `(sociallink ,(first site)
+                                                     ,(second site)
+                                                     ,(third site))))))
     result))
 
 (defun generate-dropdown-links (links)
@@ -48,9 +56,8 @@
       (destructuring-bind (type url &optional name) site
         (setf result (append result (list `(progn (:a :class "dropdown-item"
                                                       :href ,url
-                                                      ,(if name
-                                                           name
-                                                           (string-capitalize (symbol-name type))))
+                                                      ,(site-symbol-to-name type
+                                                                            name))
                                                   (:br)))))))
     result))
 
