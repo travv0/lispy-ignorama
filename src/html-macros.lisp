@@ -63,8 +63,7 @@
                        :data-toggle "dropdown"
                        "Menu" (:span :class "caret"))
                    (:ul :class "dropdown-menu pull-right"
-                        ,(generate-dropdown-links rightlinks)
-                        ))))))
+                        ,(generate-dropdown-links rightlinks)))))))
 
 (defmacro print-username (name)
   ` (if (and ,name
