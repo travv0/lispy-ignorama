@@ -57,7 +57,7 @@
                        :href "/login" "Log in")))
 
        ;; mobile
-       (:div :class "btn-group"
+       (:div :class "btn-group mobile"
              (:div :class "visible-xs-inline"
                    (:a :class "btn btn-default btn-sm dropdown-toggle"
                        :data-toggle "dropdown"
