@@ -5,7 +5,7 @@
   :licence "AGPL-3.0"
   :depends-on ("hunchentoot" "spinneret" "uuid" "clack-errors" "cl-dbi" "local-time" "parenscript")
   :components ((:file "packages")
-               (:file "src/util")
+               (:file "src/util" :depends-on ("config"))
                (:file "src/html-macros" :depends-on ("packages"))
                (:file "config" :depends-on ("src/html-macros"))
                (:file "js/script" :depends-on ("src/forum"))

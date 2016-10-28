@@ -32,6 +32,7 @@
 
 (defmacro print-username (name)
   ` (if (and ,name
+             (not (equal ,name ""))
              (not *force-anonymity*))
         ,name
         *nameless-name*))
