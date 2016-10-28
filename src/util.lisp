@@ -6,11 +6,6 @@
   "Choose an element from a list at random."
   (elt choices (random (length choices))))
 
-(defun universal-to-unix (time)
-  ;; (if time
-  ;;     (timestamp-to-unix (universal-to-timestamp time)))
-  time)
-
 (defmethod print-object ((object hash-table) stream)
   (format stream "#HASH{~{~{(~a : ~a)~}~^ ~}}"
           (loop for key being the hash-keys of object
@@ -25,13 +20,13 @@
                   (user-status (fetch result)))
              (getf user-status :|userstatusdesc|))))
 
-(defmacro get-thread-title (thread-id)
-  `(with-db conn
-            (let* ((q (prepare conn
-                               "SELECT ThreadSubject FROM threads WHERE ThreadID = ?"))
-                   (result (execute q ,thread-id))
-                   (thread-subject (fetch result)))
-              (getf thread-subject :|threadsubject|))))
+(defun get-thread-title (thread-id)
+  (with-db conn
+           (let* ((q (prepare conn
+                              "SELECT ThreadSubject FROM threads WHERE ThreadID = ?"))
+                  (result (execute q thread-id))
+                  (thread-subject (fetch result)))
+             (getf thread-subject :|threadsubject|))))
 
 (defun thread-locked-p (thread-id)
   (with-db conn

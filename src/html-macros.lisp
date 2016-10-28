@@ -139,9 +139,8 @@
                                                             (format nil "Latest Post: ~a"
                                                                     (with-html-string
                                                                       (:span :class "time"
-                                                                             (universal-to-unix
-                                                                               (getf thread
-                                                                                     :|latestposttime|))))))
+                                                                             (getf thread
+                                                                                   :|latestposttime|)))))
                                                           (:br)
                                                           (print-username
                                                             (getf thread :|modname|))))
@@ -153,9 +152,8 @@
                                               (:td :class "hidden-xs thread-row centered"
                                                    (getf thread :|tag|))
                                               (:td :class "hidden-xs time thread-row centered"
-                                                   (universal-to-unix
-                                                     (getf thread
-                                                           :|latestposttime|)))))))))))
+                                                   (getf thread
+                                                         :|latestposttime|))))))))))
 
 (defmacro tags-dropdown ()
   `(with-html (:a :class "dropdown-toggle btn btn-default btn-sm"
