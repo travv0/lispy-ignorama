@@ -42,7 +42,7 @@
 (defparameter *force-anonymity* nil)
 
 ;;; links to external social sites:
-;;;             (:name-of-social-site "https://site-url.com/your-site.html")
+;;;             (:name-of-social-site "https://site-url.com/your-site.html" "Optional Dropdown Text")
 ;;;     go to http://fontawesome.io/icons/ to see choices for :name-of-social-site
 (defparameter *sociallinks* '((:twitter "https://twitter.com/IgnoramaDotNet")
-                              (:github "https://github.com/tssund93/lispy-ignorama")))
+                              (:github "https://github.com/tssund93/lispy-ignorama" "GitHub")))
