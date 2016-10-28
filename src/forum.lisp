@@ -5,6 +5,7 @@
 
 ;;; site setup
 (defvar *sessions* (make-hash-table :test 'equal))
+(defvar *conn* nil)
 
 (defparameter *threads-query* "SELECT * FROM IndexThreads LIMIT 200")
 
@@ -80,8 +81,9 @@
                                                 "/"
                                                 (concatenate 'string "/" (symbol-name name))))) (params)
      (setf (hunchentoot:content-type*) "text/html")
-     (with-db conn
-       ,@body)))
+     (let ((*conn* *conn*))
+       (with-db *conn*
+         ,@body))))
 
 ;;; web pages beyond here
 (publish-page index

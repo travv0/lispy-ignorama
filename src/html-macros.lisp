@@ -89,7 +89,7 @@
                         ,(generate-dropdown-links-social *sociallinks*)))))))
 
 (defmacro print-username (post-id)
-  `(let* ((q (prepare conn "SELECT ModName,
+  `(let* ((q (prepare *conn* "SELECT ModName,
                                     Anonymous
                              FROM posts
                              WHERE PostID = ?"))
@@ -104,7 +104,7 @@
          *nameless-name*)))
 
 (defmacro print-link-to-thread (thread-id thread-title &key locked stickied)
-  `(with-html (let* ((q (prepare conn
+  `(with-html (let* ((q (prepare *conn*
                                  "SELECT CONCAT(LEFT(PostContent, 200),
                                                               CASE
                                                                    WHEN LENGTH(PostContent) > 200 THEN '...'
@@ -145,7 +145,7 @@
                            (:th :class "thread-row visible-xs"
                                 "Threads")
 
-                           (let* ((q (prepare conn ,query))
+                           (let* ((q (prepare *conn* ,query))
                                   (result (execute q)))
                              (loop for thread = (fetch result)
                                 while thread do
@@ -190,7 +190,7 @@
                   "Tags" (:b :class "caret"))
               (:ul :class "dropdown-menu dropdown-menu-form pull-right"
                    :role "menu"
-                   (let* ((q (prepare conn
+                   (let* ((q (prepare *conn*
                                       "SELECT TagID, TagName FROM tags"))
                           (result (execute q)))
                      (loop for tag = (fetch result)
@@ -248,7 +248,7 @@
 
 (defmacro posts-table (query &rest params)
   `(with-html (:table :class "table table-bordered fixed main-table"
-                      (let* ((q (prepare conn ,query))
+                      (let* ((q (prepare *conn* ,query))
                              (result (execute q ,@params)))
                         (loop for post = (fetch result)
                            while post do
