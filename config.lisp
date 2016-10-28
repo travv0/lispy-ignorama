@@ -71,8 +71,7 @@
 (defparameter *force-anonymity* nil)
 
 ;;; links to external social sites:
-;;;             (:sociallink :name-of-social-site "https://site-url.com/your-site.html")
+;;;             (:name-of-social-site "https://site-url.com/your-site.html")
 ;;;     go to http://fontawesome.io/icons/ to see choices for :name-of-social-site
-(defmacro sociallinks ()
-  `(with-html (sociallink :twitter "https://twitter.com/IgnoramaDotNet")
-              (sociallink :github "https://github.com/tssund93/lispy-ignorama")))
+(defparameter *sociallinks* '((:twitter "https://twitter.com/IgnoramaDotNet")
+                              (:github "https://github.com/tssund93/lispy-ignorama")))

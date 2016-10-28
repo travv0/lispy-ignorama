@@ -51,7 +51,7 @@
                              (:img :class "header logo small" :src "/static/ignoramasmall.png")))
 
                   ;; right links
-                  (:div :class "hidden-xs header rightlinks"
+                  (:div :class "header rightlinks"
                         (rightlinks)))))))
 
 ;;; The basic format that every viewable page will follow.

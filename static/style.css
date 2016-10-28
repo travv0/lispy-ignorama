@@ -1,25 +1,32 @@
-h1{
+h1 {
     text-align: center;
 }
-h2{
+
+h2 {
     color: #330066;
 }
-h3{
+
+h3 {
     color: #330066;
 }
-body{
+
+body {
     background: url('/static/banner.png') repeat-x;
     background-color: #E8E8E8;
 }
-tr{
+
+tr {
     background-color: white;
 }
+
 ul.dropdown-menu-form {
     padding: 5px 10px 0;
     max-height: 300px;
     overflow-y: scroll;
 }
+
 .header.banner{
+    padding-top: 5px;
     padding-bottom: 1px;
     margin-bottom: 1px;
 
@@ -46,7 +53,7 @@ a:active {
 }
 
 .header.logo.small {
-    margin-top: 7px;
+    margin-top: 2px;
     padding-bottom: 11px;
 }
 
@@ -324,4 +331,9 @@ th.thread-row {
 
 .reply.button-row.buttons {
     float: right;
+}
+
+.dropdown-item {
+    margin: 15px;
+    color: black !important;
 }

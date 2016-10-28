@@ -11,24 +11,60 @@
 
 (defmacro rightlink (label)
   `(with-html (:a :class "header rightlink"
-                  :href ,(string-downcase label)
+                  :href ,(concatenate 'string
+                                      "/"
+                                      (string-downcase label))
                   ,label)))
 
+(defun generate-rightlinks (links)
+  (let ((result '(progn)))
+    (dolist (link links)
+      (setf result (append result (list `(rightlink ,link)))))
+    result))
+
+(defun generate-sociallinks (sites)
+  (let ((result '(progn)))
+    (dolist (site sites)
+      (setf result (append result (list `(sociallink ,(first site) ,(second site))))))
+    result))
+
+(defun generate-dropdown-links (links)
+  (let ((result '(progn)))
+    (dolist (link links)
+      (setf result (append result (list `(progn (:a :class "dropdown-item"
+                                                    :href ,(concatenate 'string
+                                                                        "/"
+                                                                        (string-downcase link))
+                                                    ,link)
+                                                (:br))))))
+    result))
+
 (defmacro rightlinks ()
-  `(with-html ( sociallinks)
-              (rightlink "Following")
-              (rightlink "Rules")
-              (rightlink "Bans")
-              (rightlink "Settings")
+  (let ((rightlinks '("Following" "Rules" "Bans" "Settings")))
+    `(with-html
+       ;; non-mobile
+       (:div :class "hidden-xs"
+             ,(generate-sociallinks *sociallinks*)
+             ,(generate-rightlinks rightlinks)
 
-              (:br)
+             (:br)
 
-              (:div :class "header loginlinks"
-                    (:a :class "header rightlink"
-                        :href "/signup" "Sign up")
-                    ("/")
-                    (:a :class "header rightlink"
-                        :href "/login" "Log in"))))
+             (:div :class "header loginlinks"
+                   (:a :class "header rightlink"
+                       :href "/signup" "Sign up")
+                   ("/")
+                   (:a :class "header rightlink"
+                       :href "/login" "Log in")))
+
+       ;; mobile
+       (:div :class "btn-group"
+             (:div :class "visible-xs-inline"
+                   (:a :class "btn btn-default btn-sm dropdown-toggle"
+                       :data-toggle "dropdown"
+                       "Menu" (:span :class "caret"))
+                   (:ul :class "dropdown-menu pull-right"
+                        ,(generate-dropdown-links rightlinks)
+                        ))))))
 
 (defmacro print-username (name)
   ` (if (and ,name
