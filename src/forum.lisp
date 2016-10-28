@@ -6,7 +6,7 @@
 ;;; site setup
 (defvar *sessions* (make-hash-table))
 
-(defparameter *threads-query* "SELECT * FROM IndexThreads")
+(defparameter *threads-query* "SELECT * FROM IndexThreads LIMIT 200")
 
 ;;; stuff to go in the <head> tags (minus <title>)
 (eval-when (:compile-toplevel :load-toplevel :execute)

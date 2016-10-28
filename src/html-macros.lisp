@@ -75,7 +75,12 @@
 
 (defmacro print-link-to-thread (thread-id thread-title &key locked stickied)
   `(with-html (with-db conn (let* ((q (prepare conn
-                                               "SELECT PostContent FROM posts WHERE ThreadID = ?"))
+                                               "SELECT CONCAT(LEFT(PostContent, 200),
+                                                              CASE
+                                                                   WHEN LENGTH(PostContent) > 200 THEN '...'
+                                                                   ELSE ''
+                                                              END) AS PostContent
+                                                FROM posts WHERE ThreadID = ?"))
                                    (result (execute q ,thread-id))
                                    (op (fetch result)))
                               (if ,stickied
@@ -94,7 +99,8 @@
 (defmacro threads-table (query)
   `(with-html (:table :class "table table-bordered fixed main-table"
                       (:tr :class "thread-row"
-                           (:th :class "thread-row"
+                           ;; non-mobile header
+                           (:th :class "thread-row hidden-xs"
                                 "Thread")
                            (:th :class "thread-row centered col-sm-2 hidden-xs"
                                 "User")
@@ -104,6 +110,11 @@
                                 "Tag(s)")
                            (:th :class "thread-row centered col-sm-2 hidden-xs"
                                 "Latest Post")
+
+                           ;; mobile header
+                           (:th :class "thread-row visible-xs"
+                                "Threads")
+
                            (with-db conn
                                     (let* ((q (prepare conn ,query))
                                            (result (execute q)))
