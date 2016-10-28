@@ -94,19 +94,19 @@
 (defmacro tags-dropdown ()
   `(with-html (:a :class "dropdown-toggle btn btn-default btn-sm"
                   :data-toggle "dropdown"
-                  "Tags" (:b :class "caret")
-                  (:ul :class "dropdown-menu dropdown-menu-form pull-right"
-                       :role "menu"
-                       (with-db conn
-                         (let* ((q (prepare conn
-                                            "SELECT TagID, TagName FROM tags"))
-                                (result (execute q)))
-                           (loop for tag = (fetch result)
-                              while tag do
-                                (:li (:label
-                                      (:input :type "checkbox"
-                                              :name (getf tag :|tagid|))
-                                      (getf tag :|tagname|)))))))))
+                  "Tags" (:b :class "caret"))
+              (:ul :class "dropdown-menu dropdown-menu-form pull-right"
+                   :role "menu"
+                   (with-db conn
+                            (let* ((q (prepare conn
+                                               "SELECT TagID, TagName FROM tags"))
+                                   (result (execute q)))
+                              (loop for tag = (fetch result)
+                                    while tag do
+                                    (:li (:label
+                                           (:input :type "checkbox"
+                                                   :name (getf tag :|tagid|))
+                                           (getf tag :|tagname|))))))))
   )
 
 (defmacro index-buttons ()
