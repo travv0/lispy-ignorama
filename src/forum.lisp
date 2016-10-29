@@ -7,7 +7,7 @@
 
 (defparameter *session-id-cookie-name* "sessionid")
 
-(defparameter *threads-query* "SELECT * FROM IndexThreads LIMIT 200")
+(defparameter *threads-query* "SELECT * FROM IndexThreads")
 
 ;;; stuff to go in the <head> tags (minus <title>)
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -85,12 +85,17 @@
 
 ;;; web pages beyond here
 (publish-page index
-  (standard-page
-      (:title "")
-    (:body (index-buttons)
-           (threads-table *threads-query*)
-           (:div :class "fake-copyright"
-                 (:raw *fake-copyright*)))))
+  (multiple-value-bind (title condition)
+      (index-params-by-type (get-parameter "f"))
+    (standard-page
+        (:title (index-title title))
+      (:body (index-buttons)
+             (threads-table (concatenate 'string
+                                         *threads-query*
+                                         condition
+                                         (format nil " LIMIT ~d" *index-row-limit*)))
+             (:div :class "fake-copyright"
+                   (:raw *fake-copyright*))))))
 
 (publish-page view-thread
   ;; if passed "post" parameter, redirect to appropriate thread and highlight post

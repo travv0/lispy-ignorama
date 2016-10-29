@@ -87,3 +87,23 @@
   (let ((session (gethash (cookie-in *session-id-cookie-name*) *sessions*)))
     (if session
         (gethash session-var session))))
+
+(defun index-params-by-type (type)
+  (cond ((equal type "search")
+         (let ((search (get-parameter "search")))
+           (values (format nil "Search for \"~a\""
+                           (empty-string-if-nil search))
+                   (format nil " WHERE (SELECT 1
+                                        FROM posts
+                                        WHERE posts.ThreadID = IndexThreads.ThreadID
+                                          AND PostContent LIKE '%~a%'
+                                        LIMIT 1) = 1
+                                    OR ThreadSubject LIKE '%~a%'"
+                           (empty-string-if-nil search)
+                           (empty-string-if-nil search)))))
+        (t "")))
+
+(defun empty-string-if-nil (value)
+  (if (not value)
+      ""
+      value))

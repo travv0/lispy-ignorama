@@ -261,6 +261,9 @@
                            (:input :class "searchbox"
                                    :name "search"
                                    :type "textbox")
+                           (:input :type "hidden"
+                                   :name "f"
+                                   :value "search")
                            (:button :style "margin-top: -3px; margin-right: 4px;"
                                     :class "btn btn-default btn-sm"
                                     :type "submit"
