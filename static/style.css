@@ -76,6 +76,10 @@ a:active {
     margin-right: 3px;
 }
 
+.header.loginlinks.logout-area {
+    padding-right: 5px;
+}
+
 .header.text {
     color: white;
 }

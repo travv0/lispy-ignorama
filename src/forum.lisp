@@ -31,8 +31,7 @@
 
       (:script :src "//code.jquery.com/jquery-1.11.0.min.js")
       (:script :src "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
-      (:script :src "/static/script.js"))
-    "Content that goes in the header of every page."))
+      (:script :src "/static/script.js"))))
 
 ;;; page skeleton
 (eval-when (:compile-toplevel :load-toplevel :execute)

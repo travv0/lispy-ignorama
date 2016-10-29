@@ -1,0 +1,39 @@
+* TODO normalize db
+  - [ ] don't store username string in posts table, store id
+  - [ ] don't store ip in threads table, you already have it in posts table
+  - [ ] rename admin table to users
+* TODO thread page
+** TODO mobile view
+   - [ ] show username and post time on mobile
+** TODO add dropdowns to thread page
+   - [ ] dropdown in top right for whole thread
+   - [ ] per-post dropdown
+** TODO highlight and jump to specified post
+** TODO pagination
+** TODO show if user bumped or announced OP status
+   - [ ] always show these statuses to mods
+** TODO give posts that have already been seen by user a slightly darker background
+* TODO index page
+** TODO add dropdowns to index page
+   - [ ] per-thread dropdown
+** TODO tags filter
+** TODO search box on mobile
+** TODO icon that can be clicked to unfollow thread
+* TODO following page
+* TODO search results page
+* TODO hidden threads page
+* TODO backend code to follow and unfollow threads
+* TODO code to log out
+* TODO code for sessions cleanup
+  - [ ] delete after a certain amount of time
+  - [ ] delete on log out
+* TODO ability to make new threads
+  - [ ] global variable for whether this can be done anonymously or not
+  - [ ] check if banned before post
+* TODO post history page for mods/admins
+* TODO rules page
+* TODO ban log
+* TODO moderator dashboard
+* TODO replying
+  - [ ] check if banned before post
+* TODO settings page

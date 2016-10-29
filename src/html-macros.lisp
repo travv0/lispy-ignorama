@@ -71,12 +71,17 @@
 
              (:br)
 
-             (:div :class "header loginlinks"
-                   (:a :class "header rightlink"
-                       :href "/signup" "Sign up")
-                   ("/")
-                   (:a :class "header rightlink"
-                       :href "/login" "Log in")))
+             (if (logged-in-p)
+                 (:div :class "header loginlinks logout-area"
+                       (format nil "Logged in as ~a " (get-session-var 'username))
+                       (:a :href "/b/logout"
+                           "(logout)"))
+                 (:div :class "header loginlinks"
+                       (:a :class "header rightlink"
+                           :href "/signup" "Sign up")
+                       ("/")
+                       (:a :class "header rightlink"
+                           :href "/login" "Log in"))))
 
        ;; mobile
        (:div :class "btn-group mobile"
