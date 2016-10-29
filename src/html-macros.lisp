@@ -90,16 +90,20 @@
 
 (defmacro print-username (post-id)
   `(execute-query-one user "SELECT ModName,
-                                    Anonymous
-                             FROM posts
-                             WHERE PostID = ?" (,post-id)
-     (if (and (or (and (not *force-anonymity*)
-                       (not (getf user :|anonymous|)))
-                  (not *allow-anonymity*)
-                  (user-authority-check-p "Moderator"))
-              (not (equal (getf user :|modname|) "")))
-         (getf user :|modname|)
-         *nameless-name*)))
+                                   Anonymous,
+                                   PostIP
+                            FROM posts
+                            WHERE PostID = ?" (,post-id)
+     (cond ((user-authority-check-p "Moderator") (if (equal (getf user :|modname|)
+                                                            "")
+                                                     (getf user :|postip|)
+                                                     (getf user :|modname|)))
+           (t (if (and (or (and (not *force-anonymity*)
+                                (not (getf user :|anonymous|)))
+                           (not *allow-anonymity*))
+                       (not (equal (getf user :|modname|) "")))
+                  (getf user :|modname|)
+                  *nameless-name*)))))
 
 (defmacro print-link-to-thread (thread-id thread-title &key locked stickied)
   `(with-html

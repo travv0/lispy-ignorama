@@ -8,4 +8,5 @@
                (:file "src/util" :depends-on ("config"))
                (:file "src/html-macros" :depends-on ("packages"))
                (:file "config" :depends-on ("src/html-macros"))
-               (:file "src/forum" :depends-on ("config" "src/util" "src/html-macros"))))
+               (:file "src/forum" :depends-on ("config" "src/util" "src/html-macros"))
+               (:file "src/redirects" :depends-on ("src/forum"))))

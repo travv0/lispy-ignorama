@@ -76,7 +76,7 @@
 
 (defun user-authority-check-p (required-rank)
   (execute-query-one rank
-      "SELECT UserStatusRank FROM UserStatuses WHERE UserStatusDesc = ?" (required-rank)
+      "SELECT UserStatusRank FROM UserStatuses WHERE lower(UserStatusDesc) = lower(?)" (required-rank)
     (let ((status (get-session-var 'userstatus)))
       (if status
           (<= status
