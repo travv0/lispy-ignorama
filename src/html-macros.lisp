@@ -89,12 +89,10 @@
                         ,(generate-dropdown-links-social *sociallinks*)))))))
 
 (defmacro print-username (post-id)
-  `(let* ((q (prepare *conn* "SELECT ModName,
+  `(execute-query-one user "SELECT ModName,
                                     Anonymous
                              FROM posts
-                             WHERE PostID = ?"))
-          (result (execute q ,post-id))
-          (user (fetch result)))
+                             WHERE PostID = ?" (,post-id)
      (if (and (or (and (not *force-anonymity*)
                        (not (getf user :|anonymous|)))
                   (not *allow-anonymity*)

@@ -29,27 +29,21 @@
              collect (list key value))))
 
 (defun get-user-status (user)
-  (let* ((q (prepare *conn*
-                     "SELECT UserStatusRank
-                               FROM admin A
-                               JOIN UserStatuses US ON A.UserStatusID = US.UserStatusID
-                               WHERE lower(Username) = lower(?)"))
-         (result (execute q user))
-         (user-status (fetch result)))
+  (execute-query-one user-status
+      "SELECT UserStatusRank
+       FROM admin A
+       JOIN UserStatuses US ON A.UserStatusID = US.UserStatusID
+       WHERE lower(Username) = lower(?)" (user)
     (getf user-status :|userstatusrank|)))
 
 (defun get-thread-title (thread-id)
-  (let* ((q (prepare *conn*
-                     "SELECT ThreadSubject FROM threads WHERE ThreadID = ?"))
-         (result (execute q thread-id))
-         (thread-subject (fetch result)))
+  (execute-query-one thread-subject
+      "SELECT ThreadSubject FROM threads WHERE ThreadID = ?" (thread-id)
     (getf thread-subject :|threadsubject|)))
 
 (defun thread-locked-p (thread-id)
-  (let* ((q (prepare *conn*
-                     "SELECT Locked FROM threads WHERE ThreadID = ?"))
-         (result (execute q thread-id))
-         (locked (fetch result)))
+  (execute-query-one locked
+      "SELECT Locked FROM threads WHERE ThreadID = ?" (thread-id)
     (getf locked :|locked|)))
 
 ;; TODO: this function
@@ -61,10 +55,8 @@
   (get-session-var 'username))
 
 (defun user-authority-check-p (required-rank)
-  (let* ((q (prepare *conn*
-                     "SELECT UserStatusRank FROM UserStatuses WHERE UserStatusDesc = ?"))
-         (result (execute q required-rank))
-         (rank (fetch result)))
+  (execute-query-one rank
+      "SELECT UserStatusRank FROM UserStatuses WHERE UserStatusDesc = ?" (required-rank)
     (let ((status (get-session-var 'userstatus)))
       (if status
           (<= status
