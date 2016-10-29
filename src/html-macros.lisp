@@ -260,17 +260,26 @@
                                                 (write-to-string
                                                  post-id))
                                (:td :class "col-sm-3 hidden-xs thread-row centered"
-                                    (:div (print-username post-id)
+                                    (:div (multiple-value-bind (name ip)
+                                              (print-username
+                                               (getf post :|postid|))
+                                            (:b (:div name))
+                                            (:div ip))
                                           ;; (print-post-options post-id)
                                           )
                                     (:div :class "time" post-time))
                                (:td :class "col-sm-9 post-content centered"
                                     (:div :class "visible-xs mobile-post-info"
-                                          (:span (:b (print-username post-id))
+                                          (:span :class "time mobile-date"
+                                                 post-time)
+                                          (:span (multiple-value-bind (name ip)
+                                                     (print-username
+                                                      (getf post :|postid|))
+                                                   (:div (:b name))
+                                                   (:div ip))
                                                  ;; (print-post-options post-id)
                                                  )
-                                          (:span :class "time mobile-date"
-                                                 post-time))
+                                          )
                                     (:div (getf post :|postcontent|)))))))))
 
 (defmacro thread-buttons ()

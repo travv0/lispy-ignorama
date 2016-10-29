@@ -6,8 +6,10 @@
   - [X] rename admin table to users
   - [X] fix breakage resulting from these changes
 * TODO thread page
-** TODO mobile view
-   - [ ] show username and post time on mobile
+** DONE mobile view
+   CLOSED: [2016-10-29 Sat 12:43]
+   - State "DONE"       from "TODO"       [2016-10-29 Sat 12:43]
+   - [X] show username and post time on mobile
 ** TODO add dropdowns to thread page
    - [ ] dropdown in top right for whole thread
    - [ ] per-post dropdown
@@ -47,4 +49,5 @@
   - [ ] show log in links on mobile
   - [ ] show logged in message on mobile when logged in
 * TODO settings page
+* TODO make it so you need a password to log in
 * TODO fix dates on firefox
