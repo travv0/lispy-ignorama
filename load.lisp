@@ -12,6 +12,7 @@
 (ql:quickload "quri")
 (ql:quickload "hunchentoot")
 
+(setf *print-pretty* nil)
 (setf parenscript:*js-string-delimiter* #\')
 
 (require "asdf")

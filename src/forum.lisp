@@ -7,6 +7,8 @@
 (defvar *sessions* (make-hash-table :test 'equal))
 (defvar *conn* nil)
 
+(defparameter *session-id-cookie-name* "sessionid")
+
 (defparameter *threads-query* "SELECT * FROM IndexThreads LIMIT 200")
 
 ;;; stuff to go in the <head> tags (minus <title>)

@@ -1,7 +1,23 @@
 ;; -*- coding:utf-8 -*-
 (in-package :net.ignorama.web)
 
-;;; utility functions and macros
+(defmacro execute-query-loop (row query (&optional params) &body body)
+  `(let* ((q (prepare *conn* ,query))
+          ,(if params
+               `(result (execute q ,params))
+               `(result (execute q))))
+     (loop for ,row = (fetch result)
+        while ,row do
+          ,@body)))
+
+(defmacro execute-query-one (row query (&optional params) &body body)
+  `(let* ((q (prepare *conn* ,query))
+          ,(if params
+               `(result (execute q ,params))
+               `(result (execute q)))
+          (,row (fetch result)))
+     ,@body))
+
 (defun random-elt (choices)
   "Choose an element from a list at random."
   (elt choices (random (length choices))))
@@ -38,20 +54,23 @@
 
 ;; TODO: this function
 (defun is-op-p (thread-id)
-  t)
+  (l))
 
 ;; TODO: this function
 (defun logged-in-p ()
-  t)
+  (get-session-var 'username))
 
 (defun user-authority-check-p (required-rank)
-  (let ((session (gethash (cookie-in "sessionid") *sessions*)))
-    (if session
-        (let* ((q (prepare *conn*
-                           "SELECT UserStatusRank FROM UserStatuses WHERE UserStatusDesc = ?"))
-               (result (execute q required-rank))
-               (rank (fetch result)))
-          (<= (gethash 'userstatus
-                       (gethash (cookie-in "sessionid")
-                                *sessions*))
+  (let* ((q (prepare *conn*
+                     "SELECT UserStatusRank FROM UserStatuses WHERE UserStatusDesc = ?"))
+         (result (execute q required-rank))
+         (rank (fetch result)))
+    (let ((status (get-session-var 'userstatus)))
+      (if status
+          (<= status
               (getf rank :|userstatusrank|))))))
+
+(defun get-session-var (session-var)
+  (let ((session (gethash (cookie-in *session-id-cookie-name*) *sessions*)))
+    (if session
+        (gethash session-var session))))
