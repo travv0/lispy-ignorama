@@ -1,4 +1,6 @@
-* TODO normalize db
+* DONE normalize db
+  CLOSED: [2016-10-29 Sat 11:04]
+  - State "DONE"       from "TODO"       [2016-10-29 Sat 11:04]
   - [X] don't store username string in posts table, store id
   - [X] don't store ip in threads table, you already have it in posts table
   - [X] rename admin table to users

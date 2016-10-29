@@ -10,6 +10,9 @@ SET UserID = (SELECT UserID FROM users WHERE lower(users.UserName) = (posts.ModN
 ALTER TABLE posts
 DROP ModName;
 
+ALTER TABLE threads
+DROP ThreadIP CASCADE;
+
 CREATE OR REPLACE
  VIEW IndexThreads
  AS
@@ -50,6 +53,3 @@ CREATE OR REPLACE
           b.TagName,
           b.ModeratorOnly
  ORDER BY Stickied DESC, LatestBump;
-
-ALTER TABLE threads
-DROP ThreadIP CASCADE;
