@@ -90,24 +90,24 @@
                         ,(generate-dropdown-links rightlinks)
                         ,(generate-dropdown-links-social *sociallinks*)))))))
 
-(defun print-username (post-id)
-  (execute-query-one user "SELECT UserName,
-                                  Anonymous,
-                                  PostIP
-                           FROM posts
-                           LEFT JOIN users ON posts.UserID = users.UserID
-                           WHERE PostID = ?" (post-id)
-    (cond ((user-authority-check-p "Moderator")
-           (if (not (is-null (getf user :|username|)))
-               (values (getf user :|username|)
-                       (getf user :|postip|))
-               (getf user :|postip|)))
-          (t (if (and (or (and (not *force-anonymity*)
-                               (not (getf user :|anonymous|)))
-                          (not *allow-anonymity*))
-                      (not (is-null (getf user :|username|))))
-                 (getf user :|username|)
-                 *nameless-name*)))))
+(defmacro print-username (post-id)
+  `(execute-query-one user "SELECT UserName,
+                                   Anonymous,
+                                   PostIP
+                            FROM posts
+                            LEFT JOIN users ON posts.UserID = users.UserID
+                            WHERE PostID = ?" (,post-id)
+     (cond ((user-authority-check-p "Moderator")
+            (if (not (is-null (getf user :|username|)))
+                (values (getf user :|username|)
+                        (getf user :|postip|))
+                (getf user :|postip|)))
+           (t (if (and (or (and (not *force-anonymity*)
+                                (not (getf user :|anonymous|)))
+                           (not *allow-anonymity*))
+                       (not (is-null (getf user :|username|))))
+                  (getf user :|username|)
+                  *nameless-name*)))))
 
 (defun is-null (x)
   (equal x :null))
