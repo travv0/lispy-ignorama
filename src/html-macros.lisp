@@ -194,11 +194,11 @@
 
                               ;; stuff for mobile
                               (:span :class "visible-xs-inline"
-                                     (:div
-                                      (format nil " (~d)"
-                                              (getf thread :|postcount|))
-                                      (format nil "Tags: ~a"
-                                              (getf thread :|tag|)))
+
+                                     (format nil " (~d)"
+                                             (getf thread :|postcount|))
+                                     (:div (format nil "Tags: ~a"
+                                                   (getf thread :|tag|)))
                                      (:div
                                       (:raw
                                        (format nil "Latest Post: ~a"
