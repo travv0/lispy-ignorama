@@ -240,7 +240,7 @@
 
 (defmacro posts-table (query &rest params)
   `(with-html (:table :class "table table-bordered fixed main-table"
-                      (execute-query-loop post ,query ()
+                      (execute-query-loop post ,query (,@params)
                         (:tr :id (concatenate 'string
                                               "post"
                                               (write-to-string
