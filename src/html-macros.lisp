@@ -168,50 +168,64 @@
 
                            ;; mobile header
                            (:th :class "thread-row visible-xs"
-                                "Threads")
+                                "Threads"
+                                (:form :action "/"
+                                       :method "get"
+                                       :class "visible-xs searchform"
+                                       (:div :class "mobile-search"
+                                             (:input :class "searchbox mobile"
+                                                     :name "search"
+                                                     :type "textbox")
+                                             (:input :type "hidden"
+                                                     :name "f"
+                                                     :value "search")
+                                             (:button :style "margin-top: -3px; margin-right: 4px;"
+                                                      :class "btn btn-default btn-sm"
+                                                      :type "submit"
+                                                      (:span :class "glyphicon glyphicon-search"))))))
 
-                           (execute-query-loop thread ,query ()
-                             (:tr
-                              (:td :class "thread-name centered"
-                                   (print-link-to-thread (getf thread :|threadid|)
-                                                         (getf thread :|threadsubject|)
-                                                         :locked (getf thread :|locked|)
-                                                         :stickied (getf thread :|stickied|))
+                      (execute-query-loop thread ,query ()
+                        (:tr
+                         (:td :class "thread-name centered"
+                              (print-link-to-thread (getf thread :|threadid|)
+                                                    (getf thread :|threadsubject|)
+                                                    :locked (getf thread :|locked|)
+                                                    :stickied (getf thread :|stickied|))
 
-                                   ;; stuff for mobile
-                                   (:span :class "visible-xs-inline"
-                                          (:div
-                                           (format nil " (~d)"
-                                                   (getf thread :|postcount|))
-                                           (format nil "Tags: ~a"
-                                                   (getf thread :|tag|)))
-                                          (:div
-                                           (:raw
-                                            (format nil "Latest Post: ~a"
-                                                    (with-html-string
-                                                      (:span :class "time"
-                                                             (getf thread
-                                                                   :|latestposttime|))))))
-                                          (:div
-                                           (multiple-value-bind (name ip)
-                                               (print-username
-                                                (getf thread :|postid|))
-                                             (:div name)
-                                             (:div ip)))))
+                              ;; stuff for mobile
+                              (:span :class "visible-xs-inline"
+                                     (:div
+                                      (format nil " (~d)"
+                                              (getf thread :|postcount|))
+                                      (format nil "Tags: ~a"
+                                              (getf thread :|tag|)))
+                                     (:div
+                                      (:raw
+                                       (format nil "Latest Post: ~a"
+                                               (with-html-string
+                                                 (:span :class "time"
+                                                        (getf thread
+                                                              :|latestposttime|))))))
+                                     (:div
+                                      (multiple-value-bind (name ip)
+                                          (print-username
+                                           (getf thread :|postid|))
+                                        (:div name)
+                                        (:div ip)))))
 
-                              (:td :class "hidden-xs thread-row centered"
-                                   (multiple-value-bind (name ip)
-                                       (print-username
-                                        (getf thread :|postid|))
-                                     (:div name)
-                                     (:div ip)))
-                              (:td :class "hidden-xs thread-row centered"
-                                   (getf thread :|postcount|))
-                              (:td :class "hidden-xs thread-row centered"
-                                   (getf thread :|tag|))
-                              (:td :class "hidden-xs time thread-row centered"
-                                   (getf thread
-                                         :|latestposttime|))))))))
+                         (:td :class "hidden-xs thread-row centered"
+                              (multiple-value-bind (name ip)
+                                  (print-username
+                                   (getf thread :|postid|))
+                                (:div name)
+                                (:div ip)))
+                         (:td :class "hidden-xs thread-row centered"
+                              (getf thread :|postcount|))
+                         (:td :class "hidden-xs thread-row centered"
+                              (getf thread :|tag|))
+                         (:td :class "hidden-xs time thread-row centered"
+                              (getf thread
+                                    :|latestposttime|)))))))
 
 (defmacro tags-dropdown ()
   `(with-html (:a :class "dropdown-toggle btn btn-default btn-sm"

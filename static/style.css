@@ -208,6 +208,7 @@ textarea{
 .searchbox {
     height:30px;
     margin-right:-5px;
+    font-weight: normal;
 }
 
 .searchform {
@@ -368,4 +369,11 @@ th.thread-row {
 .mobile-login-link {
     margin: 5px;
     color: #663399 !important;
+}
+
+.mobile-search {
+    float: right;
+    color: black;
+    margin: -5px;
+    margin-right: -9px;
 }
