@@ -14,9 +14,10 @@
 
           ;; make life easier by making sure username in session is capitalized like in the DB
           (execute-query-one user
-              "SELECT UserName FROM admin WHERE lower(UserName) = lower(?)"
+              "SELECT UserID, UserName FROM users WHERE lower(UserName) = lower(?)"
               ((post-parameter "username"))
-            (setf (gethash 'username (gethash session-id *sessions*)) (getf user :|username|)))
+            (setf (gethash 'username (gethash session-id *sessions*)) (getf user :|username|))
+            (setf (gethash 'userid (gethash session-id *sessions*)) (getf user :|userid|)))
 
           (setf (gethash 'userstatus (gethash session-id *sessions*)) user-status)
           (setf (gethash 'userlastactive (gethash session-id *sessions*)) (get-universal-time))
@@ -34,7 +35,7 @@
          (execute-query-one post
              "INSERT INTO posts (
                 ThreadID,
-                ModName,
+                UserID,
                 Anonymous,
                 PostContent,
                 PostTime,
@@ -44,7 +45,7 @@
               )
               VALUES (
                 ?,                  --ThreadID
-                ?,                  --ModName
+                ?,                  --UserID
                 ?,                  --Anonymous
                 ?,                  --PostContent
                 current_timestamp,  --PostTime
@@ -54,9 +55,9 @@
               )
               RETURNING PostID"
              ((get-parameter "thread")
-              (if (get-session-var 'username)
-                  (get-session-var 'username)
-                  "")
+              (if (get-session-var 'userid)
+                  (get-session-var 'userid)
+                  :null)
               (post-parameter "anonymous")
               (post-parameter "postcontent")
               (real-remote-addr)

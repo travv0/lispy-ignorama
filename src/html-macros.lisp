@@ -94,21 +94,24 @@
                         ,(generate-dropdown-links-social *sociallinks*)))))))
 
 (defmacro print-username (post-id)
-  `(execute-query-one user "SELECT ModName,
+  `(execute-query-one user "SELECT UserName,
                                    Anonymous,
                                    PostIP
                             FROM posts
+                            LEFT JOIN users ON posts.UserID = users.UserID
                             WHERE PostID = ?" (,post-id)
-     (cond ((user-authority-check-p "Moderator") (if (equal (getf user :|modname|)
-                                                            "")
+     (cond ((user-authority-check-p "Moderator") (if (is-null (getf user :|username|))
                                                      (getf user :|postip|)
-                                                     (getf user :|modname|)))
+                                                     (getf user :|username|)))
            (t (if (and (or (and (not *force-anonymity*)
                                 (not (getf user :|anonymous|)))
                            (not *allow-anonymity*))
-                       (not (equal (getf user :|modname|) "")))
-                  (getf user :|modname|)
+                       (not (is-null (getf user :|username|))))
+                  (getf user :|username|)
                   *nameless-name*)))))
+
+(defun is-null (x)
+  (equal x :null))
 
 (defmacro print-link-to-thread (thread-id thread-title &key locked stickied)
   `(with-html

@@ -1,7 +1,8 @@
 * TODO normalize db
-  - [ ] don't store username string in posts table, store id
-  - [ ] don't store ip in threads table, you already have it in posts table
-  - [ ] rename admin table to users
+  - [X] don't store username string in posts table, store id
+  - [X] don't store ip in threads table, you already have it in posts table
+  - [X] rename admin table to users
+  - [X] fix breakage resulting from these changes
 * TODO thread page
 ** TODO mobile view
    - [ ] show username and post time on mobile
@@ -19,6 +20,7 @@
 ** TODO tags filter
 ** TODO search box on mobile
 ** TODO icon that can be clicked to unfollow thread
+** TODO show reply button as "Thread Locked" when thread is locked
 * TODO following page
 * TODO search results page
 * TODO hidden threads page
@@ -35,5 +37,6 @@
 * TODO ban log
 * TODO moderator dashboard
 * TODO replying
+  - [ ] let mods post even if thread is locked
   - [ ] check if banned before post
 * TODO settings page

@@ -43,8 +43,8 @@
 (defun get-user-status (user)
   (execute-query-one user-status
       "SELECT UserStatusRank
-       FROM admin A
-       JOIN UserStatuses US ON A.UserStatusID = US.UserStatusID
+       FROM users U
+       JOIN UserStatuses US ON U.UserStatusID = US.UserStatusID
        WHERE lower(Username) = lower(?)" (user)
     (getf user-status :|userstatusrank|)))
 
@@ -59,13 +59,14 @@
     (getf locked :|locked|)))
 
 (defun is-op-p (thread-id)
-  (execute-query-one op "SELECT ThreadIP, ModName
+  (execute-query-one op "SELECT PostIP, UserName
                                FROM threads
                                JOIN posts ON threads.ThreadID = posts.ThreadID
+                               JOIN users ON posts.UserID = users.UserID
                                WHERE threads.ThreadID = ?
                                LIMIT 1" (thread-id)
-    (let ((username (getf op :|modname|))
-          (ip (getf op :|threadip|)))
+    (let ((username (getf op :|username|))
+          (ip (getf op :|postip|)))
       (or (and username
                (equalp username
                        (get-session-var 'username)))
