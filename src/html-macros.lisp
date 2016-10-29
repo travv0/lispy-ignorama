@@ -137,7 +137,8 @@
                       WHEN LENGTH(PostContent) > 200 THEN '...'
                       ELSE ''
                  END) AS PostContent
-          FROM posts WHERE ThreadID = ?" (,thread-id)
+          FROM posts WHERE ThreadID = ?
+          ORDER BY PostTime ASC" (,thread-id)
        (if ,stickied
            (progn (:span :class "thread-icon glyphicon glyphicon-bookmark")
                   (" ")))
