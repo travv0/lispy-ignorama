@@ -95,17 +95,30 @@
                  (:raw *fake-copyright*)))))
 
 (publish-page view-thread
-  (standard-page
-      (:title (get-thread-title (get-parameter "thread")))
-    (:body (thread-buttons)
-           (thread-dropdown)
-           (posts-table "SELECT *
-                                    FROM posts
-                                    WHERE ThreadID = ?"
-                        (get-parameter "thread"))
-           (thread-buttons)
-           (:div :class "fake-copyright"
-                 (:raw *fake-copyright*)))))
+  ;; if passed "post" parameter, redirect to appropriate thread and highlight post
+  (if (get-parameter "post")
+      (execute-query-one thread
+          "SELECT ThreadID FROM posts WHERE PostID = ?"
+          ((get-parameter "post"))
+        (redirect (format nil
+                          "/view-thread?thread=~d&highlight=~d"
+                          (getf thread :|threadid|)
+                          (get-parameter "post")))))
+
+  (if (get-parameter "thread")
+      (standard-page
+          (:title (get-thread-title (get-parameter "thread")))
+        (:body (thread-buttons)
+               (thread-dropdown)
+               (posts-table "SELECT *
+                             FROM posts
+                             WHERE ThreadID = ?
+                             ORDER BY PostTime"
+                            (get-parameter "thread"))
+               (thread-buttons)
+               (:div :class "fake-copyright"
+                     (:raw *fake-copyright*))))
+      (redirect "/")))
 
 (publish-page login
   (standard-page
@@ -122,21 +135,21 @@
                     :onclick "window.location='../'")))))
 
 (publish-page new-reply
-  (cond ((thread-locked-p (get-parameter "thread"))
-         (redirect "/locked"))
-        (t (standard-page
-               (:title "New Reply")
-             (:body
-              (:form :action (format nil "b/submitpost?thread=~d"
-                                     (get-parameter "thread"))
-                     :method "post"
-                     (:textarea :id "postfield"
-                                :name "Body"
-                                :rows "7"
-                                :class "col-xs-12"
-                                :required t)
-                     (reply-buttons)
-                     (image-upload-form)))))))
+  (if (thread-locked-p (get-parameter "thread"))
+      (redirect "/locked")
+      (standard-page
+          (:title "New Reply")
+        (:body
+         (:form :action (format nil "b/submit-post?thread=~d"
+                                (get-parameter "thread"))
+                :method "post"
+                (:textarea :id "postfield"
+                           :name "postcontent"
+                           :rows "7"
+                           :class "col-xs-12"
+                           :required t)
+                (reply-buttons)
+                (image-upload-form))))))
 
 (publish-page locked
   (standard-page
@@ -171,9 +184,48 @@
           (setf (gethash 'userstatus (gethash session-id *sessions*)) user-status)
           (setf (gethash 'userlastactive (gethash session-id *sessions*)) (get-universal-time))
 
-          (set-cookie "sessionid"
+          (set-cookie *session-id-cookie-name*
                       :value session-id
                       :path "/"
                       :expires (+ (get-universal-time) (* 10 365 24 60 60)))
           (redirect "/"))
         (redirect "/login-failed"))))
+
+(publish-page b/submit-post
+  (progn (if (thread-locked-p (get-parameter "thread"))
+             (redirect "/locked"))
+         (execute-query-one post
+             "INSERT INTO posts (
+                ThreadID,
+                ModName,
+                Anonymous,
+                PostContent,
+                PostTime,
+                PostIP,
+                PostRevealedOP,
+                Bump
+              )
+              VALUES (
+                ?,                  --ThreadID
+                ?,                  --ModName
+                ?,                  --Anonymous
+                ?,                  --PostContent
+                current_timestamp,  --PostTime
+                ?,                  --PostIP
+                ?,                  --PostRevealedOP
+                ?                   --Bump
+              )
+              RETURNING PostID"
+             ((get-parameter "thread")
+              (if (get-session-var 'username)
+                  (get-session-var 'username)
+                  "")
+              (post-parameter "anonymous")
+              (post-parameter "postcontent")
+              (real-remote-addr)
+              (post-parameter "reveal-op")
+              (post-parameter "bump"))
+
+           (redirect (format nil "/view-thread?post=~d"
+                             (getf post :|postid|))))
+         (redirect "/error")))

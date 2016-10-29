@@ -1,22 +1,34 @@
 ;; -*- coding:utf-8 -*-
 (in-package :net.ignorama.web)
 
-(defmacro execute-query-loop (row query (&optional params) &body body)
+(defun print-debug-to-log (text)
+  (format
+   t
+   "~%~%~%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%~%~%~a~%~%~%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%~%~%"
+   text))
+
+(defmacro execute-query-loop (row query params &body body)
   `(let* ((q (prepare *conn* ,query))
           ,(if params
-               `(result (execute q ,params))
+               `(result (execute q ,@params))
                `(result (execute q))))
      (loop for ,row = (fetch result)
         while ,row do
           ,@body)))
 
-(defmacro execute-query-one (row query (&optional params) &body body)
+(defmacro execute-query-one (row query params &body body)
   `(let* ((q (prepare *conn* ,query))
           ,(if params
-               `(result (execute q ,params))
+               `(result (execute q ,@params))
                `(result (execute q)))
           (,row (fetch result)))
      ,@body))
+
+(defmacro execute-query-modify (query params)
+  `(let* ((q (prepare *conn* ,query))
+          ,(if params
+               `(result (execute q ,@params))
+               `(result (execute q))))))
 
 (defun random-elt (choices)
   "Choose an element from a list at random."
@@ -56,7 +68,7 @@
           (ip (getf op :|threadip|)))
       (or (and username
                (equalp username
-                      (get-session-var 'username)))
+                       (get-session-var 'username)))
           (equal ip (real-remote-addr))))))
 
 (defun logged-in-p ()

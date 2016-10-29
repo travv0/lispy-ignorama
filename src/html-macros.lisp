@@ -291,14 +291,14 @@
   `(with-html
      (:span :class "reply button-row checkboxes"
             (if (is-op-p (get-parameter "thread"))
-                (:input :name "RevealOP"
+                (:input :name "reveal-op"
                         :type "checkbox"
                         "Reveal OP Status? ")
-                (:input :name "Bump"
+                (:input :name "bump"
                         :type "checkbox"
                         "Bump! "))
             (if (logged-in-p)
-                (:input :name "Anonymous"
+                (:input :name "anonymous"
                         :type "checkbox"
                         "Post Anonymously")))
      (:span :class "reply button-row buttons"
