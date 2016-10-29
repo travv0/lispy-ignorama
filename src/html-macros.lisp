@@ -54,6 +54,7 @@
     (dolist (site sites)
       (destructuring-bind (type url &optional name) site
         (setf result (append result (list `(:div (:a :class "dropdown-item"
+                                                     :target "_blank"
                                                      :href ,url
                                                      ,(site-symbol-to-name type
                                                                            name))))))))
