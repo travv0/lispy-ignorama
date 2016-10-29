@@ -67,3 +67,7 @@
            (redirect (format nil "/view-thread?post=~d"
                              (getf post :|postid|))))
          (redirect "/error")))
+
+(publish-page b/logout
+  (remhash (cookie-in *session-id-cookie-name*) *sessions*)
+  (redirect "/"))

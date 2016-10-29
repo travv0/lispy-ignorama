@@ -27,7 +27,9 @@
 * TODO search results page
 * TODO hidden threads page
 * TODO backend code to follow and unfollow threads
-* TODO code to log out
+* DONE code to log out
+  CLOSED: [2016-10-29 Sat 12:32]
+  - State "DONE"       from "TODO"       [2016-10-29 Sat 12:32]
 * TODO code for sessions cleanup
   - [ ] delete after a certain amount of time
   - [ ] delete on log out
