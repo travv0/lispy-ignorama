@@ -8,12 +8,10 @@
 (ql:quickload "spinneret")
 (ql:quickload "local-time")
 (ql:quickload "uuid")
-(ql:quickload "parenscript")
 (ql:quickload "quri")
 (ql:quickload "hunchentoot")
 
 (setf *print-pretty* nil)
-(setf parenscript:*js-string-delimiter* #\')
 
 (require "asdf")
 (asdf:load-system :ignorama)

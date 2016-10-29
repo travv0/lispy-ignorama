@@ -5,7 +5,6 @@
 (require 'asdf)
 (load (merge-pathnames "ignorama.asd" *build-dir*))
 (load (merge-pathnames "load.lisp" *build-dir*))
-(load (merge-pathnames "js/script.lisp" *build-dir*))
 
 (defun heroku-toplevel ()
   (let ((port (parse-integer (heroku-getenv "PORT"))))

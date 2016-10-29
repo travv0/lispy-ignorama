@@ -1,8 +1,6 @@
 ;; -*- coding:utf-8 -*-
 (in-package :net.ignorama.web)
 
-;; (load "js/script.lisp")
-
 ;;; site setup
 (defvar *sessions* (make-hash-table :test 'equal))
 (defvar *conn* nil)
@@ -33,7 +31,7 @@
 
       (:script :src "//code.jquery.com/jquery-1.11.0.min.js")
       (:script :src "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
-      (:script :src "/js/script.js"))
+      (:script :src "/static/script.js"))
     "Content that goes in the header of every page."))
 
 ;;; page skeleton
