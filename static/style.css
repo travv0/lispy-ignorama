@@ -348,3 +348,12 @@ th.thread-row {
 .threads.reset-tags {
     margin-right: 4px;
 }
+
+.mobile-post-info {
+    background-color: #E8E8E8;
+    margin-bottom: 5px;
+}
+
+.mobile-date {
+    float: right;
+}

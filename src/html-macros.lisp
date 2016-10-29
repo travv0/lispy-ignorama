@@ -90,22 +90,24 @@
                         ,(generate-dropdown-links rightlinks)
                         ,(generate-dropdown-links-social *sociallinks*)))))))
 
-(defmacro print-username (post-id)
-  `(execute-query-one user "SELECT UserName,
-                                   Anonymous,
-                                   PostIP
-                            FROM posts
-                            LEFT JOIN users ON posts.UserID = users.UserID
-                            WHERE PostID = ?" (,post-id)
-     (cond ((user-authority-check-p "Moderator") (if (is-null (getf user :|username|))
-                                                     (getf user :|postip|)
-                                                     (getf user :|username|)))
-           (t (if (and (or (and (not *force-anonymity*)
-                                (not (getf user :|anonymous|)))
-                           (not *allow-anonymity*))
-                       (not (is-null (getf user :|username|))))
-                  (getf user :|username|)
-                  *nameless-name*)))))
+(defun print-username (post-id)
+  (execute-query-one user "SELECT UserName,
+                                  Anonymous,
+                                  PostIP
+                           FROM posts
+                           LEFT JOIN users ON posts.UserID = users.UserID
+                           WHERE PostID = ?" (post-id)
+    (cond ((user-authority-check-p "Moderator")
+           (if (not (is-null (getf user :|username|)))
+               (values (getf user :|username|)
+                       (getf user :|postip|))
+               (getf user :|postip|)))
+          (t (if (and (or (and (not *force-anonymity*)
+                               (not (getf user :|anonymous|)))
+                          (not *allow-anonymity*))
+                      (not (is-null (getf user :|username|))))
+                 (getf user :|username|)
+                 *nameless-name*)))))
 
 (defun is-null (x)
   (equal x :null))
@@ -174,11 +176,18 @@
                                                              (getf thread
                                                                    :|latestposttime|))))))
                                           (:div
-                                           (print-username
-                                            (getf thread :|postid|)))))
+                                           (multiple-value-bind (name ip)
+                                               (print-username
+                                                (getf thread :|postid|))
+                                             (:div name)
+                                             (:div ip)))))
 
                               (:td :class "hidden-xs thread-row centered"
-                                   (print-username (getf thread :|postid|)))
+                                   (multiple-value-bind (name ip)
+                                       (print-username
+                                        (getf thread :|postid|))
+                                     (:div name)
+                                     (:div ip)))
                               (:td :class "hidden-xs thread-row centered"
                                    (getf thread :|postcount|))
                               (:td :class "hidden-xs thread-row centered"
@@ -244,16 +253,24 @@
 (defmacro posts-table (query &rest params)
   `(with-html (:table :class "table table-bordered fixed main-table"
                       (execute-query-loop post ,query (,@params)
-                        (let ((post-id (getf post :|postid|)))
+                        (let ((post-id (getf post :|postid|))
+                              (post-time (getf post :|posttime|)))
                           (:tr :id (concatenate 'string
                                                 "post"
                                                 (write-to-string
                                                  post-id))
                                (:td :class "col-sm-3 hidden-xs thread-row centered"
-                                    (print-username post-id)
-                                    (:div :class "time" (getf post :|posttime|)))
+                                    (:div (print-username post-id)
+                                          ;; (print-post-options post-id)
+                                          )
+                                    (:div :class "time" post-time))
                                (:td :class "col-sm-9 post-content centered"
-                                    (:div (:b (print-username post-id)))
+                                    (:div :class "visible-xs mobile-post-info"
+                                          (:span (:b (print-username post-id))
+                                                 ;; (print-post-options post-id)
+                                                 )
+                                          (:span :class "time mobile-date"
+                                                 post-time))
                                     (:div (getf post :|postcontent|)))))))))
 
 (defmacro thread-buttons ()

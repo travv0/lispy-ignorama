@@ -45,3 +45,4 @@
   - [ ] show log in links on mobile
   - [ ] show logged in message on mobile when logged in
 * TODO settings page
+* TODO fix dates on firefox
