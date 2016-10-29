@@ -160,9 +160,14 @@
                        (setf session-id (write-to-string (make-v4-uuid)))
                        *sessions*))
 
-          ;; TODO: make it easier to query session variables
           (setf (gethash session-id *sessions*) (make-hash-table :test 'equal))
-          (setf (gethash 'username (gethash session-id *sessions*)) (post-parameter "username"))
+
+          ;; make life easier by making sure username in session is capitalized like in the DB
+          (execute-query-one user
+              "SELECT UserName FROM admin WHERE lower(UserName) = lower(?)"
+              ((post-parameter "username"))
+            (setf (gethash 'username (gethash session-id *sessions*)) (getf user :|username|)))
+
           (setf (gethash 'userstatus (gethash session-id *sessions*)) user-status)
           (setf (gethash 'userlastactive (gethash session-id *sessions*)) (get-universal-time))
 

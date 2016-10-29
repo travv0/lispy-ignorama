@@ -248,7 +248,6 @@
                                   (getf post :|postcontent|)))))))
 
 (defmacro thread-buttons ()
-  ;; dropdown only displays correctly when I wrap all the buttons in this div
   `(with-html
      (:button :class "btn btn-default btn-sm"
               :onclick (format nil "window.location='new-reply?thread=~d'"
@@ -311,5 +310,5 @@
             (:input :type "button"
                     :class "btn btn-default btn-sm"
                     :value "Back"
-                    :onclick (format nil "window.location='./viewthread?thread=~d"
+                    :onclick (format nil "window.location='./view-thread?thread=~d'"
                                      (get-parameter "thread"))))))

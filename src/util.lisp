@@ -46,11 +46,19 @@
       "SELECT Locked FROM threads WHERE ThreadID = ?" (thread-id)
     (getf locked :|locked|)))
 
-;; TODO: this function
 (defun is-op-p (thread-id)
-  t)
+  (execute-query-one op "SELECT ThreadIP, ModName
+                               FROM threads
+                               JOIN posts ON threads.ThreadID = posts.ThreadID
+                               WHERE threads.ThreadID = ?
+                               LIMIT 1" (thread-id)
+    (let ((username (getf op :|modname|))
+          (ip (getf op :|threadip|)))
+      (or (and username
+               (equalp username
+                      (get-session-var 'username)))
+          (equal ip (real-remote-addr))))))
 
-;; TODO: this function
 (defun logged-in-p ()
   (get-session-var 'username))
 
