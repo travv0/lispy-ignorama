@@ -62,33 +62,49 @@
 (defmacro rightlinks ()
   (let ((rightlinks '("Following" "Hidden" "Rules" "Bans" "Settings")))
     `(with-html
-       ;; non-mobile
-       (:div :class "hidden-xs"
-             (:div
-              ,(generate-sociallinks *sociallinks*)
-              ,(generate-rightlinks rightlinks))
+       (:div :class "header rightlinks"
+             ;; non-mobile
+             (:div :class "hidden-xs"
+                   (:div
+                    ,(generate-sociallinks *sociallinks*)
+                    ,(generate-rightlinks rightlinks))
 
-             (if (logged-in-p)
-                 (:div :class "header loginlinks logout-area"
-                       (format nil "Logged in as ~a " (get-session-var 'username))
-                       (:a :href "/b/logout"
-                           "(logout)"))
-                 (:div :class "header loginlinks"
-                       (:a :class "header rightlink"
-                           :href "/signup" "Sign up")
-                       ("/")
-                       (:a :class "header rightlink"
-                           :href "/login" "Log in"))))
+                   (if (logged-in-p)
+                       (:div :class "header loginlinks logout-area"
+                             (format nil "Logged in as ~a " (get-session-var 'username))
+                             (:a :href "/b/logout"
+                                 "(logout)"))
+                       (:div :class "header loginlinks"
+                             (:a :class "header rightlink"
+                                 :href "/signup" "Sign up")
+                             ("/")
+                             (:a :class "header rightlink"
+                                 :href "/login" "Log in"))))
 
-       ;; mobile
-       (:div :class "btn-group mobile"
+             ;; mobile
              (:div :class "visible-xs-inline"
-                   (:a :class "btn btn-default btn-sm dropdown-toggle"
-                       :data-toggle "dropdown"
-                       "Menu" (:span :class "caret"))
-                   (:ul :class "dropdown-menu pull-right"
-                        ,(generate-dropdown-links rightlinks)
-                        ,(generate-dropdown-links-social *sociallinks*)))))))
+                   (:div :class "btn-group mobile header rightlinks"
+                         (:div :class "visible-xs-inline"
+                               (:a :class "btn btn-default btn-sm dropdown-toggle"
+                                   :data-toggle "dropdown"
+                                   "Menu " (:span :class "caret"))
+                               (:ul :class "dropdown-menu pull-right"
+                                    ,(generate-dropdown-links rightlinks)
+                                    ,(generate-dropdown-links-social *sociallinks*))))
+                   (:br)
+                   (:br)
+                   (if (logged-in-p)
+                       (:div :class "mobile-login-links"
+                             (:span (format nil "Logged in as ~a" (get-session-var 'username))
+                                    (:a :href "/b/logout"
+                                        (:span :class "mobile-login-link"
+                                               "(logout)"))))
+                       (:div :class "mobile-login-links"
+                             (:a :class "header rightlink mobile-login-link"
+                                 :href "/signup" "Sign up")
+                             ("/")
+                             (:a :class "header rightlink mobile-login-link"
+                                 :href "/login" "Log in"))))))))
 
 (defmacro print-username (post-id)
   `(execute-query-one user "SELECT UserName,

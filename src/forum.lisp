@@ -51,8 +51,7 @@
                    (:img :class "header logo small" :src "/static/ignoramasmall.png")))
 
         ;; right links
-        (:div :class "header rightlinks"
-              (rightlinks)))))))
+        (rightlinks))))))
 
 ;;; The basic format that every viewable page will follow.
 (defmacro standard-page ((&key title) &body body)

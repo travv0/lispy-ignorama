@@ -357,3 +357,15 @@ th.thread-row {
 .mobile-date {
     float: right;
 }
+
+.mobile-login-links {
+    float: right;
+    margin-top: 10px;
+    color: black;
+    display: inline-block;
+}
+
+.mobile-login-link {
+    margin: 5px;
+    color: #663399 !important;
+}

@@ -34,7 +34,7 @@
   - State "DONE"       from "TODO"       [2016-10-29 Sat 12:32]
 * TODO code for sessions cleanup
   - [ ] delete after a certain amount of time
-  - [ ] delete on log out
+  - [X] delete on log out
 * TODO ability to make new threads
   - [ ] global variable for whether this can be done anonymously or not
   - [ ] check if banned before post
@@ -45,9 +45,11 @@
 * TODO replying
   - [ ] let mods post even if thread is locked
   - [ ] check if banned before post
-* TODO header
-  - [ ] show log in links on mobile
-  - [ ] show logged in message on mobile when logged in
+* DONE header
+  CLOSED: [2016-10-29 Sat 14:03]
+  - State "DONE"       from "TODO"       [2016-10-29 Sat 14:03]
+  - [X] show log in links on mobile
+  - [X] show logged in message on mobile when logged in
 * TODO settings page
 * TODO make it so you need a password to log in
 * TODO fix dates on firefox
