@@ -48,7 +48,7 @@
 
 ;; TODO: this function
 (defun is-op-p (thread-id)
-  (l))
+  t)
 
 ;; TODO: this function
 (defun logged-in-p ()
