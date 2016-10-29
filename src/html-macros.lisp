@@ -181,7 +181,7 @@
 (defmacro tags-dropdown ()
   `(with-html (:a :class "dropdown-toggle btn btn-default btn-sm"
                   :data-toggle "dropdown"
-                  "Tags" (:b :class "caret"))
+                  "Tags " (:b :class "caret"))
               (:ul :class "dropdown-menu dropdown-menu-form pull-right"
                    :role "menu"
                    (execute-query-loop tag "SELECT TagID, TagName FROM tags" ()
@@ -203,11 +203,7 @@
 
                            ;; non-mobile buttons
                            (:input :type "button"
-                                   :class "btn btn-default btn-sm hidden-xs threads"
-                                   :onclick "window.location='hiddenthreads'"
-                                   :value "Hidden Threads")
-                           (:input :type "button"
-                                   :class "btn btn-default btn-sm hidden-xs threads"
+                                   :class "btn btn-default btn-sm hidden-xs threads reset-tags"
                                    :onclick "window.location='b/resettags'"
                                    :value "Reset Tags")
                            (:input :type "submit"
@@ -216,7 +212,7 @@
 
                            ;; mobile buttons
                            (:input :type "button"
-                                   :class "btn btn-default btn-sm visible-xs-inline threads"
+                                   :class "btn btn-default btn-sm visible-xs-inline threads reset"
                                    :onclick "window.location='b/resettags'"
                                    :value "Reset")
                            (:input :type "submit"

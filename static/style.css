@@ -340,3 +340,11 @@ th.thread-row {
     margin: 15px;
     color: black !important;
 }
+
+.threads.reset {
+    margin-right: 1px;
+}
+
+.threads.reset-tags {
+    margin-right: 4px;
+}
