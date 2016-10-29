@@ -42,23 +42,21 @@
 (defun generate-dropdown-links (links)
   (let ((result '(progn)))
     (dolist (link links)
-      (setf result (append result (list `(progn (:a :class "dropdown-item"
-                                                    :href ,(concatenate 'string
-                                                                        "/"
-                                                                        (string-downcase link))
-                                                    ,link)
-                                                (:br))))))
+      (setf result (append result (list `(:div (:a :class "dropdown-item"
+                                                   :href ,(concatenate 'string
+                                                                       "/"
+                                                                       (string-downcase link))
+                                                   ,link))))))
     result))
 
 (defun generate-dropdown-links-social (sites)
   (let ((result '(progn)))
     (dolist (site sites)
       (destructuring-bind (type url &optional name) site
-        (setf result (append result (list `(progn (:a :class "dropdown-item"
-                                                      :href ,url
-                                                      ,(site-symbol-to-name type
-                                                                            name))
-                                                  (:br)))))))
+        (setf result (append result (list `(:div (:a :class "dropdown-item"
+                                                     :href ,url
+                                                     ,(site-symbol-to-name type
+                                                                           name))))))))
     result))
 
 (defmacro rightlinks ()
@@ -66,10 +64,9 @@
     `(with-html
        ;; non-mobile
        (:div :class "hidden-xs"
-             ,(generate-sociallinks *sociallinks*)
-             ,(generate-rightlinks rightlinks)
-
-             (:br)
+             (:div
+              ,(generate-sociallinks *sociallinks*)
+              ,(generate-rightlinks rightlinks))
 
              (if (logged-in-p)
                  (:div :class "header loginlinks logout-area"
@@ -164,21 +161,21 @@
 
                                    ;; stuff for mobile
                                    (:span :class "visible-xs-inline"
-                                          (format nil " (~d)"
-                                                  (getf thread :|postcount|))
-                                          (:br)
-                                          (format nil "Tags: ~a"
-                                                  (getf thread :|tag|))
-                                          (:br)
-                                          (:raw
-                                           (format nil "Latest Post: ~a"
-                                                   (with-html-string
-                                                     (:span :class "time"
-                                                            (getf thread
-                                                                  :|latestposttime|)))))
-                                          (:br)
-                                          (print-username
-                                           (getf thread :|postid|))))
+                                          (:div
+                                           (format nil " (~d)"
+                                                   (getf thread :|postcount|))
+                                           (format nil "Tags: ~a"
+                                                   (getf thread :|tag|)))
+                                          (:div
+                                           (:raw
+                                            (format nil "Latest Post: ~a"
+                                                    (with-html-string
+                                                      (:span :class "time"
+                                                             (getf thread
+                                                                   :|latestposttime|))))))
+                                          (:div
+                                           (print-username
+                                            (getf thread :|postid|)))))
 
                               (:td :class "hidden-xs thread-row centered"
                                    (print-username (getf thread :|postid|)))
@@ -247,17 +244,17 @@
 (defmacro posts-table (query &rest params)
   `(with-html (:table :class "table table-bordered fixed main-table"
                       (execute-query-loop post ,query (,@params)
-                        (:tr :id (concatenate 'string
-                                              "post"
-                                              (write-to-string
-                                               (getf post :|postid|)))
-                             (:td :class "col-sm-3 hidden-xs thread-row centered"
-                                  (print-username (getf post :|postid|))
-                                  (:br)
-                                  (:br)
-                                  (:span :class "time" (getf post :|posttime|)))
-                             (:td :class "col-sm-9 post-content centered"
-                                  (getf post :|postcontent|)))))))
+                        (let ((post-id (getf post :|postid|)))
+                          (:tr :id (concatenate 'string
+                                                "post"
+                                                (write-to-string
+                                                 post-id))
+                               (:td :class "col-sm-3 hidden-xs thread-row centered"
+                                    (print-username post-id)
+                                    (:div :class "time" (getf post :|posttime|)))
+                               (:td :class "col-sm-9 post-content centered"
+                                    (:div (:b (print-username post-id)))
+                                    (:div (getf post :|postcontent|)))))))))
 
 (defmacro thread-buttons ()
   `(with-html

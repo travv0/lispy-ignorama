@@ -124,14 +124,12 @@
       (:title "Login")
     (:body
      (:form :method "POST" :action "/b/login"
-            (:input :name "username" :type "text")
-            (:br)
-            (:input :name "password" :type "password")
-            (:br)
-            (:input :name "Submit1" :type "submit" :value "Submit")
-            (:input :type "button"
-                    :value "Main Page"
-                    :onclick "window.location='../'")))))
+            (:div (:input :name "username" :type "text"))
+            (:div (:input :name "password" :type "password"))
+            (:div (:input :name "Submit1" :type "submit" :value "Submit")
+                  (:input :type "button"
+                          :value "Main Page"
+                          :onclick "window.location='../'"))))))
 
 (publish-page new-reply
   (if (thread-locked-p (get-parameter "thread"))
