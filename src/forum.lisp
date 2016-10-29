@@ -88,7 +88,7 @@
   (multiple-value-bind (title condition)
       (index-params-by-type (get-parameter "f"))
     (standard-page
-        (:title (index-title title))
+        (:title title)
       (:body (index-buttons)
              (threads-table (concatenate 'string
                                          *threads-query*
