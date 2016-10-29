@@ -293,10 +293,10 @@
             (if (is-op-p (get-parameter "thread"))
                 (:input :name "RevealOP"
                         :type "checkbox"
-                        "Reveal OP Status?")
+                        "Reveal OP Status? ")
                 (:input :name "Bump"
                         :type "checkbox"
-                        "Bump!"))
+                        "Bump! "))
             (if (logged-in-p)
                 (:input :name "Anonymous"
                         :type "checkbox"
