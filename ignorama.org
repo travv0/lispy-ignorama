@@ -52,4 +52,5 @@
   - [X] show logged in message on mobile when logged in
 * TODO settings page
 * TODO make it so you need a password to log in
+* TODO change "Tags" to "Boards" everywhere that is displayed to user
 * TODO fix dates on firefox
