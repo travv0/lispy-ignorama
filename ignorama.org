@@ -13,8 +13,12 @@
 ** TODO add dropdowns to thread page
    - [ ] dropdown in top right for whole thread
    - [ ] per-post dropdown
-** TODO highlight and jump to specified post
-** TODO pagination
+** DONE highlight and jump to specified post
+   CLOSED: [2016-10-30 Sun 19:11]
+   - State "DONE"       from "TODO"       [2016-10-30 Sun 19:11]
+** DONE pagination
+   CLOSED: [2016-10-30 Sun 19:10]
+   - State "DONE"       from "TODO"       [2016-10-30 Sun 19:10]
 ** TODO show if user bumped or announced OP status
    - [ ] always show these statuses to mods
 ** TODO give posts that have already been seen by user a slightly darker background
@@ -69,6 +73,8 @@
 * DONE change "Tags" to "Boards" everywhere that is displayed to user
   CLOSED: [2016-10-30 Sun 11:04]
   - State "DONE"       from "TODO"       [2016-10-30 Sun 11:04]
-* TODO fix dates on firefox
+* TODO fix dates
+  - [ ] firefox
+  - [ ] iphone
 * TODO convert spaces in search to wildcards
 * TODO ability to view usernames that have been used from an IP
