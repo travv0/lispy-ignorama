@@ -386,3 +386,7 @@ th.thread-row {
     padding-top: 5px;
     display: inline-block;
 }
+
+select.pagination {
+    margin: -1px -5px 0px -1px;
+}

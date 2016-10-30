@@ -335,37 +335,7 @@
               :onclick "window.location='/'"
               "Main Page")
 
-     ;; pagination
-     (execute-query-one thread "SELECT count(1) AS PostCount
-                                FROM posts
-                                WHERE ThreadID = ?"
-         ((get-parameter "thread"))
-       (let* ((num-of-pages (ceiling (/ (getf thread :|postcount|)
-                                        *posts-per-page*)))
-              (page (parse-integer (if (get-parameter "page")
-                                       (get-parameter "page")
-                                       "1")))
-              (start-page (- page 1)))
-         (:div :class "visible-xs-inline rightbuttons"
-               (:a :class "btn btn-sm btn-default"
-                   :href (format nil
-                                 "view-thread?thread=~d&page=~d"
-                                 (get-parameter "thread")
-                                 (- page 1))
-                   ("<"))
-               (:select :name "Page"
-                        :onchange "goToPage(this)"
-                        (do ((i 1 (1+ i)))
-                            ((> i num-of-pages))
-                          (:option :value (stringify i)
-                                   :selected (= i page)
-                                   i)))
-               (:a :class "btn btn-sm btn-default"
-                   :href (format nil
-                                 "view-thread?thread=~d&page=~d"
-                                 (get-parameter "thread")
-                                 (+ page 1))
-                   (">")))))))
+     (pagination)))
 
 (defmacro thread-dropdown ()
   `(with-html
@@ -376,6 +346,76 @@
                 (:span :class "caret"))
             (:ul :class "dropdown-menu pull-right"
                  "TODO - add stuff here"))))
+
+(defun pagination ()
+  (with-html
+    (execute-query-one thread "SELECT count(1) AS PostCount
+                                FROM posts
+                                WHERE ThreadID = ?"
+        ((get-parameter "thread"))
+      ;; mobile
+      (let ((num-of-pages (ceiling (/ (getf thread :|postcount|)
+                                      *posts-per-page*)))
+            (page (parse-integer (if (get-parameter "page")
+                                     (get-parameter "page")
+                                     "1"))))
+        (if (> num-of-pages 1)
+            (progn
+              (:div :class "visible-xs-inline rightbuttons"
+                    (:a :class "btn btn-sm btn-default"
+                        :href (format nil
+                                      "view-thread?thread=~d&page=~d"
+                                      (get-parameter "thread")
+                                      (- page 1))
+                        ("<"))
+                    (:select :name "Page"
+                             :class "pagination"
+                             :onchange "goToPage(this)"
+                             (do ((i 1 (1+ i)))
+                                 ((> i num-of-pages))
+                               (:option :value (stringify i)
+                                        :selected (= i page)
+                                        i)))
+                    (:a :class "btn btn-sm btn-default"
+                        :href (format nil
+                                      "view-thread?thread=~d&page=~d"
+                                      (get-parameter "thread")
+                                      (+ page 1))
+                        (">")))
+
+              ;; non-mobile
+              (let ((start-page (- page 1)))
+                (:ul :class "pagination pagination-sm hidden-xs rightbuttons"
+                     ;; if on page higher than 3, it'll look like
+                     ;; < 1 ... (- 1 page) page (+ 1 page) ... num-of-pages >
+                     (if (>= page 3)
+                         (:li :class (if (= page start-page) "active")
+                              (:a :href (format nil "view-thread?thread=~d&page=1"
+                                                (get-parameter "thread"))
+                                  1)))
+                     (if (>= page 4)
+                         (:li :class "disabled"
+                              (:a :href "#" "...")))
+                     (do ((i 1 (1+ i))
+                          (j start-page (1+ j)))
+                         ((or (> i 3)
+                              (> j num-of-pages)))
+                       (if (and (> j 0)
+                                (<= j num-of-pages))
+                           (:li :class (if (= j page) "active")
+                                (:a :href (format nil "view-thread?thread=~d&page=~d"
+                                                  (get-parameter "thread")
+                                                  j)
+                                    j))))
+                     (if (< page (- num-of-pages 2))
+                         (:li :class "disabled"
+                              (:a :href "#" "...")))
+                     (if (< page (- num-of-pages 1))
+                         (:li :class (if (= page num-of-pages) "active")
+                              (:a :href (format nil "view-thread?thread=~d&page=~d"
+                                                (get-parameter "thread")
+                                                num-of-pages)
+                                  num-of-pages)))))))))))
 
 (defmacro image-upload-form ()
   `(with-html

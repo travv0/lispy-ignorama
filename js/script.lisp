@@ -46,4 +46,10 @@
                    (< post (lisp (getf min-max-posts :|minpost|))))
                (chain window (open (+ "/view-thread?post=" post)))
                (progn (highlight-post post)
-                      (chain window (open (+ "#post" post) "_self"))))))))))
+                      (chain window (open (+ "#post" post) "_self")))))
+
+         (defun go-to-page (sel)
+           (setf window.location (+ "/view-thread?thread="
+                                    (get-parameter-by-name "thread")
+                                    "&page="
+                                    (@ sel value)))))))))
