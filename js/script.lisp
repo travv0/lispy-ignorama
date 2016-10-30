@@ -13,32 +13,32 @@
 
 (defun view-thread-js ()
   (execute-query-one min-max-posts
-      (format nil "SELECT max(PostID) AS MaxPost,
-                                              min(PostID) AS MinPost
-                                              FROM posts
-                                              WHERE ThreadID = ?
-                                              LIMIT ?
-                                              ~a"
-              (if (get-parameter "page")
-                  (format nil
-                          "OFFSET ~d"
-                          (- (get-parameter "page") 1))
-                  ""))
+      "SELECT max(PostID) AS MaxPost,
+       min(PostID) AS MinPost
+       FROM posts
+       WHERE ThreadID = ?
+       LIMIT ?
+       OFFSET ?"
       ((get-parameter "thread")
-       *posts-per-page*)
+       *posts-per-page*
+       (if (get-parameter "page")
+           (* (- (parse-integer
+                  (get-parameter "page")) 1)
+              *posts-per-page*)
+           0))
     (with-html
       (:raw
        (ps
          ($ (lambda () (highlight-post (get-parameter-by-name "highlight"))))
 
          (defun highlight-post (post)
-           ; unhighlight all posts
+           ;; unhighlight all posts
            ($ "tr"
               (each (lambda ()
                       (if (not (equal ($ this (attr "id"))
                                       (+ "post" post)))
                           ($ this (css "background-color" "white"))))))
-           ; highlight the selected post
+           ;; highlight the selected post
            ($ (+ "#post" post) (css "background-color" "#D6BBF2")))
 
          (defun view-post (post)

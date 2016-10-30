@@ -333,7 +333,39 @@
               "Reply")
      (:button :class "btn btn-default btn-sm"
               :onclick "window.location='/'"
-              "Main Page")))
+              "Main Page")
+
+     ;; pagination
+     (execute-query-one thread "SELECT count(1) AS PostCount
+                                FROM posts
+                                WHERE ThreadID = ?"
+         ((get-parameter "thread"))
+       (let* ((num-of-pages (ceiling (/ (getf thread :|postcount|)
+                                        *posts-per-page*)))
+              (page (parse-integer (if (get-parameter "page")
+                                       (get-parameter "page")
+                                       "1")))
+              (start-page (- page 1)))
+         (:div :class "visible-xs-inline rightbuttons"
+               (:a :class "btn btn-sm btn-default"
+                   :href (format nil
+                                 "view-thread?thread=~d&page=~d"
+                                 (get-parameter "thread")
+                                 (- page 1))
+                   ("<"))
+               (:select :name "Page"
+                        :onchange "goToPage(this)"
+                        (do ((i 1 (1+ i)))
+                            ((> i num-of-pages))
+                          (:option :value (stringify i)
+                                   :selected (= i page)
+                                   i)))
+               (:a :class "btn btn-sm btn-default"
+                   :href (format nil
+                                 "view-thread?thread=~d&page=~d"
+                                 (get-parameter "thread")
+                                 (+ page 1))
+                   (">")))))))
 
 (defmacro thread-dropdown ()
   `(with-html

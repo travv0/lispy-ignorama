@@ -151,8 +151,16 @@
                (posts-table "SELECT *
                              FROM posts
                              WHERE ThreadID = ?
-                             ORDER BY PostTime"
-                            (get-parameter "thread"))
+                             ORDER BY PostTime
+                             LIMIT ?
+                             OFFSET ?"
+                            (get-parameter "thread")
+                            *posts-per-page*
+                            (if (get-parameter "page")
+                                (* (- (parse-integer
+                                       (get-parameter "page")) 1)
+                                   *posts-per-page*)
+                                0))
                (thread-buttons)
                (:div :class "fake-copyright"
                      (:raw *fake-copyright*))
