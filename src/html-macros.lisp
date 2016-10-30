@@ -256,7 +256,7 @@
                              "New Thread")
 
                     (:form :class "rightbuttons"
-                           :action "b/submit-tags"
+                           :action "b/apply-tags"
                            :method "post"
 
                            ;; non-mobile buttons
@@ -323,7 +323,7 @@
                                                  ;; (print-post-options post-id)
                                                  )
                                           )
-                                    (:div (getf post :|postcontent|)))))))))
+                                    (:div (format-post (getf post :|postcontent|))))))))))
 
 (defmacro thread-buttons ()
   `(with-html

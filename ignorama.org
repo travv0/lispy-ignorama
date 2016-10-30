@@ -18,6 +18,13 @@
 ** TODO show if user bumped or announced OP status
    - [ ] always show these statuses to mods
 ** TODO give posts that have already been seen by user a slightly darker background
+** DONE post formatting
+   CLOSED: [2016-10-30 Sun 13:57]
+   - State "DONE"       from "TODO"       [2016-10-30 Sun 13:57]
+   - [X] newlines
+   - [X] img tags
+   - [X] links
+   - [X] youtube videos
 * TODO index page
 ** TODO add dropdowns to index page
    - [ ] per-thread dropdown

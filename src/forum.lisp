@@ -30,8 +30,8 @@
                                OR (
                                    IsGlobal = true AND
                                    ~d <= (SELECT UserStatusID
-                                                    FROM UserStatuses
-                                                    WHERE UserStatusDesc = 'Admin')
+                                          FROM UserStatuses
+                                          WHERE UserStatusDesc = 'Admin')
                                   )
                             ORDER BY UserStatusID ASC,
                                      TagName"

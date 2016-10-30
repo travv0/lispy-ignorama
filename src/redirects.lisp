@@ -128,6 +128,6 @@
   (remhash (cookie-in *session-id-cookie-name*) *sessions*)
   (redirect "/"))
 
-;; (publish-page b/submit-tags
+;; (publish-page b/apply-tags
 ;;   (if (logged-in-p)
 ;;       (progn ())))

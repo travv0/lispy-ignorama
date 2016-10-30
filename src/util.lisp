@@ -122,3 +122,67 @@
         (execute-query-one status "SELECT MAX(UserStatusID) AS UserStatusID FROM UserStatuses" ()
           (getf status :|userstatusid|))
         user-status)))
+
+(defparameter *replacements*
+  '(;; newlines
+    ("\\n" "<br />")
+    ;; images
+    ("\\[img\\](.*?)\\[\\/img\\]"
+     "<a target='_blank' href='\\1'><img href='\\1' src='\\1' class='img img-responsive' style='max-height: 480px;'></img></a>")
+    ;; webm
+    ("\\[webm\\](.*?)\\[\\/webm\\"
+     "<video preload='none' controls='controls' class='img img-responsive'><source type='video/webm' src='\\1'></video>")
+    ;; bold and italics
+    ("\\[i\\](.*?)\\[\\/i\\]" "<i>\\1</i>")
+    ("\\[b\\](.*?)\\[\\/b\\]" "<b>\\1</b>")
+    ("\\[u\\](.*?)\\[\\/u\\]" "<u>\\1</u>")
+    ;; spoilers
+    ("\\[spoiler\\](.*?)\\[\\/spoiler\\]"
+     "<span class='spoiler' style='background-color:#333;'>\\1</span>")
+    ;; replies
+    ("\\[reply[=| ]([0-9]+)\\]\\R*\\[\\/reply\\]"
+     "<a href='javascript:viewPost(\\1);'><b>\\1</b></a>")
+    ("\\[reply post=([0-9]+) user=(.*?)\\]\\R*\\[\\/reply\\]"
+     "<a href='javascript:viewPost(\\1);'><b>\\2</b></a>")
+    ("\\[reply user=(.*?) post=([0-9]+)\\]\\R*\\[\\/reply\\]"
+     "<a href='javascript:viewPost(\\2);'><b>\\1</b></a>")
+    ("&gt;&gt;([0-9]+)"
+     "<a href='javascript:viewPost(\\1);'><b>\\1</b></a>")
+    ("\\[reply post=([0-9]+) user=(.*?)\\]\\R*(.*?)\\R*\\[\\/reply\\]\\R?"
+     "<div style='padding: 5px;border: 1px solid #DDD;background-color:#F5F5F5'><b><a href='javascript:viewPost(\\1);'>\\2</a> said:</b><br/>\\3</div>")
+    ("\\[reply user=(.*?) post=([0-9]+)\\]\\R*(.*?)\\R*\\[\\/reply\\]\\R?"
+     "<div style='padding: 5px;border: 1px solid #DDD;background-color:#F5F5F5'><b><a href='javascript:viewPost(\\2);'>\\1</a> said:</b><br/>\\3</div>")
+    ("\\[reply[=| ]([0-9]+)\\]\\R*(.*?)\\R*\\[\\/reply\\]\\R?"
+     "<div style='padding: 5px;border: 1px solid #DDD;background-color:#F5F5F5'><b><a href='javascript:viewPost(\\1);'>\\1</a> said:</b><br/>\\2</div>")
+    ;; quotes
+    ("\\[quote\\]\\R?(.*?)\\R?\\[\\/quote\\]\\R?" "<div style='padding: 5px;border: 1px solid #DDD;background-color:#F5F5F5'><b>Quote:</b><br/>\\1</div>")
+    ;; code
+    ("\\[code\\]\\R*(.*?)\\R*\\[\\/code\\]" "<pre><code>\\1</code></pre>")
+    ;; colored text
+    ("\\[color=(.*?)\\](.*?)\\[\\/color\\]" "<span style='color:\\1'>\\2</span>")
+    ;; url
+    ("\\[url=(http(s?):\\/\\/)?(.*?)\\](.*?)\\[\\/url\\]" "<a target='_blank' href='http\\2://\\3'>\\4</a>")
+    ;; youtube embed
+    ("[a-zA-Z\\/\\/:\\.]*(youtube.com\\/watch\\?v=|youtu.be\\/)([a-zA-Z0-9\\-_]+)([a-zA-Z0-9\\/\\*\\-\\_\\?\\&\\;\\%\\=\\.]*)" "<div class='flex-video widescreen'><iframe width='560' height='315' src='//www.youtube.com/embed/\\2' frameborder='0' allowfullscreen></iframe></div>")))
+
+(defun format-post (post)
+  (with-html
+    (:raw
+     (let ((post (html-escape post)))
+       (dolist (replacement-pair *replacements*)
+         (destructuring-bind (regex replacement) replacement-pair
+           (setf post (regex-replace-all
+                       (create-scanner regex
+                                       :case-insensitive-mode t
+                                       :multi-line-mode t)
+                       post replacement))))
+       post))))
+
+(defun html-escape (text)
+  (regex-replace-all
+   "<"
+   (regex-replace-all
+    ">"
+    (regex-replace-all "&" text "&amp;")
+    "&gt;")
+   "&lt;"))

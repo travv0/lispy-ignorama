@@ -10,6 +10,7 @@
 (ql:quickload "uuid")
 (ql:quickload "quri")
 (ql:quickload "hunchentoot")
+(ql:quickload "cl-ppcre")
 
 (setf *print-pretty* nil)
 
