@@ -240,7 +240,7 @@
 (defmacro tags-dropdown ()
   `(with-html (:div :class "tagsdropdown" ("Tag: ")
                     (:select :id "tagdropdown"
-                             :name "Tag"
+                             :name "tag"
                              :required t
                              (:option :value ""
                                       "- Select a tag - ")

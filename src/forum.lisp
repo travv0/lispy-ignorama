@@ -202,14 +202,14 @@
             (:div :class "row"
                   (:div :class "col-xs-3 col-sm-2 col-md-1 subject-label"
                         "Subject:")
-                  (:input :name "Subject"
+                  (:input :name "subject"
                           :type "text"
                           :id "subjectfield"
                           :class "col-xs-9 col-sm-10 col-md-11"
                           :required t))
             (:div :class "row"
                   (:textarea :id "postfield"
-                             :name "Body"
+                             :name "body"
                              :rows 7
                              :cols 50
                              :class "col-xs-12"

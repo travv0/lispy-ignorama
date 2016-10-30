@@ -93,12 +93,12 @@
          (let ((search (get-parameter "search")))
            (values (format nil "Search for \"~a\""
                            (empty-string-if-nil search))
-                   (format nil " WHERE (SELECT 1
-                                        FROM posts
-                                        WHERE posts.ThreadID = IndexThreads.ThreadID
-                                          AND PostContent LIKE '%~a%'
-                                        LIMIT 1) = 1
-                                    OR ThreadSubject LIKE '%~a%'"
+                   (format nil "(SELECT 1
+                                 FROM posts
+                                 WHERE posts.ThreadID = IndexThreads.ThreadID
+                                   AND PostContent LIKE '%~a%'
+                                 LIMIT 1) = 1
+                                 OR ThreadSubject LIKE '%~a%'"
                            (empty-string-if-nil search)
                            (empty-string-if-nil search)))))
         (t "")))

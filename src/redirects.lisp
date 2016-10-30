@@ -68,6 +68,62 @@
                              (getf post :|postid|))))
          (redirect "/error")))
 
+(publish-page b/submit-thread
+  (execute-query-one thread
+      "INSERT INTO threads (
+         ThreadSubject,
+         TagID,
+         Stickied,
+         Locked,
+         Deleted,
+         Banned,
+         LastEditBy
+       )
+       VALUES (
+         ?,     --ThreadSubject,
+         ?,     --TagID,
+         false, --Stickied,
+         false, --Locked,
+         false, --Deleted,
+         false, --Banned,
+         ''     --LastEditBy
+       )
+       RETURNING ThreadID"
+      ((post-parameter "subject")
+       (post-parameter "tag"))
+
+    (execute-query-one post
+        "INSERT INTO posts (
+           ThreadID,
+           UserID,
+           Anonymous,
+           PostContent,
+           PostTime,
+           PostIP,
+           PostRevealedOP,
+           Bump
+         )
+         VALUES (
+           ?,                  --ThreadID
+           ?,                  --UserID
+           ?,                  --Anonymous
+           ?,                  --PostContent
+           current_timestamp,  --PostTime
+           ?,                  --PostIP
+           true,               --PostRevealedOP
+           true                --Bump
+         )"
+        ((getf thread :|threadid|)
+         (if (get-session-var 'userid)
+             (get-session-var 'userid)
+             :null)
+         (post-parameter "anonymous")
+         (post-parameter "body")
+         (real-remote-addr))
+      (redirect (format nil
+                        "/view-thread?thread=~d"
+                        (getf thread :|threadid|))))))
+
 (publish-page b/logout
   (remhash (cookie-in *session-id-cookie-name*) *sessions*)
   (redirect "/"))
