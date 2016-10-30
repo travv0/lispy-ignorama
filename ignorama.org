@@ -56,3 +56,4 @@
 * TODO make it so you need a password to log in
 * TODO change "Tags" to "Boards" everywhere that is displayed to user
 * TODO fix dates on firefox
+* TODO convert spaces in search to wildcards
