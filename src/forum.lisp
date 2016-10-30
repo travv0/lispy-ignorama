@@ -108,7 +108,8 @@
                           (getf thread :|threadid|)
                           (get-parameter "post")))))
 
-  (if (get-parameter "thread")
+  (if (not (equal (empty-string-if-nil (get-parameter "thread"))
+                  ""))
       (standard-page
           (:title (get-thread-title (get-parameter "thread")))
         (:body (thread-buttons)

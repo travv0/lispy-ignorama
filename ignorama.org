@@ -28,7 +28,9 @@
 ** TODO icon that can be clicked to unfollow thread
 ** TODO show reply button as "Thread Locked" when thread is locked
 * TODO following page
-* TODO search results page
+* DONE search results page
+  CLOSED: [2016-10-30 Sun 01:22]
+  - State "DONE"       from "TODO"       [2016-10-30 Sun 01:22]
 * TODO hidden threads page
 * TODO backend code to follow and unfollow threads
 * DONE code to log out
