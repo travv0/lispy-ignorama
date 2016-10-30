@@ -306,6 +306,10 @@ th.thread-row {
     margin-bottom: 5px;
 }
 
+.rightbuttons.bottom {
+    margin-top: 5px;
+}
+
 .thread-icon {
     color: #330066;
 }
@@ -376,4 +380,9 @@ th.thread-row {
     color: black;
     margin: -5px;
     margin-right: -9px;
+}
+
+.tagsdropdown {
+    padding-top: 5px;
+    display: inline-block;
 }

@@ -228,17 +228,28 @@
                               (getf thread
                                     :|latestposttime|)))))))
 
-(defmacro tags-dropdown ()
+(defmacro tags-filter-dropdown ()
   `(with-html (:a :class "dropdown-toggle btn btn-default btn-sm"
                   :data-toggle "dropdown"
                   "Tags " (:b :class "caret"))
               (:ul :class "dropdown-menu dropdown-menu-form pull-right"
                    :role "menu"
-                   (execute-query-loop tag "SELECT TagID, TagName FROM tags" ()
+                   (execute-query-loop tag *tags-query* ()
                      (:li (:label
                            (:input :type "checkbox"
                                    :name (getf tag :|tagid|))
                            (getf tag :|tagname|)))))))
+
+(defmacro tags-dropdown ()
+  `(with-html (:div :class "tagsdropdown" ("Tag: ")
+                    (:select :id "tagdropdown"
+                             :name "Tag"
+                             :required t
+                             (:option :value ""
+                                      "- Select a tag - ")
+                             (execute-query-loop tag *tags-query* ()
+                               (:option :value (getf tag :|tagid|)
+                                        (getf tag :|tagname|)))))))
 
 (defmacro index-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
@@ -269,7 +280,7 @@
                                    :class "btn btn-default btn-sm visible-xs-inline threads"
                                    :value "Apply")
 
-                           (tags-dropdown))
+                           (tags-filter-dropdown))
 
                     (:form :action "/"
                            :method "get"

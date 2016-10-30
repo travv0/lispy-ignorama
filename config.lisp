@@ -51,6 +51,8 @@
 (defparameter *allow-anonymity* t)
 (defparameter *force-anonymity* nil)
 
+(defparameter *allow-anonymous-threads* t)
+
 (defparameter *index-row-limit* 200)
 
 ;;; links to external social sites:

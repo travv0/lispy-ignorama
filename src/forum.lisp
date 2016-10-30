@@ -8,6 +8,7 @@
 (defparameter *session-id-cookie-name* "sessionid")
 
 (defparameter *threads-query* "SELECT * FROM IndexThreads")
+(defparameter *tags-query* "SELECT TagID, TagName FROM tags")
 
 ;;; stuff to go in the <head> tags (minus <title>)
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -163,4 +164,36 @@
 
 (publish-page new-thread
   (standard-page
-      (:title "New Thread")))
+      (:title "New Thread")
+    (:body
+     (:form :action "b/submit-thread"
+            :method "post"
+            (:div :class "row"
+                  (:div :class "col-xs-3 col-sm-2 col-md-1 subject-label"
+                        "Subject:")
+                  (:input :name "Subject"
+                          :type "text"
+                          :id "subjectfield"
+                          :class "col-xs-9 col-sm-10 col-md-11"
+                          :required t))
+            (:div :class "row"
+                  (:textarea :id "postfield"
+                             :name "Body"
+                             :rows 7
+                             :cols 50
+                             :class "col-xs-12"
+                             :required t))
+            (:div :class "row"
+                  (tags-dropdown)
+                  (:div :class "rightbuttons bottom"
+                        (:input :id "submitbutton"
+                                :class "btn btn-default btn-sm"
+                                :name "Submit"
+                                :type "submit"
+                                :value "Submit")
+                        (:input :onclick "window.location='/'"
+                                :class "btn btn-default btn-sm"
+                                :type "button"
+                                :value "Back")))
+            (:div :class "row"
+                  (image-upload-form))))))

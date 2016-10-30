@@ -40,8 +40,10 @@
   - [ ] delete after a certain amount of time
   - [X] delete on log out
 * TODO ability to make new threads
-  - [ ] global variable for whether this can be done anonymously or not
-  - [ ] check if banned before post
+  - [X] front-end
+  - [ ] back-end
+    - [ ] global variable for whether this can be done anonymously or not
+    - [ ] check if banned before post
 * TODO post history page for mods/admins
 * TODO rules page
 * TODO ban log
