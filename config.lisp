@@ -30,15 +30,15 @@
     "Made with MS Paint"
     "Your hobbies are stupid"))
 
-(defparameter *fake-copyright* "
+(defparameter *fake-copyright* (format nil "
 <div style='text-align:center;font-size:9pt;'>
   <p>
     All trademarks and copyrights are owned by their respective parties.
     Comments and uploaded images are the responsibility of the poster.
   </p>
-  <p>Copyright © 2014 Ignorama. All rights reserved.</p>
+  <p>Copyright © ~d ~a. All rights reserved.</p>
 </div>
-<br/>")
+<br/>" (nth-value 5 (get-decoded-time)) *site-name*))
 
 (defparameter *nameless-name* "Anonymous")
 
