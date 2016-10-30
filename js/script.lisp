@@ -32,6 +32,13 @@
          ($ (lambda () (highlight-post (get-parameter-by-name "highlight"))))
 
          (defun highlight-post (post)
+           ; unhighlight all posts
+           ($ "tr"
+              (each (lambda ()
+                      (if (not (equal ($ this (attr "id"))
+                                      (+ "post" post)))
+                          ($ this (css "background-color" "white"))))))
+           ; highlight the selected post
            ($ (+ "#post" post) (css "background-color" "#D6BBF2")))
 
          (defun view-post (post)
