@@ -13,4 +13,5 @@ SET IsActive = true
 WHERE TagName IN ('Anime & Manga',
                   'Video Games',
                   'Technology',
-                  'Off-Topic');
+                  'Off-Topic',
+                  'Music');
