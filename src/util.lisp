@@ -155,15 +155,18 @@
     ("\\[reply[=| ]([0-9]+)\\]\\R*(.*?)\\R*\\[\\/reply\\]\\R?"
      "<div style='padding: 5px;border: 1px solid #DDD;background-color:#F5F5F5'><b><a href='javascript:viewPost(\\1);'>\\1</a> said:</b><br/>\\2</div>")
     ;; quotes
-    ("\\[quote\\]\\R?(.*?)\\R?\\[\\/quote\\]\\R?" "<div style='padding: 5px;border: 1px solid #DDD;background-color:#F5F5F5'><b>Quote:</b><br/>\\1</div>")
+    ("\\[quote\\]\\R?(.*?)\\R?\\[\\/quote\\]\\R?"
+     "<div style='padding: 5px;border: 1px solid #DDD;background-color:#F5F5F5'><b>Quote:</b><br/>\\1</div>")
     ;; code
     ("\\[code\\]\\R*(.*?)\\R*\\[\\/code\\]" "<pre><code>\\1</code></pre>")
     ;; colored text
     ("\\[color=(.*?)\\](.*?)\\[\\/color\\]" "<span style='color:\\1'>\\2</span>")
     ;; url
-    ("\\[url=(http(s?):\\/\\/)?(.*?)\\](.*?)\\[\\/url\\]" "<a target='_blank' href='http\\2://\\3'>\\4</a>")
+    ("\\[url=(http(s?):\\/\\/)?(.*?)\\](.*?)\\[\\/url\\]"
+     "<a target='_blank' href='http\\2://\\3'>\\4</a>")
     ;; youtube embed
-    ("[a-zA-Z\\/\\/:\\.]*(youtube.com\\/watch\\?v=|youtu.be\\/)([a-zA-Z0-9\\-_]+)([a-zA-Z0-9\\/\\*\\-\\_\\?\\&\\;\\%\\=\\.]*)" "<div class='flex-video widescreen'><iframe width='560' height='315' src='//www.youtube.com/embed/\\2' frameborder='0' allowfullscreen></iframe></div>")))
+    ("[a-zA-Z\\/\\/:\\.]*(youtube.com\\/watch\\?v=|youtu.be\\/)([a-zA-Z0-9\\-_]+)([a-zA-Z0-9\\/\\*\\-\\_\\?\\&\\;\\%\\=\\.]*)"
+     "<div class='flex-video widescreen'><iframe width='560' height='315' src='//www.youtube.com/embed/\\2' frameborder='0' allowfullscreen></iframe></div>")))
 
 (defun format-post (post)
   (with-html
