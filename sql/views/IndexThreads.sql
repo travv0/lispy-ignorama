@@ -28,4 +28,4 @@ CREATE OR REPLACE
           tags.NSFW,
           tags.TagName,
           tags.UserStatusID
- ORDER BY Stickied DESC, LatestBump;
+ ORDER BY Stickied DESC, LatestBump DESC;
