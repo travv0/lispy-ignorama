@@ -78,7 +78,7 @@
 (defun user-authority-check-p (required-rank)
   (execute-query-one rank
       "SELECT UserStatusRank FROM UserStatuses WHERE lower(UserStatusDesc) = lower(?)" (required-rank)
-    (let ((status (get-session-var 'userstatus)))
+    (let ((status (user-status-id)))
       (if status
           (<= status
               (getf rank :|userstatusrank|))))))
@@ -107,3 +107,18 @@
   (if (not value)
       ""
       value))
+
+(defun zero-if-nil (value)
+  (if (not value)
+      0
+      value))
+
+(defun is-null (x)
+  (equal x :null))
+
+(defun user-status-id ()
+  (let ((user-status (get-session-var 'userstatus)))
+    (if (not user-status)
+        (execute-query-one status "SELECT MAX(UserStatusID) AS UserStatusID FROM UserStatuses" ()
+          (getf status :|userstatusid|))
+        user-status)))

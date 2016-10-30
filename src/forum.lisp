@@ -8,10 +8,13 @@
 (defparameter *session-id-cookie-name* "sessionid")
 
 (defparameter *threads-query* "SELECT * FROM IndexThreads")
-(defparameter *tags-query* "SELECT TagID, TagName
+(defun tags-query ()
+  (format nil "SELECT TagID, TagName
                             FROM tags
                             WHERE IsActive = true
-                            ORDER BY TagName")
+                              AND UserStatusID >= ~d
+                            ORDER BY TagName"
+          (user-status-id)))
 
 ;;; stuff to go in the <head> tags (minus <title>)
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -100,6 +103,12 @@
                                          (format nil " LIMIT ~d" *index-row-limit*)))
              (:div :class "fake-copyright"
                    (:raw *fake-copyright*))))))
+
+(publish-page following
+  (redirect "/?f=following"))
+
+(publish-page hidden
+  (redirect "/?f=hidden"))
 
 (publish-page view-thread
   ;; if passed "post" parameter, redirect to appropriate thread and highlight post

@@ -126,9 +126,6 @@
                   (getf user :|username|)
                   *nameless-name*)))))
 
-(defun is-null (x)
-  (equal x :null))
-
 (defmacro print-link-to-thread (thread-id thread-title &key locked stickied)
   `(with-html
      (execute-query-one op
@@ -163,7 +160,7 @@
                            (:th :class "thread-row centered col-md-1 col-sm-2 hidden-xs"
                                 "Replies")
                            (:th :class "thread-row centered col-sm-3 col-md-2 hidden-xs"
-                                "Tag(s)")
+                                "Board")
                            (:th :class "thread-row centered col-sm-2 hidden-xs"
                                 "Latest Post")
 
@@ -198,7 +195,7 @@
 
                                      (format nil " (~d)"
                                              (getf thread :|postcount|))
-                                     (:div (format nil "Tags: ~a"
+                                     (:div (format nil "Board: ~a"
                                                    (getf thread :|tag|)))
                                      (:div
                                       (:raw
@@ -231,10 +228,10 @@
 (defmacro tags-filter-dropdown ()
   `(with-html (:a :class "dropdown-toggle btn btn-default btn-sm"
                   :data-toggle "dropdown"
-                  "Tags " (:b :class "caret"))
+                  "Boards " (:b :class "caret"))
               (:ul :class "dropdown-menu dropdown-menu-form pull-right"
                    :role "menu"
-                   (execute-query-loop tag *tags-query* ()
+                   (execute-query-loop tag (tags-query) ()
                      (:li (:label
                            (:input :type "checkbox"
                                    :name (getf tag :|tagid|))
@@ -247,7 +244,7 @@
                              :required t
                              (:option :value ""
                                       "- Select a tag - ")
-                             (execute-query-loop tag *tags-query* ()
+                             (execute-query-loop tag (tags-query) ()
                                (:option :value (getf tag :|tagid|)
                                         (getf tag :|tagname|)))))))
 
@@ -266,10 +263,10 @@
                            (:input :type "button"
                                    :class "btn btn-default btn-sm hidden-xs threads reset-tags"
                                    :onclick "window.location='b/resettags'"
-                                   :value "Reset Tags")
+                                   :value "Reset Boards")
                            (:input :type "submit"
                                    :class "btn btn-default btn-sm hidden-xs threads"
-                                   :value "Apply Tags")
+                                   :value "Apply Boards")
 
                            ;; mobile buttons
                            (:input :type "button"
