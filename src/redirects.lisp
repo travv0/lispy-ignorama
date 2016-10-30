@@ -71,3 +71,7 @@
 (publish-page b/logout
   (remhash (cookie-in *session-id-cookie-name*) *sessions*)
   (redirect "/"))
+
+;; (publish-page b/submit-tags
+;;   (if (logged-in-p)
+;;       (progn ())))

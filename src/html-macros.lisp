@@ -256,13 +256,13 @@
                              "New Thread")
 
                     (:form :class "rightbuttons"
-                           :action "b/submitfilter"
+                           :action "b/submit-tags"
                            :method "post"
 
                            ;; non-mobile buttons
                            (:input :type "button"
                                    :class "btn btn-default btn-sm hidden-xs threads reset-tags"
-                                   :onclick "window.location='b/resettags'"
+                                   :onclick "window.location='b/reset-tags'"
                                    :value "Reset Boards")
                            (:input :type "submit"
                                    :class "btn btn-default btn-sm hidden-xs threads"
@@ -271,7 +271,7 @@
                            ;; mobile buttons
                            (:input :type "button"
                                    :class "btn btn-default btn-sm visible-xs-inline threads reset"
-                                   :onclick "window.location='b/resettags'"
+                                   :onclick "window.location='b/reset-tags'"
                                    :value "Reset")
                            (:input :type "submit"
                                    :class "btn btn-default btn-sm visible-xs-inline threads"

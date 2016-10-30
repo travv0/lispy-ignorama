@@ -59,7 +59,9 @@
 * TODO settings page
 * TODO make it so you need a password to log in
 * TODO ability to create account
-* TODO change "Tags" to "Boards" everywhere that is displayed to user
+* DONE change "Tags" to "Boards" everywhere that is displayed to user
+  CLOSED: [2016-10-30 Sun 11:04]
+  - State "DONE"       from "TODO"       [2016-10-30 Sun 11:04]
 * TODO fix dates on firefox
 * TODO convert spaces in search to wildcards
 * TODO ability to view usernames that have been used from an IP

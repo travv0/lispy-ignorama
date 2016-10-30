@@ -6,10 +6,14 @@ SET IsGlobal = false;
 
 UPDATE tags
 SET IsGlobal = true
-WHERE TagName = 'All Tags';
+WHERE TagName IN ('All Tags',
+                  'All Boards');
 
 UPDATE tags
-SET TagName = 'All Boards'
+SET TagName = 'All Boards',
+    UserStatusID = (SELECT UserStatusID
+                    FROM UserStatuses
+                    WHERE UserStatusDesc = 'User')
 WHERE IsGlobal = true;
 
 ALTER TABLE tags
@@ -49,3 +53,16 @@ DROP ModeratorOnly CASCADE;
 
 ALTER TABLE tags
 ALTER UserStatusID SET NOT NULL;
+
+DO
+$do$
+  BEGIN
+    IF (SELECT 1 FROM tags WHERE tagname = 'Admin') IS NULL THEN
+      INSERT INTO tags (tagname, isactive, nsfw, isglobal, userstatusid)
+      VALUES ('Admin', true, false, false,
+                      (SELECT userstatusid FROM UserStatuses WHERE UserStatusDesc = 'Admin'));
+    ELSE
+      RAISE NOTICE 'Tag already exists';
+    END IF;
+  END
+$do$;

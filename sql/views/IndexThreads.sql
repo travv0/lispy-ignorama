@@ -1,9 +1,10 @@
+DROP VIEW IndexThreads;
+
 CREATE OR REPLACE
  VIEW IndexThreads
  AS
  SELECT threads.*,
-      a.NSFW AS TagNSFW,
-  b.NSFW AS SubTagNSFW,
+      tags.NSFW AS TagNSFW,
   (SELECT MAX(PostTime)
    FROM posts
    WHERE threads.ThreadID = posts.ThreadID) AS LatestPostTime,
@@ -15,18 +16,16 @@ CREATE OR REPLACE
    FROM posts
    WHERE threads.ThreadID = posts.ThreadID
      AND Bump = true) AS LatestBump,
-  a.TagName as Tag,
-  b.TagName as SubTag,
+  tags.TagName as Tag,
+  tags.UserStatusID,
   (SELECT COUNT(1)
    FROM posts
    WHERE threads.ThreadID = posts.ThreadID) - 1 AS PostCount
  FROM threads
  LEFT JOIN posts ON (threads.ThreadID = posts.ThreadID)
- LEFT JOIN tags a ON a.TagID = threads.TagID
- LEFT JOIN tags b ON b.TagID = threads.SubTagID
+ LEFT JOIN tags ON tags.TagID = threads.TagID
  GROUP BY threads.ThreadID,
-          a.NSFW,
-          b.NSFW,
-          a.TagName,
-          b.TagName
+          tags.NSFW,
+          tags.TagName,
+          tags.UserStatusID
  ORDER BY Stickied DESC, LatestBump;

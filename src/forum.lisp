@@ -7,14 +7,31 @@
 
 (defparameter *session-id-cookie-name* "sessionid")
 
-(defparameter *threads-query* "SELECT * FROM IndexThreads")
+(defun threads-query (condition)
+  (format nil "SELECT *
+               FROM IndexThreads
+               WHERE (~a)
+                 AND UserStatusID >= ~d
+               LIMIT ~d"
+          (if condition
+              condition
+              :true)
+          (user-status-id)
+          *index-row-limit*))
 (defun tags-query ()
-  (format nil "SELECT TagID, TagName
+  (let ((user-status-id (user-status-id)))
+    (format nil "SELECT TagID, TagName
                             FROM tags
-                            WHERE IsActive = true
+                            WHERE (IsActive = true
                               AND UserStatusID >= ~d
+                              AND IsGlobal = false)
+                               OR (IsGlobal = true AND
+                                   ~d <= (SELECT UserStatusID
+                                                    FROM UserStatuses
+                                                    WHERE UserStatusDesc = 'Admin'))
                             ORDER BY TagName"
-          (user-status-id)))
+            user-status-id
+            user-status-id)))
 
 ;;; stuff to go in the <head> tags (minus <title>)
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -97,10 +114,7 @@
     (standard-page
         (:title title)
       (:body (index-buttons)
-             (threads-table (concatenate 'string
-                                         *threads-query*
-                                         condition
-                                         (format nil " LIMIT ~d" *index-row-limit*)))
+             (threads-table (threads-query condition))
              (:div :class "fake-copyright"
                    (:raw *fake-copyright*))))))
 
