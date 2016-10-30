@@ -62,3 +62,4 @@
 * TODO change "Tags" to "Boards" everywhere that is displayed to user
 * TODO fix dates on firefox
 * TODO convert spaces in search to wildcards
+* TODO ability to view usernames that have been used from an IP
