@@ -8,7 +8,10 @@
 (defparameter *session-id-cookie-name* "sessionid")
 
 (defparameter *threads-query* "SELECT * FROM IndexThreads")
-(defparameter *tags-query* "SELECT TagID, TagName FROM tags")
+(defparameter *tags-query* "SELECT TagID, TagName
+                            FROM tags
+                            WHERE IsActive = true
+                            ORDER BY TagName")
 
 ;;; stuff to go in the <head> tags (minus <title>)
 (eval-when (:compile-toplevel :load-toplevel :execute)
