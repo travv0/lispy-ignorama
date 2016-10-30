@@ -18,7 +18,7 @@
 
       (:link :rel "shortcut icon"
              :type "image/png"
-             :href "/static/favicon.png")
+             :href *favicon-path*)
 
       (:link :rel "stylesheet"
              :href "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css")
@@ -42,13 +42,13 @@
         ;; logo and slogans
         (:span :class "hidden-xs"
                (:a :href "/"
-                   (:img :class "header logo" :src "/static/ignorama.png"))
+                   (:img :class "header logo" :src *logo-path*))
                (if *slogans*
                    (:b :class "hidden-sm header slogan"
                        (:raw (random-elt *slogans*)))))
         (:span :class "visible-xs-inline"
                (:a :href "/"
-                   (:img :class "header logo small" :src "/static/ignoramasmall.png")))
+                   (:img :class "header logo small" :src *small-logo-path*)))
 
         ;; right links
         (rightlinks))))))

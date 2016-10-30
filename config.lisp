@@ -21,6 +21,10 @@
 
 (defparameter *site-name* "Ignorama")
 
+(defparameter *favicon-path* "/static/favicon.png")
+(defparameter *logo-path* "/static/ignorama.png")
+(defparameter *small-logo-path* "/static/ignoramasmall.png")
+
 ;;; will load random slogan on each page load
 ;;; for a single slogan, just include one string in the list
 ;;; for no slogan, leave it empty or nil
