@@ -22,14 +22,19 @@
   (let ((user-status-id (user-status-id)))
     (format nil "SELECT TagID, TagName
                             FROM tags
-                            WHERE (IsActive = true
-                              AND UserStatusID >= ~d
-                              AND IsGlobal = false)
-                               OR (IsGlobal = true AND
+                            WHERE (
+                                   IsActive = true AND
+                                   UserStatusID >= ~d AND
+                                   IsGlobal = false
+                                  )
+                               OR (
+                                   IsGlobal = true AND
                                    ~d <= (SELECT UserStatusID
                                                     FROM UserStatuses
-                                                    WHERE UserStatusDesc = 'Admin'))
-                            ORDER BY TagName"
+                                                    WHERE UserStatusDesc = 'Admin')
+                                  )
+                            ORDER BY UserStatusID ASC,
+                                     TagName"
             user-status-id
             user-status-id)))
 
