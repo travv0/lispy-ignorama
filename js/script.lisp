@@ -1,0 +1,42 @@
+(in-package :net.ignorama.web)
+
+(defpsmacro $ (selector &body chains)
+  `(chain (j-query ,selector)
+          ,@chains))
+
+(defparameter *js*
+  (ps))
+
+(hunchentoot:define-easy-handler (js :uri "/js/script.js") ()
+  (setf (hunchentoot:content-type*) "application/javascript")
+  *js*)
+
+(defun view-thread-js ()
+  (execute-query-one min-max-posts
+      (format nil "SELECT max(PostID) AS MaxPost,
+                                              min(PostID) AS MinPost
+                                              FROM posts
+                                              WHERE ThreadID = ?
+                                              LIMIT ?
+                                              ~a"
+              (if (get-parameter "page")
+                  (format nil
+                          "OFFSET ~d"
+                          (- (get-parameter "page") 1))
+                  ""))
+      ((get-parameter "thread")
+       *posts-per-page*)
+    (with-html
+      (:raw
+       (ps
+         ($ (lambda () (highlight-post (get-parameter-by-name "highlight"))))
+
+         (defun highlight-post (post)
+           ($ (+ "#post" post) (css "background-color" "#D6BBF2")))
+
+         (defun view-post (post)
+           (if (or (> post (lisp (getf min-max-posts :|maxpost|)))
+                   (< post (lisp (getf min-max-posts :|minpost|))))
+               (chain window (open (+ "/view-thread?post=" post)))
+               (progn (highlight-post post)
+                      (chain window (open (+ "#post" post) "_self"))))))))))

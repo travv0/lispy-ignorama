@@ -60,7 +60,8 @@
 
       (:script :src "//code.jquery.com/jquery-1.11.0.min.js")
       (:script :src "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
-      (:script :src "/static/script.js"))))
+      (:script :src "/static/script.js")
+      (:script :src "/js/script.js"))))
 
 ;;; page skeleton
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -136,8 +137,9 @@
           "SELECT ThreadID FROM posts WHERE PostID = ?"
           ((get-parameter "post"))
         (redirect (format nil
-                          "/view-thread?thread=~d&highlight=~d"
+                          "/view-thread?thread=~d&highlight=~d#post~d"
                           (getf thread :|threadid|)
+                          (get-parameter "post")
                           (get-parameter "post")))))
 
   (if (not (equal (empty-string-if-nil (get-parameter "thread"))
@@ -153,7 +155,8 @@
                             (get-parameter "thread"))
                (thread-buttons)
                (:div :class "fake-copyright"
-                     (:raw *fake-copyright*))))
+                     (:raw *fake-copyright*))
+               (:script (view-thread-js))))
       (redirect "/")))
 
 (publish-page login

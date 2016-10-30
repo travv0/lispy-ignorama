@@ -11,6 +11,7 @@
 (ql:quickload "quri")
 (ql:quickload "hunchentoot")
 (ql:quickload "cl-ppcre")
+(ql:quickload "parenscript")
 
 (setf *print-pretty* nil)
 

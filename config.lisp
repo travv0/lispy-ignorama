@@ -55,6 +55,8 @@
 
 (defparameter *index-row-limit* 200)
 
+(defparameter *posts-per-page* 20)
+
 ;;; links to external social sites:
 ;;;             (:name-of-social-site "https://site-url.com/your-site.html" "Optional Dropdown Text")
 ;;;     go to http://fontawesome.io/icons/ to see choices for :name-of-social-site
