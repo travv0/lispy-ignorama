@@ -189,8 +189,7 @@
                                      :uri ,(string-downcase
                                             (if (equal 'index name)
                                                 "/"
-                                                (concatenate 'string "/" (symbol-name name)))))
-       ()
+                                                (concatenate 'string "/" (symbol-name name))))) ()
      (setf (hunchentoot:content-type*) "text/html")
      (let ((*conn* *conn*))
        (with-db *conn*
@@ -241,81 +240,81 @@
                                    :type "submit"
                                    (:span :class "glyphicon glyphicon-search"))))))
 
-(defmacro threads-table (query)
-  `(with-html (:table :class "table table-bordered fixed main-table"
-                      (:tr :class "thread-row"
-                           ;; non-mobile header
-                           (:th :class "thread-row hidden-xs"
-                                "Thread")
-                           (:th :class "thread-row centered col-sm-2 hidden-xs"
-                                "User")
-                           (:th :class "thread-row centered col-md-1 col-sm-2 hidden-xs"
-                                "Replies")
-                           (:th :class "thread-row centered col-sm-3 col-md-2 hidden-xs"
-                                "Board")
-                           (:th :class "thread-row centered col-sm-2 hidden-xs"
-                                "Latest Post")
+(defun threads-table (query)
+  (with-html (:table :class "table table-bordered fixed main-table"
+                     (:tr :class "thread-row"
+                          ;; non-mobile header
+                          (:th :class "thread-row hidden-xs"
+                               "Thread")
+                          (:th :class "thread-row centered col-sm-2 hidden-xs"
+                               "User")
+                          (:th :class "thread-row centered col-md-1 col-sm-2 hidden-xs"
+                               "Replies")
+                          (:th :class "thread-row centered col-sm-3 col-md-2 hidden-xs"
+                               "Board")
+                          (:th :class "thread-row centered col-sm-2 hidden-xs"
+                               "Latest Post")
 
-                           ;; mobile header
-                           (:th :class "thread-row visible-xs"
-                                "Threads"
-                                (:form :action "/"
-                                       :method "get"
-                                       :class "visible-xs searchform"
-                                       (:div :class "mobile-search"
-                                             (:input :class "searchbox mobile"
-                                                     :name "search"
-                                                     :type "textbox")
-                                             (:input :type "hidden"
-                                                     :name "f"
-                                                     :value "search")
-                                             (:button :style "margin-top: -3px; margin-right: 4px;"
-                                                      :class "btn btn-default btn-sm"
-                                                      :type "submit"
-                                                      (:span :class "glyphicon glyphicon-search"))))))
+                          ;; mobile header
+                          (:th :class "thread-row visible-xs"
+                               "Threads"
+                               (:form :action "/"
+                                      :method "get"
+                                      :class "visible-xs searchform"
+                                      (:div :class "mobile-search"
+                                            (:input :class "searchbox mobile"
+                                                    :name "search"
+                                                    :type "textbox")
+                                            (:input :type "hidden"
+                                                    :name "f"
+                                                    :value "search")
+                                            (:button :style "margin-top: -3px; margin-right: 4px;"
+                                                     :class "btn btn-default btn-sm"
+                                                     :type "submit"
+                                                     (:span :class "glyphicon glyphicon-search"))))))
 
-                      (execute-query-loop thread ,query ()
-                        (:tr
-                         (:td :class "thread-name centered"
-                              (print-link-to-thread (getf thread :|threadid|)
-                                                    (getf thread :|threadsubject|)
-                                                    :locked (getf thread :|locked|)
-                                                    :stickied (getf thread :|stickied|))
+                     (execute-query-loop thread query ()
+                       (:tr
+                        (:td :class "thread-name centered"
+                             (print-link-to-thread (getf thread :|threadid|)
+                                                   (getf thread :|threadsubject|)
+                                                   :locked (getf thread :|locked|)
+                                                   :stickied (getf thread :|stickied|))
 
-                              ;; stuff for mobile
-                              (:span :class "visible-xs-inline"
+                             ;; stuff for mobile
+                             (:span :class "visible-xs-inline"
 
-                                     (format nil " (~d)"
-                                             (getf thread :|postcount|))
-                                     (:div (format nil "Board: ~a"
-                                                   (getf thread :|tag|)))
-                                     (:div
-                                      (:raw
-                                       (format nil "Latest Post: ~a"
-                                               (with-html-string
-                                                 (:span :class "time"
-                                                        (getf thread
-                                                              :|latestposttime|))))))
-                                     (:div
-                                      (multiple-value-bind (name ip)
-                                          (print-username
-                                           (getf thread :|postid|))
-                                        (:div name)
-                                        (:div ip)))))
+                                    (format nil " (~d)"
+                                            (getf thread :|postcount|))
+                                    (:div (format nil "Board: ~a"
+                                                  (getf thread :|tag|)))
+                                    (:div
+                                     (:raw
+                                      (format nil "Latest Post: ~a"
+                                              (with-html-string
+                                                (:span :class "time"
+                                                       (getf thread
+                                                             :|latestposttime|))))))
+                                    (:div
+                                     (multiple-value-bind (name ip)
+                                         (print-username
+                                          (getf thread :|postid|))
+                                       (:div name)
+                                       (:div ip)))))
 
-                         (:td :class "hidden-xs thread-row centered"
-                              (multiple-value-bind (name ip)
-                                  (print-username
-                                   (getf thread :|postid|))
-                                (:div name)
-                                (:div ip)))
-                         (:td :class "hidden-xs thread-row centered"
-                              (getf thread :|postcount|))
-                         (:td :class "hidden-xs thread-row centered"
-                              (getf thread :|tag|))
-                         (:td :class "hidden-xs time thread-row centered"
-                              (getf thread
-                                    :|latestposttime|)))))))
+                        (:td :class "hidden-xs thread-row centered"
+                             (multiple-value-bind (name ip)
+                                 (print-username
+                                  (getf thread :|postid|))
+                               (:div name)
+                               (:div ip)))
+                        (:td :class "hidden-xs thread-row centered"
+                             (getf thread :|postcount|))
+                        (:td :class "hidden-xs thread-row centered"
+                             (getf thread :|tag|))
+                        (:td :class "hidden-xs time thread-row centered"
+                             (getf thread
+                                   :|latestposttime|)))))))
 
 (publish-page index
   (multiple-value-bind (title condition)
