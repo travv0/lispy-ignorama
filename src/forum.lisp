@@ -13,6 +13,7 @@
               :true)
           (user-status-id)
           *index-row-limit*))
+
 (defun tags-query ()
   (let ((user-status-id (user-status-id)))
     (format nil "SELECT TagID, TagName
@@ -32,6 +33,8 @@
                                      TagName"
             user-status-id
             user-status-id)))
+
+(defparameter *rightlinks* '("Following" "Hidden" "Rules" "Bans" "Settings"))
 
 ;;; stuff to go in the <head> tags (minus <title>)
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -75,70 +78,86 @@
 (defun generate-dropdown-links (links)
   (let ((result '(progn)))
     (dolist (link links)
-      (setf result (append result (list (with-html (:div (:a :class "dropdown-item"
-                                                             :href (concatenate 'string
-                                                                                "/"
-                                                                                (string-downcase link))
-                                                             link)))))))
+      (setf result (append result
+                           (list (with-html
+                                   (:div
+                                    (:a :class "dropdown-item"
+                                        :href (concatenate 'string
+                                                           "/"
+                                                           (string-downcase link))
+                                        link)))))))
     result))
 
 (defun generate-dropdown-links-social (sites)
   (let ((result '(progn)))
     (dolist (site sites)
       (destructuring-bind (type url &optional name) site
-        (setf result (append result (list (with-html (:div (:a :class "dropdown-item"
-                                                               :target "_blank"
-                                                               :href url
-                                                               (site-symbol-to-name type
-                                                                                    name)))))))))
+        (setf result (append result
+                             (list (with-html
+                                     (:div (:a :class "dropdown-item"
+                                               :target "_blank"
+                                               :href url
+                                               (site-symbol-to-name type
+                                                                    name)))))))))
     result))
 
-(defun rightlinks ()
-  (let ((rightlinks '("Following" "Hidden" "Rules" "Bans" "Settings")))
-    (with-html
-      (:div :class "header rightlinks"
-            ;; non-mobile
-            (:div :class "hidden-xs"
-                  (:div
-                   (generate-sociallinks *sociallinks*)
-                   (generate-rightlinks rightlinks))
+(defun rightlinks (rightlinks sociallinks)
+  (with-html
+    (:div :class "header rightlinks"
+          (rightlinks-desktop rightlinks sociallinks)
+          (rightlinks-mobile rightlinks sociallinks))))
 
-                  (if (logged-in-p)
-                      (:div :class "header loginlinks logout-area"
-                            (format nil "Logged in as ~a " (get-session-var 'username))
-                            (:a :href "/b/logout"
-                                "(logout)"))
-                      (:div :class "header loginlinks"
-                            (:a :class "header rightlink"
-                                :href "/signup" "Sign up")
-                            ("/")
-                            (:a :class "header rightlink"
-                                :href "/login" "Log in"))))
+(defun rightlinks-desktop (rightlinks sociallinks)
+  (with-html
+    (:div :class "hidden-xs"
+          (:div
+           (generate-sociallinks sociallinks)
+           (generate-rightlinks rightlinks))
 
-            ;; mobile
-            (:div :class "visible-xs-inline"
-                  (:div :class "btn-group mobile header rightlinks"
-                        (:div :class "visible-xs-inline"
-                              (:a :class "btn btn-default btn-sm dropdown-toggle"
-                                  :data-toggle "dropdown"
-                                  "Menu " (:span :class "caret"))
-                              (:ul :class "dropdown-menu pull-right"
-                                   (generate-dropdown-links rightlinks)
-                                   (generate-dropdown-links-social *sociallinks*))))
-                  (:br)
-                  (:br)
-                  (if (logged-in-p)
-                      (:div :class "mobile-login-links"
-                            (:span (format nil "Logged in as ~a" (get-session-var 'username))
-                                   (:a :href "/b/logout"
-                                       (:span :class "mobile-login-link"
-                                              "(logout)"))))
-                      (:div :class "mobile-login-links"
-                            (:a :class "header rightlink mobile-login-link"
-                                :href "/signup" "Sign up")
-                            ("/")
-                            (:a :class "header rightlink mobile-login-link"
-                                :href "/login" "Log in"))))))))
+          (login-links-desktop))))
+
+(defun rightlinks-mobile (rightlinks sociallinks)
+  (with-html
+    (:div :class "visible-xs-inline"
+          (:div :class "btn-group mobile header rightlinks"
+                (:a :class "btn btn-default btn-sm dropdown-toggle"
+                    :data-toggle "dropdown"
+                    "Menu " (:span :class "caret"))
+                (:ul :class "dropdown-menu pull-right"
+                     (generate-dropdown-links rightlinks)
+                     (generate-dropdown-links-social sociallinks)))
+          (:br)
+          (:br)
+          (login-links-mobile))))
+
+(defun login-links-desktop ()
+  (with-html
+    (if (logged-in-p)
+        (:div :class "header loginlinks logout-area"
+              (format nil "Logged in as ~a " (get-session-var 'username))
+              (:a :href "/b/logout"
+                  "(logout)"))
+        (:div :class "header loginlinks"
+              (:a :class "header rightlink"
+                  :href "/signup" "Sign up")
+              ("/")
+              (:a :class "header rightlink"
+                  :href "/login" "Log in")))))
+
+(defun login-links-mobile ()
+  (with-html
+    (if (logged-in-p)
+        (:div :class "mobile-login-links"
+              (:span (format nil "Logged in as ~a" (get-session-var 'username))
+                     (:a :href "/b/logout"
+                         (:span :class "mobile-login-link"
+                                "(logout)"))))
+        (:div :class "mobile-login-links"
+              (:a :class "header rightlink mobile-login-link"
+                  :href "/signup" "Sign up")
+              ("/")
+              (:a :class "header rightlink mobile-login-link"
+                  :href "/login" "Log in")))))
 
 ;;; page skeleton
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -158,7 +177,7 @@
                    (:img :class "header logo small" :src *small-logo-path*)))
 
         ;; right links
-        (rightlinks))))))
+        (rightlinks *rightlinks* *sociallinks*))))))
 
 ;;; The basic format that every viewable page will follow.
 (defmacro standard-page ((&key title) &body body)
