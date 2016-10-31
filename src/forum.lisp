@@ -2,11 +2,6 @@
 (in-package :net.ignorama.web)
 
 ;;; site setup
-(defvar *sessions* (make-hash-table :test 'equal))
-(defvar *conn* nil)
-
-(defparameter *session-id-cookie-name* "sessionid")
-
 (defun threads-query (condition)
   (format nil "SELECT *
                FROM IndexThreads

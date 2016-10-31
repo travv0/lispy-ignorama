@@ -1,6 +1,11 @@
 ;; -*- coding:utf-8 -*-
 (in-package :net.ignorama.web)
 
+(defvar *conn* nil)
+(defvar *sessions* (make-hash-table :test 'equal))
+
+(defparameter *session-id-cookie-name* "sessionid")
+
 (defun print-debug-to-log (text)
   (format
    t
