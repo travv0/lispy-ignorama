@@ -60,11 +60,12 @@
 
 (defun is-op-p (thread-id)
   (execute-query-one op "SELECT PostIP, UserName
-                               FROM threads
-                               JOIN posts ON threads.ThreadID = posts.ThreadID
-                               JOIN users ON posts.UserID = users.UserID
-                               WHERE threads.ThreadID = ?
-                               LIMIT 1" (thread-id)
+                         FROM threads
+                         JOIN posts ON threads.ThreadID = posts.ThreadID
+                         LEFT JOIN users ON posts.UserID = users.UserID
+                         WHERE threads.ThreadID = ?
+                         ORDER BY PostID
+                         LIMIT 1" (thread-id)
     (let ((username (getf op :|username|))
           (ip (getf op :|postip|)))
       (or (and username
@@ -190,3 +191,9 @@
     (regex-replace-all "&" text "&amp;")
     "&gt;")
    "&lt;"))
+
+(defun join-string-list (list &optional (separator " "))
+  (with-output-to-string (s)
+    (loop :for a :on list :do
+       (write-string (car a) s)
+       (unless (null (cdr a)) (write-string separator s)))))

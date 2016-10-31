@@ -107,24 +107,68 @@
                              (:a :class "header rightlink mobile-login-link"
                                  :href "/login" "Log in"))))))))
 
-(defmacro print-username (post-id)
-  `(execute-query-one user "SELECT UserName,
-                                   Anonymous,
-                                   PostIP
-                            FROM posts
-                            LEFT JOIN users ON posts.UserID = users.UserID
-                            WHERE PostID = ?" (,post-id)
-     (cond ((user-authority-check-p "Moderator")
-            (if (not (is-null (getf user :|username|)))
-                (values (getf user :|username|)
-                        (getf user :|postip|))
-                (getf user :|postip|)))
-           (t (if (and (or (and (not *force-anonymity*)
-                                (not (getf user :|anonymous|)))
-                           (not *allow-anonymity*))
-                       (not (is-null (getf user :|username|))))
-                  (getf user :|username|)
-                  *nameless-name*)))))
+(defun print-username (post-id)
+  (execute-query-one user "SELECT UserName,
+                                  Anonymous,
+                                  PostIP
+                           FROM posts
+                           LEFT JOIN users ON posts.UserID = users.UserID
+                           WHERE PostID = ?" (post-id)
+    (cond ((user-authority-check-p "Moderator")
+           (if (not (is-null (getf user :|username|)))
+               (values (getf user :|username|)
+                       (getf user :|postip|))
+               (getf user :|postip|)))
+          (t (if (and (or (and (not *force-anonymity*)
+                               (not (getf user :|anonymous|)))
+                          (not *allow-anonymity*))
+                      (not (is-null (getf user :|username|))))
+                 (getf user :|username|)
+                 *nameless-name*)))))
+
+(defun print-post-options (post-id)
+  (execute-query-one user "SELECT UserName,
+                                  Anonymous,
+                                  PostRevealedOP,
+                                  Bump,
+                                  PostIP,
+                                  ThreadID
+                           FROM posts
+                           LEFT JOIN users ON posts.UserID = users.UserID
+                           WHERE PostID = ?" (post-id)
+    (execute-query-one op "SELECT PostIP
+                           FROM posts
+                           WHERE ThreadID = ?
+                           ORDER BY PostID
+                           LIMIT 1"
+        ((getf user :|threadid|))
+      (let ((options '())
+            (op-revealed (getf user :|postrevealedop|))
+            (username (getf user :|username|))
+            (anonymous (getf user :|anonymous|))
+            (bump (getf user :|bump|))
+            (post-ip (getf user :|postip|))
+            (op-post-ip (getf op :|postip|))
+            (we-are-moderator (user-authority-check-p "Moderator")))
+        (if (and we-are-moderator
+                 anonymous
+                 (not (is-null username)))
+            (setf options (cons "Anonymous" options)))
+        (cond (op-revealed
+               (setf options (cons "OP" options)))
+              ((and we-are-moderator
+                    (equal post-ip op-post-ip))
+               (setf options (cons
+                              (with-html-string
+                                (:span :class "faded-text"
+                                       "OP"))
+                              options)))
+              (bump
+               (setf options (cons "Bump" options))))
+        (print-debug-to-log options)
+        (if options
+            (join-string-list options " | ")
+            "")))))
 
 (defmacro print-link-to-thread (thread-id thread-title &key locked stickied)
   `(with-html
@@ -295,35 +339,40 @@
 
 (defmacro posts-table (query &rest params)
   `(with-html (:table :class "table table-bordered fixed main-table"
-                      (execute-query-loop post ,query (,@params)
-                        (let ((post-id (getf post :|postid|))
-                              (post-time (getf post :|posttime|)))
-                          (:tr :id (concatenate 'string
-                                                "post"
-                                                (write-to-string
-                                                 post-id))
-                               (:td :class "col-sm-3 hidden-xs thread-row centered"
-                                    (:div (multiple-value-bind (name ip)
-                                              (print-username
-                                               (getf post :|postid|))
-                                            (:b (:div name))
-                                            (:div ip))
-                                          ;; (print-post-options post-id)
-                                          )
-                                    (:div :class "time" post-time))
-                               (:td :class "col-sm-9 post-content centered"
-                                    (:div :class "visible-xs mobile-post-info"
-                                          (:span :class "time mobile-date"
-                                                 post-time)
-                                          (:span (multiple-value-bind (name ip)
-                                                     (print-username
-                                                      (getf post :|postid|))
-                                                   (:div (:b name))
-                                                   (:div ip))
-                                                 ;; (print-post-options post-id)
-                                                 )
-                                          )
-                                    (:div (format-post (getf post :|postcontent|))))))))))
+                      (:tbody
+                       (execute-query-loop post ,query (,@params)
+                         (let ((post-id (getf post :|postid|))
+                               (post-time (getf post :|posttime|)))
+                           (:tr :id (concatenate 'string
+                                                 "post"
+                                                 (write-to-string
+                                                  post-id))
+                                (:td :class "col-sm-3 hidden-xs"
+                                     (:div :class "post-info"
+                                           (multiple-value-bind (name ip)
+                                               (print-username
+                                                (getf post :|postid|))
+                                             (:b (:div name))
+                                             (:div ip))
+                                           (let ((options (print-post-options post-id)))
+                                             (if options
+                                                 (:raw options)))
+                                           (:br)
+                                           (:br)
+                                           (:div :class "time" post-time)))
+                                (:td :class "col-sm-9 post-content centered"
+                                     (:div :class "visible-xs mobile-post-info"
+                                           (:span :class "time mobile-date"
+                                                  post-time)
+                                           (:span (multiple-value-bind (name ip)
+                                                      (print-username
+                                                       (getf post :|postid|))
+                                                    (:div (:b name))
+                                                    (:div ip))
+                                                  ;; (print-post-options post-id)
+                                                  )
+                                           )
+                                     (:div (format-post (getf post :|postcontent|)))))))))))
 
 (defmacro thread-buttons ()
   `(with-html

@@ -390,3 +390,11 @@ th.thread-row {
 select.pagination {
     margin: -1px -5px 0px -1px;
 }
+
+.post-info {
+    text-align:center;
+}
+
+.faded-text {
+    color: #B8B8B8;
+}
