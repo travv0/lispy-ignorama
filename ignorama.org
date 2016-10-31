@@ -19,8 +19,10 @@
 ** DONE pagination
    CLOSED: [2016-10-30 Sun 19:10]
    - State "DONE"       from "TODO"       [2016-10-30 Sun 19:10]
-** TODO show if user bumped or announced OP status
-   - [ ] always show these statuses to mods
+** DONE show if user bumped or announced OP status
+   CLOSED: [2016-10-30 Sun 22:45]
+   - State "DONE"       from "TODO"       [2016-10-30 Sun 22:45]
+   - [X] always show these statuses to mods
 ** TODO give posts that have already been seen by user a slightly darker background
 ** DONE post formatting
    CLOSED: [2016-10-30 Sun 13:57]
@@ -50,11 +52,13 @@
 * TODO code for sessions cleanup
   - [ ] delete after a certain amount of time
   - [X] delete on log out
-* TODO ability to make new threads
+* DONE ability to make new threads
+  CLOSED: [2016-10-30 Sun 22:46]
+  - State "DONE"       from "TODO"       [2016-10-30 Sun 22:46]
   - [X] front-end
-  - [ ] back-end
-    - [ ] global variable for whether this can be done anonymously or not
-    - [ ] check if banned before post
+  - [X] back-end
+    - [X] global variable for whether this can be done anonymously or not
+    - [X] check if banned before post
 * TODO post history page for mods/admins
 * TODO rules page
 * TODO ban log
