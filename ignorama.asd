@@ -8,7 +8,6 @@
                "uuid"
                "cl-ppcre"
                "parenscript"
-               "clack-errors"
                "cl-dbi"
                "local-time")
   :components ((:file "packages")
