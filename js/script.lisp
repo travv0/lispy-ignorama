@@ -7,7 +7,7 @@
 (defparameter *js*
   (ps))
 
-(hunchentoot:define-easy-handler (js :uri "/js/script.js") ()
+(hunchentoot:define-easy-handler (javascript :uri "/js/script.js") ()
   (setf (hunchentoot:content-type*) "application/javascript")
   *js*)
 
