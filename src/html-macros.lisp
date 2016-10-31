@@ -165,7 +165,7 @@
                               options)))
               (bump
                (setf options (cons "Bump" options))))
-        (print-debug-to-log options)
+
         (if options
             (join-string-list options " | ")
             "")))))
