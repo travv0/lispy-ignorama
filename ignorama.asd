@@ -12,9 +12,7 @@
                "cl-dbi"
                "local-time")
   :components ((:file "packages")
-               (:file "src/util" :depends-on ("config"))
-               (:file "src/html-macros" :depends-on ("src/util" "packages"))
-               (:file "config"))
+               (:file "src/util" :depends-on ("packages"))
+               (:file "config" :depends-on ("packages"))
                (:file "js/script" :depends-on ("packages"))
-               (:file "src/forum" :depends-on ("config" "src/util" "src/html-macros" "js/script"))
-               (:file "src/redirects" :depends-on ("src/forum"))))
+               (:file "src/forum" :depends-on ("config" "src/util" "js/script"))))
