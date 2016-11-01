@@ -306,8 +306,8 @@
           (getf thread :|postcount|)))
 
 (defhtml mobile-board (thread)
-  (:div (format nil "Board: ~a"
-                (getf thread :|tag|))))
+  (format nil "Board: ~a"
+          (getf thread :|tag|)))
 
 (defhtml mobile-last-post-time (thread)
   (format nil "Latest Post: ~a"
@@ -413,8 +413,7 @@
                                                        (getf post :|postid|))
                                                     (:div (:b name))
                                                     (:div ip))
-                                                  ;; (print-post-options post-id)
-                                                  )
+                                                  (:raw (print-post-options post-id)))
                                            )
                                      (:div (format-post (getf post :|postcontent|)))))))))))
 
