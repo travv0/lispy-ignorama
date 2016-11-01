@@ -3,6 +3,7 @@
 (print ">>> Building system....")
 
 (require 'asdf)
+(load (merge-pathnames "web-util/web-util.asd" *build-dir*))
 (load (merge-pathnames "ignorama.asd" *build-dir*))
 (load (merge-pathnames "load.lisp" *build-dir*))
 

@@ -12,10 +12,10 @@
 (ql:quickload "hunchentoot")
 (ql:quickload "cl-ppcre")
 (ql:quickload "parenscript")
-(ql:quickload "web-util")
 
 (setf parenscript:*js-string-delimiter* #\')
 (setf *print-pretty* nil)
 
 (require "asdf")
+(asdf:load-system :web-util)
 (asdf:load-system :ignorama)
