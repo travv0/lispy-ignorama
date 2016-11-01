@@ -12,6 +12,7 @@
 (ql:quickload "hunchentoot")
 (ql:quickload "cl-ppcre")
 (ql:quickload "parenscript")
+(ql:quickload "web-util")
 
 (setf parenscript:*js-string-delimiter* #\')
 (setf *print-pretty* nil)

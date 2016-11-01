@@ -9,4 +9,5 @@
         :cl-dbi
         :spinneret
         :local-time
-        :uuid))
+        :uuid
+        :web-util))
