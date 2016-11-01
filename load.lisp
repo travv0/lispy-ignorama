@@ -13,6 +13,7 @@
 (ql:quickload "cl-ppcre")
 (ql:quickload "parenscript")
 
+(setf parenscript:*js-string-delimiter* #\')
 (setf *print-pretty* nil)
 
 (require "asdf")
