@@ -194,10 +194,10 @@
                        (:span :class "mobile-login-link"
                               "(logout)"))))
       (:div :class "mobile-login-links"
-            (:a :class "header rightlink login-link"
+            (:a :class "header rightlink mobile-login-link"
                 :href "/signup" "Sign up")
             ("/")
-            (:a :class "header rightlink login-link"
+            (:a :class "header rightlink mobile-login-link"
                 :href "/login" "Log in"))))
 
 ;;; page skeleton
