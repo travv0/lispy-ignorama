@@ -147,31 +147,31 @@
        ,@body)))
 
 (defhtml rightlinks (rightlinks sociallinks)
-  (:div :class "header rightlinks"
+  (row :class "header rightlinks"
         (rightlinks-desktop rightlinks sociallinks)
         (rightlinks-mobile rightlinks sociallinks)))
 
 (defhtml rightlinks-desktop (rightlinks sociallinks)
   (desktop-only
-    (:div
-     (:div (generate-sociallinks sociallinks)
-           (generate-rightlinks rightlinks))
+    (col 12
+     (row (col 12
+               (:div (generate-sociallinks sociallinks)
+                     (generate-rightlinks rightlinks))))
 
-     (login-links-desktop))))
+     (row (col 12 (login-links-desktop))))))
 
 (defhtml rightlinks-mobile (rightlinks sociallinks)
   (mobile-only
-    (:div
-     (:div :class "btn-group mobile header rightlinks"
-           (:a :class "btn btn-default btn-sm dropdown-toggle"
-               :data-toggle "dropdown"
-               "Menu " (:span :class "caret"))
-           (:ul :class "dropdown-menu pull-right"
-                (generate-dropdown-links rightlinks)
-                (generate-dropdown-links-social sociallinks)))
-     (:br)
-     (:br)
-     (login-links-mobile))))
+    (col 12
+     (row (col 12
+               (:div :class "btn-group mobile header rightlinks"
+                     (:a :class "btn btn-default btn-sm dropdown-toggle"
+                         :data-toggle "dropdown"
+                         "Menu " (:span :class "caret"))
+                     (:ul :class "dropdown-menu pull-right"
+                          (generate-dropdown-links rightlinks)
+                          (generate-dropdown-links-social sociallinks)) )))
+     (row (col 12 (login-links-mobile))))))
 
 (defhtml login-links-desktop ()
   (if (logged-in-p)
@@ -194,31 +194,31 @@
                        (:span :class "mobile-login-link"
                               "(logout)"))))
       (:div :class "mobile-login-links"
-            (:a :class "header rightlink mobile-login-link"
+            (:a :class "header rightlink login-link"
                 :href "/signup" "Sign up")
             ("/")
-            (:a :class "header rightlink mobile-login-link"
+            (:a :class "header rightlink login-link"
                 :href "/login" "Log in"))))
 
 ;;; page skeleton
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *header*
-    '((:div :class "header banner"
-           (:div :class "header text"
+    '((row :class "header banner"
+       (col 12 :class "header text"
 
-                 ;; logo and slogans
-                 (:span :class "hidden-xs"
-                        (:a :href "/"
-                            (:img :class "header logo" :src *logo-path*))
-                        (if *slogans*
-                            (:b :class "hidden-sm header slogan"
-                                (:raw (random-elt *slogans*)))))
-                 (:span :class "visible-xs-inline"
-                        (:a :href "/"
-                            (:img :class "header logo small" :src *small-logo-path*)))
+        ;; logo and slogans
+        (:span :class "hidden-xs"
+               (:a :href "/"
+                   (:img :class "header logo" :src *logo-path*))
+               (if *slogans*
+                   (:b :class "hidden-sm header slogan"
+                       (:raw (random-elt *slogans*)))))
+        (:span :class "visible-xs-inline"
+               (:a :href "/"
+                   (:img :class "header logo small" :src *small-logo-path*)))
 
-                 ;; right links
-                 (rightlinks *rightlinks* *sociallinks*))))))
+        ;; right links
+        (rightlinks *rightlinks* *sociallinks*))))))
 
 ;;; The basic format that every viewable page will follow.
 (defmacro standard-page ((&key title) &body body)
@@ -317,6 +317,7 @@
   (execute-query-loop thread query ()
     (:div :style ""
           (thread-row (getf thread :|threadid|)
+                      (getf thread :|postid|)
                       (getf thread :|threadsubject|)
                       (getf thread :|tag|)
                       (getf thread :|postcount|)
@@ -324,12 +325,14 @@
                       (getf thread :|locked|)
                       (getf thread :|stickied|)))))
 
-(defhtml thread-row (id subject tag post-count latest-post-time locked stickied)
+(defhtml thread-row (id op-id subject tag post-count latest-post-time locked stickied)
   (row
     (col 12 :class "thread"
          (link subject (thread-url id))
          (:br)
          (:span :style "font-size: 12px; color: gray;"
+                (print-user-name-and-ip op-id)
+                (:br)
                 (:raw
                  (join-string-list
                   (list
@@ -340,106 +343,17 @@
                                                          latest-post-time))))
                   " | "))))))
 
+(defun print-user-name-and-ip (post-id)
+  (multiple-value-bind (user-name ip)
+      (print-username post-id)
+    (concatenate 'string user-name (when ip
+                                     (format nil " (~a)" ip)))))
+
 (defhtml link (text url)
   (:a :href url text))
 
 (defun thread-url (id)
   (format nil "view-thread?thread=~d" id))
-
-;; (defhtml threads-table (query)
-;;   (desktop-only (threads-table-desktop query))
-;;   (mobile-only (threads-table-mobile query)))
-
-(defhtml threads-table-mobile (query)
-  (:table :class "table table-bordered fixed main-table"
-          (threads-table-header-mobile)
-          (threads-table-rows-mobile query)))
-
-(defhtml threads-table-rows-mobile (query)
-  (execute-query-loop thread query ()
-    (:tr (thread-name-cell-mobile thread))))
-
-(defhtml thread-name-cell-mobile (thread)
-  (:td :class "thread-name centered" (thread-link thread)
-       (mobile-post-count thread)
-       (:div (mobile-board thread))
-       (:div (:raw (mobile-last-post-time thread)))
-       (:div (print-user-name-and-ip (getf thread
-                                           :|postid|)))))
-
-(defhtml mobile-post-count (thread)
-  (format nil " (~d)"
-          (getf thread :|postcount|)))
-
-(defhtml mobile-board (thread)
-  (format nil "Board: ~a"
-          (getf thread :|tag|)))
-
-(defhtml mobile-last-post-time (thread)
-  (format nil "Latest Post: ~a"
-          (with-html-string
-            (:span :class "time"
-                   (getf thread
-                         :|latestposttime|)))))
-
-(defhtml threads-table-desktop (query)
-  (:table :class "table table-bordered fixed main-table"
-          (threads-table-header-desktop)
-          (threads-table-rows-desktop query)))
-
-(defhtml threads-table-rows-desktop (query)
-  (execute-query-loop thread query ()
-    (:tr (thread-name-cell thread)
-         (thread-user-name-cell thread)
-         (thread-easy-cell thread :|postcount|)
-         (thread-easy-cell thread :|tag|)
-         (thread-last-post-cell thread :|latestposttime|))))
-
-(defhtml thread-name-cell (thread)
-  (:td :class "thread-name centered" (thread-link thread)))
-
-(defun thread-link (thread)
-  (print-link-to-thread (getf thread :|threadid|)
-                        (getf thread :|threadsubject|)
-                        :locked (getf thread :|locked|)
-                        :stickied (getf thread :|stickied|)))
-
-(defhtml thread-last-post-cell (thread selector)
-  (:td :class "thread-row centered time"
-       (getf thread selector)))
-
-(defhtml thread-easy-cell (thread selector)
-  (:td :class "thread-row centered"
-       (getf thread selector)))
-
-(defhtml thread-user-name-cell (thread)
-  (:td :class "thread-row centered"
-       (print-user-name-and-ip (getf thread :|postid|))))
-
-(defhtml print-user-name-and-ip (post-id)
-  (multiple-value-bind (name ip)
-      (print-username post-id)
-    (:div name)
-    (:div ip)))
-
-(defhtml threads-table-header-desktop ()
-  (:tr :class "thread-row"
-       (:th :class "thread-row"
-            "Thread")
-       (:th :class "thread-row centered col-sm-2"
-            "User")
-       (:th :class "thread-row centered col-md-1 col-sm-2"
-            "Replies")
-       (:th :class "thread-row centered col-sm-3 col-md-2"
-            "Board")
-       (:th :class "thread-row centered col-sm-2"
-            "Latest Post")))
-
-(defhtml threads-table-header-mobile ()
-  (:th :class "thread-row"
-       "Threads"
-       (:div :class "mobile-search"
-             (search-box))))
 
 (publish-page following
   (redirect "/?f=following"))
