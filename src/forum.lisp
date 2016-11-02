@@ -360,8 +360,8 @@ label{
                                   *site-name*))
              ,@*head*)
       (:body
+       ,@*header*
        (:div :class "container"
-             ,@*header*
              (unless (equal ,title "")
                (:h2 ,title))
              ,@body)))))
