@@ -398,3 +398,16 @@ select.pagination {
 .faded-text {
     color: #B8B8B8;
 }
+
+.vertical-align {
+    display: flex;
+    align-items: center;
+}
+
+.thread {
+    background-color: white;
+    padding: 5px;
+    border-style: solid;
+    border-color: #CCC;
+    border-width: 1px;
+}
