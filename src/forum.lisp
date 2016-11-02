@@ -291,7 +291,7 @@
 
 (defhtml index-buttons-mobile ()
   (:input :type "button"
-          :class "btn btn-default btn-sm threads reset"
+          :class "btn btn-default btn-sm threads reset-tags"
           :onclick "window.location='b/reset-tags'"
           :value "Reset")
   (:input :type "submit"
