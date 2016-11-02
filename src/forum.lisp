@@ -1,6 +1,129 @@
 ;; -*- coding:utf-8 -*-
 (in-package :net.ignorama.web)
 
+(defparameter *ignorama-purple* "#330066")
+(defparameter *background-color* "#E8E8E8")
+(defparameter *header-text-color* "white")
+
+(defparameter *css* "
+body {
+    background-color: #E8E8E8;
+}
+
+a:link {
+    color: #663399;
+}
+
+a:visited {
+    color: #663399;
+}
+
+a:hover {
+    color: #663399;
+}
+
+a:active {
+    color: #663399;
+}
+
+.header a:link {
+    text-decoration: none;
+    color: white;
+}
+
+.header a:visited {
+    text-decoration: none;
+    color: white;
+}
+
+.header a:hover {
+    text-decoration: none;
+    color: white;
+}
+
+.header a:active {
+    text-decoration: none;
+    color: white;
+}
+
+ul.dropdown-menu-form {
+    padding: 5px 10px 0;
+    max-height: 300px;
+    overflow-y: scroll;
+}
+
+.btn-default {
+    text-shadow: 0px 1px 0px #FFF;
+    background-image: none;
+    background-repeat: repeat-x;
+    border-color: #CCC;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none;
+}
+
+select {
+    height:30px;
+    text-shadow: 0px 1px 0px #FFF;
+    background-image: none;
+    background-repeat: repeat-x;
+    border-color: #CCC;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none;
+}
+
+.pagination-sm > li > a, .pagination-sm > li > span,.pagination > .disabled > span, .pagination > .disabled > span:hover, .pagination > .disabled > span:focus, .pagination > .disabled > a, .pagination > .disabled > a:hover, .pagination > .disabled > a:focus {
+    text-shadow: 0px 1px 0px #FFF;
+    height: 30px;
+    background-image: none;
+    background-repeat: repeat-x;
+    border-color: #CCC;
+    -webkit-border-top-right-radius: 0 !important;
+    -moz-border-top-right-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    -webkit-border-top-left-radius: 0 !important;
+    -moz-border-top-left-radius: 0 !important;
+    border-top-left-radius: 0 !important;
+    -webkit-border-bottom-right-radius: 0 !important;
+    -moz-border-bottom-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    -webkit-border-bottom-left-radius: 0 !important;
+    -moz-border-bottom-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    box-shadow: none;
+}
+
+.dropdown-menu{
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+input[type='checkbox']{
+    margin-right: 3px;
+}
+
+input[type='text']{
+    margin-bottom: 5px;
+}
+
+label{
+    font-weight: 400 !important;
+}
+
+.thread {
+    background-color: white;
+    padding: 5px;
+    border-style: solid;
+    border-color: #CCC;
+    border-width: 1px;
+}
+")
+
 ;;; site setup
 (defun threads-query (condition)
   (format nil "SELECT *
@@ -33,6 +156,13 @@
                                      TagName"
             user-status-id
             user-status-id)))
+
+(defmacro link (text url &key new-tab)
+  `(with-html
+     (:a :href ,url
+         :target ,(when new-tab
+                    "_blank")
+         ,text)))
 
 (defmacro row (&body body)
   `(with-html
@@ -93,8 +223,8 @@
              :href "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css")
       (:link :rel "stylesheet"
              :href "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")
-      (:link :rel "stylesheet"
-             :href "/static/style.css")
+
+      (:style *css*)
 
       (:script :src "//code.jquery.com/jquery-1.11.0.min.js")
       (:script :src "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
@@ -147,31 +277,31 @@
        ,@body)))
 
 (defhtml rightlinks (rightlinks sociallinks)
-  (row :class "header rightlinks"
-        (rightlinks-desktop rightlinks sociallinks)
-        (rightlinks-mobile rightlinks sociallinks)))
+  (row :style "float: right;"
+       (rightlinks-desktop rightlinks sociallinks)
+       (rightlinks-mobile rightlinks sociallinks)))
 
 (defhtml rightlinks-desktop (rightlinks sociallinks)
   (desktop-only
     (col 12
-     (row (col 12
-               (:div (generate-sociallinks sociallinks)
-                     (generate-rightlinks rightlinks))))
+      (row (col 12
+             (:div (generate-sociallinks sociallinks)
+                   (generate-rightlinks rightlinks))))
 
-     (row (col 12 (login-links-desktop))))))
+      (row (col 12 (login-links-desktop))))))
 
 (defhtml rightlinks-mobile (rightlinks sociallinks)
   (mobile-only
     (col 12
-     (row (col 12
-               (:div :class "btn-group mobile header rightlinks"
-                     (:a :class "btn btn-default btn-sm dropdown-toggle"
-                         :data-toggle "dropdown"
-                         "Menu " (:span :class "caret"))
-                     (:ul :class "dropdown-menu pull-right"
-                          (generate-dropdown-links rightlinks)
-                          (generate-dropdown-links-social sociallinks)) )))
-     (row (col 12 (login-links-mobile))))))
+      (row (col 12
+             (:div :class "btn-group mobile header rightlinks"
+                   (:a :class "btn btn-default btn-sm dropdown-toggle"
+                       :data-toggle "dropdown"
+                       "Menu " (:span :class "caret"))
+                   (:ul :class "dropdown-menu pull-right"
+                        (generate-dropdown-links rightlinks)
+                        (generate-dropdown-links-social sociallinks)) )))
+      (row (col 12 (login-links-mobile))))))
 
 (defhtml login-links-desktop ()
   (if (logged-in-p)
@@ -203,22 +333,19 @@
 ;;; page skeleton
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *header*
-    '((row :class "header banner"
-       (col 12 :class "header text"
+    '((row :class "header" :style (format nil "padding-top: 5px; background-color: ~a" *ignorama-purple*)
+           (col 12
 
-        ;; logo and slogans
-        (:span :class "hidden-xs"
-               (:a :href "/"
-                   (:img :class "header logo" :src *logo-path*))
+             ;; logo and slogans
+             (:a :href "/"
+                 (:img :src *logo-path*))
+             (desktop-only
                (if *slogans*
-                   (:b :class "hidden-sm header slogan"
+                   (:b :style (format nil "color: ~a" *header-text-color*)
                        (:raw (random-elt *slogans*)))))
-        (:span :class "visible-xs-inline"
-               (:a :href "/"
-                   (:img :class "header logo small" :src *small-logo-path*)))
 
-        ;; right links
-        (rightlinks *rightlinks* *sociallinks*))))))
+             ;; right links
+             (rightlinks *rightlinks* *sociallinks*))))))
 
 ;;; The basic format that every viewable page will follow.
 (defmacro standard-page ((&key title) &body body)
@@ -265,38 +392,25 @@
   ;; dropdown only displays correctly when I wrap all the buttons in this div
   (row :class "dropdown"
        (col 12
-            (:button :class "btn btn-default btn-sm threads"
-                     :onclick "window.location='new-thread'"
-                     "New Thread")
+         (:button :class "btn btn-default btn-sm threads"
+                  :onclick "window.location='new-thread'"
+                  "New Thread")
 
-            (:form :class "rightbuttons"
-                   :action "b/apply-tags"
-                   :method "post"
+         (:form :class "rightbuttons"
+                :action "b/apply-tags"
+                :method "post"
 
-                   (desktop-only (index-buttons-desktop))
-                   (mobile-only (index-buttons-mobile))
+                (:input :type "button"
+                        :class "btn btn-default btn-sm threads reset-tags"
+                        :onclick "window.location='b/reset-tags'"
+                        :value "Reset Boards")
+                (:input :type "submit"
+                        :class "btn btn-default btn-sm threads"
+                        :value "Apply Boards")
 
-                   (tags-filter-dropdown))
+                (tags-filter-dropdown))
 
-            (desktop-only (search-box)))))
-
-(defhtml index-buttons-desktop ()
-  (:input :type "button"
-          :class "btn btn-default btn-sm threads reset-tags"
-          :onclick "window.location='b/reset-tags'"
-          :value "Reset Boards")
-  (:input :type "submit"
-          :class "btn btn-default btn-sm threads"
-          :value "Apply Boards"))
-
-(defhtml index-buttons-mobile ()
-  (:input :type "button"
-          :class "btn btn-default btn-sm threads reset-tags"
-          :onclick "window.location='b/reset-tags'"
-          :value "Reset")
-  (:input :type "submit"
-          :class "btn btn-default btn-sm threads"
-          :value "Apply"))
+         (desktop-only (search-box)))))
 
 (defhtml search-box ()
   (:form :action "/"
@@ -348,9 +462,6 @@
       (print-username post-id)
     (concatenate 'string user-name (when ip
                                      (format nil " (~a)" ip)))))
-
-(defhtml link (text url)
-  (:a :href url text))
 
 (defun thread-url (id)
   (format nil "view-thread?thread=~d" id))
@@ -723,18 +834,20 @@
       (string-capitalize (symbol-name site-symbol))))
 
 (defhtml sociallink (site url &optional custom-name)
-  (:a :class "header rightlink"
-      :target "_blank"
-      :href url
-      :title (site-symbol-to-name site custom-name)
-      (:span :class (site-symbol-to-fontawesome-class site))))
+  (:span :style "padding: 3px;"
+         (link (:span :class (site-symbol-to-fontawesome-class site))
+               url
+               :new-tab t))
+
+  ;; (:a :class "header rightlink"
+  ;;     :target "_blank"
+  ;;     :href url
+  ;;     :title (site-symbol-to-name site custom-name)
+  ;;     (:span :class (site-symbol-to-fontawesome-class site)))
+  )
 
 (defhtml rightlink (label)
-  (:a :class "header rightlink"
-      :href (concatenate 'string
-                         "/"
-                         (string-downcase label))
-      label))
+  (:span :style "padding: 3px;" (link (string-downcase label) "/")))
 
 (defun print-username (post-id)
   (execute-query-one user "SELECT UserName,
