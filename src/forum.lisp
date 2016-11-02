@@ -34,6 +34,46 @@
             user-status-id
             user-status-id)))
 
+(defmacro row (&body body)
+  `(with-html
+     (:div :class "row"
+           ,@body)))
+
+(defmacro col (size &body body)
+  `(with-html
+     (:div :class (format nil "col-xs-~d" ,size)
+           ,@body)))
+
+(defmacro col-xs (size &body body)
+  `(with-html
+     (:div :class (format nil "col-xs-~d" ,size)
+           ,@body)))
+
+(defmacro col-sm (size &body body)
+  `(with-html
+     (:div :class (format nil "col-sm-~d" ,size)
+           ,@body)))
+
+(defmacro col-md (size &body body)
+  `(with-html
+     (:div :class (format nil "col-md-~d" ,size)
+           ,@body)))
+
+(defmacro col-lg (size &body body)
+  `(with-html
+     (:div :class (format nil "col-lg-~d" ,size)
+           ,@body)))
+
+(defmacro desktop-only (&body body)
+  `(with-html
+     (:span :class "hidden-xs"
+            ,@body)))
+
+(defmacro mobile-only (&body body)
+  `(with-html
+     (:span :class "visible-xs-inline"
+            ,@body)))
+
 (defparameter *rightlinks* '("Following" "Hidden" "Rules" "Bans" "Settings"))
 
 ;;; stuff to go in the <head> tags (minus <title>)
@@ -112,25 +152,26 @@
         (rightlinks-mobile rightlinks sociallinks)))
 
 (defhtml rightlinks-desktop (rightlinks sociallinks)
-  (:div :class "hidden-xs"
-        (:div
-         (generate-sociallinks sociallinks)
-         (generate-rightlinks rightlinks))
+  (desktop-only
+    (:div
+     (:div (generate-sociallinks sociallinks)
+           (generate-rightlinks rightlinks))
 
-        (login-links-desktop)))
+     (login-links-desktop))))
 
 (defhtml rightlinks-mobile (rightlinks sociallinks)
-  (:div :class "visible-xs-inline"
-        (:div :class "btn-group mobile header rightlinks"
-              (:a :class "btn btn-default btn-sm dropdown-toggle"
-                  :data-toggle "dropdown"
-                  "Menu " (:span :class "caret"))
-              (:ul :class "dropdown-menu pull-right"
-                   (generate-dropdown-links rightlinks)
-                   (generate-dropdown-links-social sociallinks)))
-        (:br)
-        (:br)
-        (login-links-mobile)))
+  (mobile-only
+    (:div
+     (:div :class "btn-group mobile header rightlinks"
+           (:a :class "btn btn-default btn-sm dropdown-toggle"
+               :data-toggle "dropdown"
+               "Menu " (:span :class "caret"))
+           (:ul :class "dropdown-menu pull-right"
+                (generate-dropdown-links rightlinks)
+                (generate-dropdown-links-social sociallinks)))
+     (:br)
+     (:br)
+     (login-links-mobile))))
 
 (defhtml login-links-desktop ()
   (if (logged-in-p)
@@ -163,21 +204,21 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *header*
     '((:div :class "header banner"
-       (:div :class "header text"
+           (:div :class "header text"
 
-        ;; logo and slogans
-        (:span :class "hidden-xs"
-               (:a :href "/"
-                   (:img :class "header logo" :src *logo-path*))
-               (if *slogans*
-                   (:b :class "hidden-sm header slogan"
-                       (:raw (random-elt *slogans*)))))
-        (:span :class "visible-xs-inline"
-               (:a :href "/"
-                   (:img :class "header logo small" :src *small-logo-path*)))
+                 ;; logo and slogans
+                 (:span :class "hidden-xs"
+                        (:a :href "/"
+                            (:img :class "header logo" :src *logo-path*))
+                        (if *slogans*
+                            (:b :class "hidden-sm header slogan"
+                                (:raw (random-elt *slogans*)))))
+                 (:span :class "visible-xs-inline"
+                        (:a :href "/"
+                            (:img :class "header logo small" :src *small-logo-path*)))
 
-        ;; right links
-        (rightlinks *rightlinks* *sociallinks*))))))
+                 ;; right links
+                 (rightlinks *rightlinks* *sociallinks*))))))
 
 ;;; The basic format that every viewable page will follow.
 (defmacro standard-page ((&key title) &body body)
@@ -194,7 +235,8 @@
       (:body
        (:div :class "container"
              ,@*header*
-             (:h2 ,title)
+             (unless (equal ,title "")
+               (:h2 ,title))
              ,@body)))))
 
 ;;; this macro creates and publishes page <name> at https://your-site.com/<name>
@@ -219,33 +261,24 @@
              (:div :class "fake-copyright"
                    (:raw *fake-copyright*))))))
 
-(defmacro desktop-only (&body body)
-  `(with-html
-     (:span :class "hidden-xs"
-            ,@body)))
-
-(defmacro mobile-only (&body body)
-  `(with-html
-     (:span :class "visible-xs-inline"
-            ,@body)))
-
 (defhtml index-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
-  (:div :class "dropdown"
-        (:button :class "btn btn-default btn-sm threads"
-                 :onclick "window.location='new-thread'"
-                 "New Thread")
+  (row :class "dropdown"
+       (col 12
+            (:button :class "btn btn-default btn-sm threads"
+                     :onclick "window.location='new-thread'"
+                     "New Thread")
 
-        (:form :class "rightbuttons"
-               :action "b/apply-tags"
-               :method "post"
+            (:form :class "rightbuttons"
+                   :action "b/apply-tags"
+                   :method "post"
 
-               (desktop-only (index-buttons-desktop))
-               (mobile-only (index-buttons-mobile))
+                   (desktop-only (index-buttons-desktop))
+                   (mobile-only (index-buttons-mobile))
 
-               (tags-filter-dropdown))
+                   (tags-filter-dropdown))
 
-        (desktop-only (search-box))))
+            (desktop-only (search-box)))))
 
 (defhtml index-buttons-desktop ()
   (:input :type "button"
@@ -281,8 +314,41 @@
                   (:span :class "glyphicon glyphicon-search"))))
 
 (defhtml threads-table (query)
-  (desktop-only (threads-table-desktop query))
-  (mobile-only (threads-table-mobile query)))
+  (execute-query-loop thread query ()
+    (:div :style ""
+          (thread-row (getf thread :|threadid|)
+                      (getf thread :|threadsubject|)
+                      (getf thread :|tag|)
+                      (getf thread :|postcount|)
+                      (getf thread :|latestposttime|)
+                      (getf thread :|locked|)
+                      (getf thread :|stickied|)))))
+
+(defhtml thread-row (id subject tag post-count latest-post-time locked stickied)
+  (row
+    (col 12 :class "thread"
+         (link subject (thread-url id))
+         (:br)
+         (:span :style "font-size: 12px; color: gray;"
+                (:raw
+                 (join-string-list
+                  (list
+                   (format nil "Board: ~a" tag)
+                   (format nil "Replies: ~a" post-count)
+                   (format nil "Last reply: ~a" (with-html-string
+                                                  (:span :class "time"
+                                                         latest-post-time))))
+                  " | "))))))
+
+(defhtml link (text url)
+  (:a :href url text))
+
+(defun thread-url (id)
+  (format nil "view-thread?thread=~d" id))
+
+;; (defhtml threads-table (query)
+;;   (desktop-only (threads-table-desktop query))
+;;   (mobile-only (threads-table-mobile query)))
 
 (defhtml threads-table-mobile (query)
   (:table :class "table table-bordered fixed main-table"
