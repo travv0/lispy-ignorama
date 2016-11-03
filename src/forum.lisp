@@ -71,6 +71,7 @@ ul.dropdown-menu-form {
     -moz-border-radius: 0 !important;
     border-radius: 0 !important;
     box-shadow: none;
+    margin: 3px;
 }
 
 select {
@@ -106,6 +107,32 @@ select {
     box-shadow: none;
 }
 
+select.pagination {
+    margin: -1px -5px 0px -1px;
+}
+
+.pagination {
+    margin: 0px;
+    margin-bottom: -9px;
+}
+
+.pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus {
+    background-color: #330066;
+    border-color: #663399;
+}
+
+.pagination>li>a, .pagination>li>span{
+    color: #663399;
+}
+
+.pagination>li>a:hover, .pagination>li>span:hover, .pagination>li>a:focus, .pagination>li>span:focus {
+    color: #663399;
+}
+
+.pagination>.disabled>span, .pagination>.disabled>span:hover, .pagination>.disabled>span:focus, .pagination>.disabled>a, .pagination>.disabled>a:hover, .pagination>.disabled>a:focus{
+    cursor: default;
+}
+
 .searchbox {
     height:30px;
     margin-right:-5px;
@@ -120,6 +147,7 @@ select {
 .searchbutton {
     margin-top: -3px;
     margin-right: 4px;
+    margin-bottom: 0px;
 }
 
 .dropdown-menu {
@@ -148,10 +176,10 @@ label{
 
 .thread {
     background-color: white;
-    padding: 5px;
-    border-style: solid;
-    border-color: #CCC;
-    border-width: 1px;
+    padding: 10px;
+    outline-style: solid;
+    outline-color: #CCC;
+    outline-width: 1px;
 }
 ")
 
@@ -188,11 +216,12 @@ label{
             user-status-id
             user-status-id)))
 
-(defmacro link (text url &key new-tab)
+(defmacro link (text url &key new-tab tooltip)
   `(with-html
      (:a :href ,url
          :target ,(when new-tab
                     "_blank")
+         :title ,tooltip
          ,text)))
 
 (defmacro row (&body body)
@@ -255,7 +284,8 @@ label{
       (:link :rel "stylesheet"
              :href "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")
 
-      (:style *css*)
+      (:link :rel "stylesheet"
+             :href "/script.css")
 
       (:script :src "//code.jquery.com/jquery-1.11.0.min.js")
       (:script :src "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
@@ -333,14 +363,15 @@ label{
 (defhtml login-links ()
   (:div :style "float: right;"
         (if (logged-in-p)
-            (progn (format nil "Logged in as ~a " (get-session-var 'username))
-                   (:a :class "header-link" :href "/b/logout"
-                       "(logout)"))
-            (progn (:a :class "header-link"
-                       :href "/signup" "Sign up")
-                   (:span :class "header-link" :style "color: white;" "/")
-                   (:a :class "header-link"
-                       :href "/login" "Log in")))))
+            (:div :style "color: white;"
+                  (format nil "Logged in as ~a " (get-session-var 'username))
+                  (:a :class "header-link" :href "/b/logout"
+                      "(logout)"))
+            (:div (:a :class "header-link"
+                      :href "/signup" "Sign up")
+                  (:span :class "header-link" :style "color: white;" "/")
+                  (:a :class "header-link"
+                      :href "/login" "Log in")))))
 
 ;;; page skeleton
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -382,11 +413,11 @@ label{
              ,@*head*)
       (:body
        (:div :style "overflow-x: hidden;"
-        ,@*header*
-        (:div :class "container"
-              (unless (equal ,title "")
-                (:h2 ,title))
-              ,@body))))))
+             ,@*header*
+             (:div :class "container"
+                   (unless (equal ,title "")
+                     (:h2 ,title))
+                   ,@body))))))
 
 ;;; this macro creates and publishes page <name> at https://your-site.com/<name>
 (defmacro publish-page (name &body body)
@@ -399,6 +430,10 @@ label{
      (let ((*conn* *conn*))
        (with-db *conn*
          ,@body))))
+
+(hunchentoot:define-easy-handler (css :uri "/script.css") ()
+  (setf (hunchentoot:content-type*) "text/css")
+  (with-html-string (:raw *css*)))
 
 (publish-page index
   (multiple-value-bind (title condition)
@@ -448,8 +483,7 @@ label{
          (:input :type "hidden"
                  :name "f"
                  :value "search")
-         (:button :style "margin-top: -3px; margin-right: 4px;"
-                  :class "btn btn-default btn-sm"
+         (:button :class "btn btn-default btn-sm searchbutton"
                   :type "submit"
                   (:span :class "glyphicon glyphicon-search"))))
 
@@ -502,37 +536,28 @@ label{
   `(with-html (:table :class "table table-bordered fixed main-table"
                       (:tbody
                        (execute-query-loop post ,query (,@params)
-                         (let ((post-id (getf post :|postid|))
-                               (post-time (getf post :|posttime|)))
-                           (:tr :id (concatenate 'string
-                                                 "post"
-                                                 (write-to-string
-                                                  post-id))
-                                (:td :class "col-sm-3 hidden-xs"
-                                     (:div :class "post-info"
-                                           (multiple-value-bind (name ip)
-                                               (print-username
-                                                (getf post :|postid|))
-                                             (:b (:div name))
-                                             (:div ip))
-                                           (let ((options (print-post-options post-id)))
-                                             (if options
-                                                 (:raw options)))
-                                           (:br)
-                                           (:br)
-                                           (:div :class "time" post-time)))
-                                (:td :class "col-sm-9 post-content centered"
-                                     (:div :class "visible-xs mobile-post-info"
-                                           (:span :class "time mobile-date"
-                                                  post-time)
-                                           (:span (multiple-value-bind (name ip)
-                                                      (print-username
-                                                       (getf post :|postid|))
-                                                    (:div (:b name))
-                                                    (:div ip))
-                                                  (:raw (print-post-options post-id)))
-                                           )
-                                     (:div (format-post (getf post :|postcontent|)))))))))))
+                         (post-row (getf post :|postid|)
+                                   (getf post :|posttime|)
+                                   (getf post :|postcontent|)))))))
+
+(defhtml post-row (id time content)
+  (row
+    (col 12 :class "thread"
+         (:div :style "margin-bottom: -15px;"
+               (:span :style "font-size: 12px; color: gray;"
+                      (let ((options (print-post-options id)))
+                        (if (not (equal options ""))
+                            (:raw (join-string-list
+                                   (list (with-html-string
+                                           (:b (print-user-name-and-ip id)))
+                                         (print-post-options id))
+                                   " | "))
+                            (:b (print-user-name-and-ip id))))
+                      (:span :style "float: right;"
+                             :class "time"
+                             time)))
+         (:br)
+         (:div (format-post content)))))
 
 (defhtml thread-buttons ()
   (:button :class "btn btn-default btn-sm"
@@ -546,7 +571,7 @@ label{
   (pagination))
 
 (defhtml thread-dropdown ()
-  (:span :class "btn-group rightbuttons"
+  (:span :style "float: right;" :class "btn-group"
          (:a :class "btn btn-default btn-sm dropdown-toggle"
              :data-toggle "dropdown"
              :href "#"
@@ -570,8 +595,9 @@ label{
                   ""))
       (standard-page
           (:title (get-thread-title (get-parameter "thread")))
-        (:body (thread-buttons)
-               (thread-dropdown)
+        (:body (:div :style "margin-bottom: 5px;"
+                     (thread-buttons)
+                     (thread-dropdown))
                (posts-table "SELECT *
                              FROM posts
                              WHERE ThreadID = ?
@@ -863,7 +889,10 @@ label{
   (:span :style "padding: 3px;"
          (link (:span :class (site-symbol-to-fontawesome-class site))
                url
-               :new-tab t)))
+               :new-tab t
+               :tooltip (if custom-name
+                            custom-name
+                            (string-capitalize site)))))
 
 (defhtml rightlink (label)
   (:span :class "header-link" (link label
@@ -958,6 +987,7 @@ label{
 
 (defhtml tags-filter-dropdown ()
   (:a :class "dropdown-toggle btn btn-default btn-sm"
+      :style "margin-left: -1px;"
       :data-toggle "dropdown"
       "Boards " (:b :class "caret"))
   (:ul :class "dropdown-menu dropdown-menu-form pull-right"
@@ -979,60 +1009,61 @@ label{
           (page (parse-integer (if (get-parameter "page")
                                    (get-parameter "page")
                                    "1"))))
-      (if (> num-of-pages 1)
-          (progn
-            (:div :class "visible-xs-inline rightbuttons"
-                  (:a :class "btn btn-sm btn-default"
-                      :href (format nil
-                                    "view-thread?thread=~d&page=~d"
-                                    (get-parameter "thread")
-                                    (- page 1))
-                      ("<"))
-                  (:select :name "Page"
-                           :class "pagination"
-                           :onchange "goToPage(this)"
-                           (do ((i 1 (1+ i)))
-                               ((> i num-of-pages))
-                             (:option :value (stringify i)
-                                      :selected (= i page)
-                                      i)))
-                  (:a :class "btn btn-sm btn-default"
-                      :href (format nil
-                                    "view-thread?thread=~d&page=~d"
-                                    (get-parameter "thread")
-                                    (+ page 1))
-                      (">")))
+      (when (> num-of-pages 1)
+        (:div :class "visible-xs-inline"
+              :style "float: right;"
+              (:a :class "btn btn-sm btn-default"
+                  :href (format nil
+                                "view-thread?thread=~d&page=~d"
+                                (get-parameter "thread")
+                                (- page 1))
+                  ("<"))
+              (:select :name "Page"
+                       :class "pagination"
+                       :onchange "goToPage(this)"
+                       (do ((i 1 (1+ i)))
+                           ((> i num-of-pages))
+                         (:option :value (stringify i)
+                                  :selected (= i page)
+                                  i)))
+              (:a :class "btn btn-sm btn-default"
+                  :href (format nil
+                                "view-thread?thread=~d&page=~d"
+                                (get-parameter "thread")
+                                (+ page 1))
+                  (">")))
 
-            ;; non-mobile
-            (let ((start-page (- page 1)))
-              (:ul :class "pagination pagination-sm hidden-xs rightbuttons"
-                   ;; if on page higher than 3, it'll look like
-                   ;; < 1 ... (- 1 page) page (+ 1 page) ... num-of-pages >
-                   (if (>= page 3)
-                       (:li :class (if (= page start-page) "active")
-                            (:a :href (format nil "view-thread?thread=~d&page=1"
-                                              (get-parameter "thread"))
-                                1)))
-                   (if (>= page 4)
-                       (:li :class "disabled"
-                            (:a :href "#" "...")))
-                   (do ((i 1 (1+ i))
-                        (j start-page (1+ j)))
-                       ((or (> i 3)
-                            (> j num-of-pages)))
-                     (if (and (> j 0)
-                              (<= j num-of-pages))
-                         (:li :class (if (= j page) "active")
-                              (:a :href (format nil "view-thread?thread=~d&page=~d"
-                                                (get-parameter "thread")
-                                                j)
-                                  j))))
-                   (if (< page (- num-of-pages 2))
-                       (:li :class "disabled"
-                            (:a :href "#" "...")))
-                   (if (< page (- num-of-pages 1))
-                       (:li :class (if (= page num-of-pages) "active")
-                            (:a :href (format nil "view-thread?thread=~d&page=~d"
-                                              (get-parameter "thread")
-                                              num-of-pages)
-                                num-of-pages))))))))))
+        ;; non-mobile
+        (let ((start-page (- page 1)))
+          (:ul :style "float: right; margin: 3px;"
+               :class "pagination pagination-sm hidden-xs"
+               ;; if on page higher than 3, it'll look like
+               ;; < 1 ... (- 1 page) page (+ 1 page) ... num-of-pages >
+               (if (>= page 3)
+                   (:li :class (if (= page start-page) "active")
+                        (:a :href (format nil "view-thread?thread=~d&page=1"
+                                          (get-parameter "thread"))
+                            1)))
+               (if (>= page 4)
+                   (:li :class "disabled"
+                        (:a :href "#" "...")))
+               (do ((i 1 (1+ i))
+                    (j start-page (1+ j)))
+                   ((or (> i 3)
+                        (> j num-of-pages)))
+                 (if (and (> j 0)
+                          (<= j num-of-pages))
+                     (:li :class (if (= j page) "active")
+                          (:a :href (format nil "view-thread?thread=~d&page=~d"
+                                            (get-parameter "thread")
+                                            j)
+                              j))))
+               (if (< page (- num-of-pages 2))
+                   (:li :class "disabled"
+                        (:a :href "#" "...")))
+               (if (< page (- num-of-pages 1))
+                   (:li :class (if (= page num-of-pages) "active")
+                        (:a :href (format nil "view-thread?thread=~d&page=~d"
+                                          (get-parameter "thread")
+                                          num-of-pages)
+                            num-of-pages)))))))))
