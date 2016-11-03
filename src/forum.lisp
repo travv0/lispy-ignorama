@@ -8,7 +8,6 @@
 (defparameter *css* "
 body {
     background-color: #E8E8E8;
-    overflow-x: hidden;
 }
 
 .header {
@@ -382,11 +381,12 @@ label{
                                   *site-name*))
              ,@*head*)
       (:body
-       ,@*header*
-       (:div :class "container"
-             (unless (equal ,title "")
-               (:h2 ,title))
-             ,@body)))))
+       (:div :style "overflow-x: hidden;"
+        ,@*header*
+        (:div :class "container"
+              (unless (equal ,title "")
+                (:h2 ,title))
+              ,@body))))))
 
 ;;; this macro creates and publishes page <name> at https://your-site.com/<name>
 (defmacro publish-page (name &body body)
