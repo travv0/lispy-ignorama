@@ -382,11 +382,11 @@ label{
              ,@*head*)
       (:body
        (:div :style "overflow-x: hidden;"
-        ,@*header*
-        (:div :class "container"
-              (unless (equal ,title "")
-                (:h2 ,title))
-              ,@body))))))
+             ,@*header*
+             (:div :class "container"
+                   (unless (equal ,title "")
+                     (:h2 ,title))
+                   ,@body))))))
 
 ;;; this macro creates and publishes page <name> at https://your-site.com/<name>
 (defmacro publish-page (name &body body)
@@ -502,37 +502,50 @@ label{
   `(with-html (:table :class "table table-bordered fixed main-table"
                       (:tbody
                        (execute-query-loop post ,query (,@params)
-                         (let ((post-id (getf post :|postid|))
-                               (post-time (getf post :|posttime|)))
-                           (:tr :id (concatenate 'string
-                                                 "post"
-                                                 (write-to-string
-                                                  post-id))
-                                (:td :class "col-sm-3 hidden-xs"
-                                     (:div :class "post-info"
-                                           (multiple-value-bind (name ip)
-                                               (print-username
-                                                (getf post :|postid|))
-                                             (:b (:div name))
-                                             (:div ip))
-                                           (let ((options (print-post-options post-id)))
-                                             (if options
-                                                 (:raw options)))
-                                           (:br)
-                                           (:br)
-                                           (:div :class "time" post-time)))
-                                (:td :class "col-sm-9 post-content centered"
-                                     (:div :class "visible-xs mobile-post-info"
-                                           (:span :class "time mobile-date"
-                                                  post-time)
-                                           (:span (multiple-value-bind (name ip)
-                                                      (print-username
-                                                       (getf post :|postid|))
-                                                    (:div (:b name))
-                                                    (:div ip))
-                                                  (:raw (print-post-options post-id)))
-                                           )
-                                     (:div (format-post (getf post :|postcontent|)))))))))))
+                         (post-row (getf post :|postid|)
+                                   (getf post :|posttime|)
+                                   (getf post :|postcontent|))
+                         ;; (:tr :id (concatenate 'string
+                         ;;                       "post"
+                         ;;                       (write-to-string
+                         ;;                        post-id))
+                         ;;      (:td :class "col-sm-3 hidden-xs"
+                         ;;           (:div :class "post-info"
+                         ;;                 (multiple-value-bind (name ip)
+                         ;;                     (print-username
+                         ;;                      (getf post :|postid|))
+                         ;;                   (:b (:div name))
+                         ;;                   (:div ip))
+                         ;;                 (let ((options (print-post-options post-id)))
+                         ;;                   (if options
+                         ;;                       (:raw options)))
+                         ;;                 (:br)
+                         ;;                 (:br)
+                         ;;                 (:div :class "time" post-time)))
+                         ;;      (:td :class "col-sm-9 post-content centered"
+                         ;;           (:div :class "visible-xs mobile-post-info"
+                         ;;                 (:span :class "time mobile-date"
+                         ;;                        post-time)
+                         ;;                 (:span (multiple-value-bind (name ip)
+                         ;;                            (print-username
+                         ;;                             (getf post :|postid|))
+                         ;;                          (:div (:b name))
+                         ;;                          (:div ip))
+                         ;;                        (:raw (print-post-options post-id)))
+                         ;;                 )
+                         ;;           (:div (format-post (getf post :|postcontent|)))))
+                         )))))
+
+(defhtml post-row (id time content)
+  (row
+    (col 12 :class "thread"
+         (:span :style "font-size: 12px; color: gray;"
+                (join-string-list
+                 (list (print-user-name-and-ip id)
+                       (print-post-options id))
+                 " | "))
+         (:br)
+         (:div (format-post content)))))
 
 (defhtml thread-buttons ()
   (:button :class "btn btn-default btn-sm"
