@@ -468,7 +468,7 @@ label{
 (defhtml thread-row (id op-id subject tag post-count latest-post-time locked stickied)
   (row
     (col 12 :class "thread"
-         (link subject (thread-url id))
+         (print-link-to-thread id subject :locked locked :stickied stickied)
          (:br)
          (:span :style "font-size: 12px; color: gray;"
                 (print-user-name-and-ip op-id)
@@ -863,14 +863,7 @@ label{
   (:span :style "padding: 3px;"
          (link (:span :class (site-symbol-to-fontawesome-class site))
                url
-               :new-tab t))
-
-  ;; (:a :class "header rightlink"
-  ;;     :target "_blank"
-  ;;     :href url
-  ;;     :title (site-symbol-to-name site custom-name)
-  ;;     (:span :class (site-symbol-to-fontawesome-class site)))
-  )
+               :new-tab t)))
 
 (defhtml rightlink (label)
   (:span :class "header-link" (link label
