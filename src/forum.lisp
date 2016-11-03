@@ -148,10 +148,10 @@ label{
 
 .thread {
     background-color: white;
-    padding: 5px;
-    border-style: solid;
-    border-color: #CCC;
-    border-width: 1px;
+    padding: 10px;
+    outline-style: solid;
+    outline-color: #CCC;
+    outline-width: 1px;
 }
 ")
 
@@ -188,11 +188,12 @@ label{
             user-status-id
             user-status-id)))
 
-(defmacro link (text url &key new-tab)
+(defmacro link (text url &key new-tab tooltip)
   `(with-html
      (:a :href ,url
          :target ,(when new-tab
                     "_blank")
+         :title ,tooltip
          ,text)))
 
 (defmacro row (&body body)
@@ -504,46 +505,24 @@ label{
                        (execute-query-loop post ,query (,@params)
                          (post-row (getf post :|postid|)
                                    (getf post :|posttime|)
-                                   (getf post :|postcontent|))
-                         ;; (:tr :id (concatenate 'string
-                         ;;                       "post"
-                         ;;                       (write-to-string
-                         ;;                        post-id))
-                         ;;      (:td :class "col-sm-3 hidden-xs"
-                         ;;           (:div :class "post-info"
-                         ;;                 (multiple-value-bind (name ip)
-                         ;;                     (print-username
-                         ;;                      (getf post :|postid|))
-                         ;;                   (:b (:div name))
-                         ;;                   (:div ip))
-                         ;;                 (let ((options (print-post-options post-id)))
-                         ;;                   (if options
-                         ;;                       (:raw options)))
-                         ;;                 (:br)
-                         ;;                 (:br)
-                         ;;                 (:div :class "time" post-time)))
-                         ;;      (:td :class "col-sm-9 post-content centered"
-                         ;;           (:div :class "visible-xs mobile-post-info"
-                         ;;                 (:span :class "time mobile-date"
-                         ;;                        post-time)
-                         ;;                 (:span (multiple-value-bind (name ip)
-                         ;;                            (print-username
-                         ;;                             (getf post :|postid|))
-                         ;;                          (:div (:b name))
-                         ;;                          (:div ip))
-                         ;;                        (:raw (print-post-options post-id)))
-                         ;;                 )
-                         ;;           (:div (format-post (getf post :|postcontent|)))))
-                         )))))
+                                   (getf post :|postcontent|)))))))
 
 (defhtml post-row (id time content)
   (row
     (col 12 :class "thread"
-         (:span :style "font-size: 12px; color: gray;"
-                (join-string-list
-                 (list (print-user-name-and-ip id)
-                       (print-post-options id))
-                 " | "))
+         (:div :style "margin-bottom: -15px;"
+               (:span :style "font-size: 12px; color: gray;"
+                      (let ((options (print-post-options id)))
+                        (if (not (equal options ""))
+                            (:raw (join-string-list
+                                   (list (with-html-string
+                                           (:b (print-user-name-and-ip id)))
+                                         (print-post-options id))
+                                   " | "))
+                            (:b (print-user-name-and-ip id))))
+                      (:span :style "float: right;"
+                             :class "time"
+                             time)))
          (:br)
          (:div (format-post content)))))
 
@@ -876,7 +855,10 @@ label{
   (:span :style "padding: 3px;"
          (link (:span :class (site-symbol-to-fontawesome-class site))
                url
-               :new-tab t)))
+               :new-tab t
+               :tooltip (if custom-name
+                            custom-name
+                            (string-capitalize site)))))
 
 (defhtml rightlink (label)
   (:span :class "header-link" (link label
