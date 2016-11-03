@@ -10,6 +10,14 @@ body {
     background-color: #E8E8E8;
 }
 
+.header {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-bottom-style: solid;
+    border-bottom-color: gray;
+    border-bottom-width: 1px;
+}
+
 a:link {
     color: #663399;
 }
@@ -45,6 +53,8 @@ a:active {
     text-decoration: none;
     color: white;
 }
+
+.header-link { padding: 3px; }
 
 ul.dropdown-menu-form {
     padding: 5px 10px 0;
@@ -96,11 +106,32 @@ select {
     box-shadow: none;
 }
 
-.dropdown-menu{
+.searchbox {
+    height:30px;
+    margin-right:-5px;
+    font-weight: normal;
+}
+
+.searchform {
+    display: inline-block;
+    float: right;
+}
+
+.searchbutton {
+    margin-top: -3px;
+    margin-right: 4px;
+}
+
+.dropdown-menu {
     -webkit-border-radius: 0 !important;
     -moz-border-radius: 0 !important;
     border-radius: 0 !important;
     box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-item {
+    margin: 15px;
+    color: black !important;
 }
 
 input[type='checkbox']{
@@ -277,75 +308,65 @@ label{
        ,@body)))
 
 (defhtml rightlinks (rightlinks sociallinks)
-  (row :style "float: right;"
-       (rightlinks-desktop rightlinks sociallinks)
-       (rightlinks-mobile rightlinks sociallinks)))
+  (row (col 12
+         (desktop-only (rightlinks-desktop rightlinks sociallinks))
+         (mobile-only (rightlinks-mobile rightlinks sociallinks))))
+  (row (col 12
+         (login-links))))
 
 (defhtml rightlinks-desktop (rightlinks sociallinks)
   (desktop-only
-    (col 12
-      (row (col 12
-             (:div (generate-sociallinks sociallinks)
-                   (generate-rightlinks rightlinks))))
-
-      (row (col 12 (login-links-desktop))))))
+    (:div :style "float: right;"
+          (generate-sociallinks sociallinks)
+          (generate-rightlinks rightlinks))))
 
 (defhtml rightlinks-mobile (rightlinks sociallinks)
-  (mobile-only
-    (col 12
-      (row (col 12
-             (:div :class "btn-group mobile header rightlinks"
-                   (:a :class "btn btn-default btn-sm dropdown-toggle"
-                       :data-toggle "dropdown"
-                       "Menu " (:span :class "caret"))
-                   (:ul :class "dropdown-menu pull-right"
-                        (generate-dropdown-links rightlinks)
-                        (generate-dropdown-links-social sociallinks)) )))
-      (row (col 12 (login-links-mobile))))))
+  (row (col 12
+         (:div :style "float: right;" :class "btn-group"
+               (:a :style "margin: 5px;" :class "btn btn-default btn-sm dropdown-toggle"
+                   :data-toggle "dropdown"
+                   "Menu " (:span :class "caret"))
+               (:ul :class "dropdown-menu pull-right"
+                    (generate-dropdown-links rightlinks)
+                    (generate-dropdown-links-social sociallinks))))))
 
-(defhtml login-links-desktop ()
-  (if (logged-in-p)
-      (:div :class "header loginlinks logout-area"
-            (format nil "Logged in as ~a " (get-session-var 'username))
-            (:a :href "/b/logout"
-                "(logout)"))
-      (:div :class "header loginlinks"
-            (:a :class "header rightlink"
-                :href "/signup" "Sign up")
-            ("/")
-            (:a :class "header rightlink"
-                :href "/login" "Log in"))))
-
-(defhtml login-links-mobile ()
-  (if (logged-in-p)
-      (:div :class "mobile-login-links"
-            (:span (format nil "Logged in as ~a" (get-session-var 'username))
-                   (:a :href "/b/logout"
-                       (:span :class "mobile-login-link"
-                              "(logout)"))))
-      (:div :class "mobile-login-links"
-            (:a :class "header rightlink mobile-login-link"
-                :href "/signup" "Sign up")
-            ("/")
-            (:a :class "header rightlink mobile-login-link"
-                :href "/login" "Log in"))))
+(defhtml login-links ()
+  (:div :style "float: right;"
+        (if (logged-in-p)
+            (progn (format nil "Logged in as ~a " (get-session-var 'username))
+                   (:a :class "header-link" :href "/b/logout"
+                       "(logout)"))
+            (progn (:a :class "header-link"
+                       :href "/signup" "Sign up")
+                   (:span :class "header-link" :style "color: white;" "/")
+                   (:a :class "header-link"
+                       :href "/login" "Log in")))))
 
 ;;; page skeleton
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *header*
-    '((row :class "header" :style (format nil "padding-top: 5px; background-color: ~a" *ignorama-purple*)
+    '((row :class "header" :style (format nil "background-color: ~a" *ignorama-purple*)
            (col 12
 
              ;; logo and slogans
-             (:a :href "/"
-                 (:img :src *logo-path*))
-             (desktop-only
-               (if *slogans*
-                   (:b :style (format nil "color: ~a" *header-text-color*)
-                       (:raw (random-elt *slogans*)))))
+             (:div :class "container"
+                   (row
+                     (desktop-only
+                       (col 6 :style "padding-top: 4px;"
+                            (:a :href "/"
+                                (:img :src *logo-path*))
+                            (if *slogans*
+                                (:b :style (format nil "position: absolute;
+                                                        top: 15px; color: ~a" *header-text-color*)
+                                    (:raw (random-elt *slogans*))))))
+                     (mobile-only
+                       (col 6 :style "padding-top: 15px;"
+                            (:a :href "/"
+                                (:img :src *logo-path*))))
 
-             ;; right links
-             (rightlinks *rightlinks* *sociallinks*))))))
+                     ;; right links
+                     (col 6
+                       (rightlinks *rightlinks* *sociallinks*)))))))))
 
 ;;; The basic format that every viewable page will follow.
 (defmacro standard-page ((&key title) &body body)
@@ -393,24 +414,28 @@ label{
   (row :class "dropdown"
        (col 12
          (:button :class "btn btn-default btn-sm threads"
+                  :style "margin: 3px;"
                   :onclick "window.location='new-thread'"
                   "New Thread")
 
-         (:form :class "rightbuttons"
+         (:form :style "float: right;"
                 :action "b/apply-tags"
                 :method "post"
 
                 (:input :type "button"
-                        :class "btn btn-default btn-sm threads reset-tags"
+                        :style "margin: 3px;"
+                        :class "btn btn-default btn-sm"
                         :onclick "window.location='b/reset-tags'"
                         :value "Reset Boards")
                 (:input :type "submit"
+                        :style "margin: 3px;"
                         :class "btn btn-default btn-sm threads"
                         :value "Apply Boards")
 
                 (tags-filter-dropdown))
 
-         (desktop-only (search-box)))))
+         (:span  :style "float: right; margin: 3px;"
+                 (desktop-only (search-box))))))
 
 (defhtml search-box ()
   (:form :action "/"
@@ -847,7 +872,10 @@ label{
   )
 
 (defhtml rightlink (label)
-  (:span :style "padding: 3px;" (link (string-downcase label) "/")))
+  (:span :class "header-link" (link label
+                                    (concatenate 'string
+                                                 "/"
+                                                 (string-downcase label)))))
 
 (defun print-username (post-id)
   (execute-query-one user "SELECT UserName,

@@ -4,3 +4,4 @@ TAGS
 quicklisp.lisp
 *.fasl
 .env
+env.lisp

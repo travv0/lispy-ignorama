@@ -1,6 +1,7 @@
 (in-package :cl-user)
 
 (load "load.lisp")
+(load "env.lisp")
 
 (defun r ()
   (load "load.lisp"))
