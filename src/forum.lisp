@@ -485,12 +485,11 @@ label{
   (redirect "/?f=hidden"))
 
 (defmacro posts-table (query &rest params)
-  `(with-html (:table :class "table table-bordered fixed main-table"
-                      (:tbody
-                       (execute-query-loop post ,query (,@params)
-                         (post-row (getf post :|postid|)
-                                   (getf post :|posttime|)
-                                   (getf post :|postcontent|)))))))
+  `(with-html
+     (execute-query-loop post ,query (,@params)
+       (post-row (getf post :|postid|)
+                 (getf post :|posttime|)
+                 (getf post :|postcontent|)))))
 
 (defhtml post-row (id time content)
   (row
@@ -563,7 +562,8 @@ label{
                                        (get-parameter "page")) 1)
                                    *posts-per-page*)
                                 0))
-               (thread-buttons)
+               (:div :style "margin-top: 5px; margin-bottom: 5px;"
+                     (thread-buttons))
                (:div :class "fake-copyright"
                      (:raw *fake-copyright*))
                (:script (view-thread-js))))
