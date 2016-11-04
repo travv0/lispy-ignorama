@@ -394,13 +394,13 @@ label{
         (:title title)
       (:body (index-buttons)
              (threads-table (threads-query condition))
-             (:div :class "fake-copyright"
+             (:div :style "padding-top: 15px;"
                    (:raw *fake-copyright*))))))
 
 (defhtml index-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
   (row :class "dropdown"
-       (col 12
+       (col 12 :style "margin-top: 5px; margin-bottom: 5px;"
          (:button :class "btn btn-default btn-sm threads"
                   :style "margin: 3px;"
                   :onclick "window.location='new-thread'"
