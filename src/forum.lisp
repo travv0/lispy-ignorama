@@ -216,54 +216,6 @@ label{
             user-status-id
             user-status-id)))
 
-(defmacro link (text url &key new-tab tooltip)
-  `(with-html
-     (:a :href ,url
-         :target ,(when new-tab
-                    "_blank")
-         :title ,tooltip
-         ,text)))
-
-(defmacro row (&body body)
-  `(with-html
-     (:div :class "row"
-           ,@body)))
-
-(defmacro col (size &body body)
-  `(with-html
-     (:div :class (format nil "col-xs-~d" ,size)
-           ,@body)))
-
-(defmacro col-xs (size &body body)
-  `(with-html
-     (:div :class (format nil "col-xs-~d" ,size)
-           ,@body)))
-
-(defmacro col-sm (size &body body)
-  `(with-html
-     (:div :class (format nil "col-sm-~d" ,size)
-           ,@body)))
-
-(defmacro col-md (size &body body)
-  `(with-html
-     (:div :class (format nil "col-md-~d" ,size)
-           ,@body)))
-
-(defmacro col-lg (size &body body)
-  `(with-html
-     (:div :class (format nil "col-lg-~d" ,size)
-           ,@body)))
-
-(defmacro desktop-only (&body body)
-  `(with-html
-     (:span :class "hidden-xs"
-            ,@body)))
-
-(defmacro mobile-only (&body body)
-  `(with-html
-     (:span :class "visible-xs-inline"
-            ,@body)))
-
 (defparameter *rightlinks* '("Following" "Hidden" "Rules" "Bans" "Settings"))
 
 ;;; stuff to go in the <head> tags (minus <title>)
