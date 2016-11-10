@@ -13,9 +13,9 @@ body {
 .header {
     padding-top: 5px;
     padding-bottom: 5px;
-    border-bottom-style: solid;
-    border-bottom-color: gray;
-    border-bottom-width: 1px;
+    -webkit-box-shadow: 0px -1px 5px 4px rgba(0,0,0,0.68);
+    -moz-box-shadow: 0px -1px 5px 4px rgba(0,0,0,0.68);
+    box-shadow: 0px -1px 5px 4px rgba(0,0,0,0.68);
 }
 
 a:link {
@@ -199,20 +199,20 @@ label{
 (defun tags-query ()
   (let ((user-status-id (user-status-id)))
     (format nil "SELECT TagID, TagName
-                            FROM tags
-                            WHERE (
-                                   IsActive = true AND
-                                   UserStatusID >= ~d AND
-                                   IsGlobal = false
-                                  )
-                               OR (
-                                   IsGlobal = true AND
-                                   ~d <= (SELECT UserStatusID
-                                          FROM UserStatuses
-                                          WHERE UserStatusDesc = 'Admin')
-                                  )
-                            ORDER BY UserStatusID ASC,
-                                     TagName"
+          FROM tags
+          WHERE (
+           IsActive = true AND
+           UserStatusID >= ~d AND
+           IsGlobal = false
+          )
+             OR (
+           IsGlobal = true AND
+           ~d <= (SELECT UserStatusID
+            FROM UserStatuses
+            WHERE UserStatusDesc = 'Admin')
+          )
+          ORDER BY UserStatusID ASC,
+             TagName"
             user-status-id
             user-status-id)))
 
@@ -329,27 +329,27 @@ label{
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *header*
     '((row :class "header" :style (format nil "background-color: ~a" *ignorama-purple*)
-           (col 12
+        (col 12
 
-             ;; logo and slogans
-             (:div :class "container"
-                   (row
-                     (desktop-only
-                       (col 6 :style "padding-top: 4px;"
-                            (:a :href "/"
-                                (:img :src *logo-path*))
-                            (if *slogans*
-                                (:b :style (format nil "position: absolute;
-                                                        top: 15px; color: ~a" *header-text-color*)
-                                    (:raw (random-elt *slogans*))))))
-                     (mobile-only
-                       (col 6 :style "padding-top: 15px;"
-                            (:a :href "/"
-                                (:img :src *logo-path*))))
+          ;; logo and slogans
+          (:div :class "container"
+                (row
+                  (desktop-only
+                    (col 6 :style "padding-top: 4px;"
+                      (:a :href "/"
+                          (:img :src *logo-path*))
+                      (if *slogans*
+                          (:b :style (format nil "position: absolute;
+              top: 15px; color: ~a" *header-text-color*)
+                              (:raw (random-elt *slogans*))))))
+                  (mobile-only
+                    (col 6 :style "padding-top: 15px;"
+                      (:a :href "/"
+                          (:img :src *logo-path*))))
 
-                     ;; right links
-                     (col 6
-                       (rightlinks *rightlinks* *sociallinks*)))))))))
+                  ;; right links
+                  (col 6
+                    (rightlinks *rightlinks* *sociallinks*)))))))))
 
 ;;; The basic format that every viewable page will follow.
 (defmacro standard-page ((&key title) &body body)
@@ -400,30 +400,30 @@ label{
 (defhtml index-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
   (row :class "dropdown"
-       (col 12 :style "margin-top: 5px; margin-bottom: 5px;"
-         (:button :class "btn btn-default btn-sm threads"
-                  :style "margin: 3px;"
-                  :onclick "window.location='new-thread'"
-                  "New Thread")
+    (col 12 :style "margin-top: 5px; margin-bottom: 5px;"
+      (:button :class "btn btn-default btn-sm threads"
+               :style "margin: 3px;"
+               :onclick "window.location='new-thread'"
+               "New Thread")
 
-         (:form :style "float: right;"
-                :action "b/apply-tags"
-                :method "post"
+      (:form :style "float: right;"
+             :action "b/apply-tags"
+             :method "post"
 
-                (:input :type "button"
-                        :style "margin: 3px;"
-                        :class "btn btn-default btn-sm"
-                        :onclick "window.location='b/reset-tags'"
-                        :value "Reset Boards")
-                (:input :type "submit"
-                        :style "margin: 3px;"
-                        :class "btn btn-default btn-sm threads"
-                        :value "Apply Boards")
+             (:input :type "button"
+                     :style "margin: 3px;"
+                     :class "btn btn-default btn-sm"
+                     :onclick "window.location='b/reset-tags'"
+                     :value "Reset Boards")
+             (:input :type "submit"
+                     :style "margin: 3px;"
+                     :class "btn btn-default btn-sm threads"
+                     :value "Apply Boards")
 
-                (tags-filter-dropdown))
+             (tags-filter-dropdown))
 
-         (:span  :style "float: right; margin: 3px;"
-                 (desktop-only (search-box))))))
+      (:span  :style "float: right; margin: 3px;"
+              (desktop-only (search-box))))))
 
 (defhtml search-box ()
   (:form :action "/"
@@ -454,20 +454,20 @@ label{
 (defhtml thread-row (id op-id subject tag post-count latest-post-time locked stickied)
   (row
     (col 12 :class "thread"
-         (print-link-to-thread id subject :locked locked :stickied stickied)
-         (:br)
-         (:span :style "font-size: 12px; color: gray;"
-                (print-user-name-and-ip op-id)
-                (:br)
-                (:raw
-                 (join-string-list
-                  (list
-                   (format nil "Board: ~a" tag)
-                   (format nil "Replies: ~a" post-count)
-                   (format nil "Last reply: ~a" (with-html-string
-                                                  (:span :class "time"
-                                                         latest-post-time))))
-                  " | "))))))
+      (print-link-to-thread id subject :locked locked :stickied stickied)
+      (:br)
+      (:span :style "font-size: 12px; color: gray;"
+             (print-user-name-and-ip op-id)
+             (:br)
+             (:raw
+              (join-string-list
+               (list
+                (format nil "Board: ~a" tag)
+                (format nil "Replies: ~a" post-count)
+                (format nil "Last reply: ~a" (with-html-string
+                                               (:span :class "time"
+                                                      latest-post-time))))
+               " | "))))))
 
 (defun print-user-name-and-ip (post-id)
   (multiple-value-bind (user-name ip)
@@ -494,21 +494,21 @@ label{
 (defhtml post-row (id time content)
   (row
     (col 12 :class "thread"
-         (:div :style "margin-bottom: -15px;"
-               (:span :style "font-size: 12px; color: gray;"
-                      (let ((options (print-post-options id)))
-                        (if (not (equal options ""))
-                            (:raw (join-string-list
-                                   (list (with-html-string
-                                           (:b (print-user-name-and-ip id)))
-                                         (print-post-options id))
-                                   " | "))
-                            (:b (print-user-name-and-ip id))))
-                      (:span :style "float: right;"
-                             :class "time"
-                             time)))
-         (:br)
-         (:div (format-post content)))))
+      (:div :style "margin-bottom: -15px;"
+            (:span :style "font-size: 12px; color: gray;"
+                   (let ((options (print-post-options id)))
+                     (if (not (equal options ""))
+                         (:raw (join-string-list
+                                (list (with-html-string
+                                        (:b (print-user-name-and-ip id)))
+                                      (print-post-options id))
+                                " | "))
+                         (:b (print-user-name-and-ip id))))
+                   (:span :style "float: right;"
+                          :class "time"
+                          time)))
+      (:br)
+      (:div (format-post content)))))
 
 (defhtml thread-buttons ()
   (:button :class "btn btn-default btn-sm"
@@ -550,11 +550,11 @@ label{
                      (thread-buttons)
                      (thread-dropdown))
                (posts-table "SELECT *
-                             FROM posts
-                             WHERE ThreadID = ?
-                             ORDER BY PostTime
-                             LIMIT ?
-                             OFFSET ?"
+           FROM posts
+           WHERE ThreadID = ?
+           ORDER BY PostTime
+           LIMIT ?
+           OFFSET ?"
                             (get-parameter "thread")
                             *posts-per-page*
                             (if (get-parameter "page")
@@ -732,26 +732,26 @@ label{
              (redirect "/locked"))
          (execute-query-one post
              "INSERT INTO posts (
-                ThreadID,
-                UserID,
-                Anonymous,
-                PostContent,
-                PostTime,
-                PostIP,
-                PostRevealedOP,
-                Bump
-              )
-              VALUES (
-                ?,                  --ThreadID
-                ?,                  --UserID
-                ?,                  --Anonymous
-                ?,                  --PostContent
-                current_timestamp,  --PostTime
-                ?,                  --PostIP
-                ?,                  --PostRevealedOP
-                ?                   --Bump
-              )
-              RETURNING PostID"
+    ThreadID,
+    UserID,
+    Anonymous,
+    PostContent,
+    PostTime,
+    PostIP,
+    PostRevealedOP,
+    Bump
+        )
+        VALUES (
+    ?,                  --ThreadID
+    ?,                  --UserID
+    ?,                  --Anonymous
+    ?,                  --PostContent
+    current_timestamp,  --PostTime
+    ?,                  --PostIP
+    ?,                  --PostRevealedOP
+    ?                   --Bump
+        )
+        RETURNING PostID"
              ((get-parameter "thread")
               (if (get-session-var 'userid)
                   (get-session-var 'userid)
@@ -769,22 +769,22 @@ label{
 (publish-page b/submit-thread
   (execute-query-one thread
       "INSERT INTO threads (
-         ThreadSubject,
-         TagID,
-         Stickied,
-         Locked,
-         Deleted,
-         Banned,
-         LastEditBy
+   ThreadSubject,
+   TagID,
+   Stickied,
+   Locked,
+   Deleted,
+   Banned,
+   LastEditBy
        )
        VALUES (
-         ?,     --ThreadSubject,
-         ?,     --TagID,
-         false, --Stickied,
-         false, --Locked,
-         false, --Deleted,
-         false, --Banned,
-         ''     --LastEditBy
+   ?,     --ThreadSubject,
+   ?,     --TagID,
+   false, --Stickied,
+   false, --Locked,
+   false, --Deleted,
+   false, --Banned,
+   ''     --LastEditBy
        )
        RETURNING ThreadID"
       ((post-parameter "subject")
@@ -792,25 +792,25 @@ label{
 
     (execute-query-one _
         "INSERT INTO posts (
-           ThreadID,
-           UserID,
-           Anonymous,
-           PostContent,
-           PostTime,
-           PostIP,
-           PostRevealedOP,
-           Bump
-         )
-         VALUES (
-           ?,                  --ThreadID
-           ?,                  --UserID
-           ?,                  --Anonymous
-           ?,                  --PostContent
-           current_timestamp,  --PostTime
-           ?,                  --PostIP
-           true,               --PostRevealedOP
-           true                --Bump
-         )"
+     ThreadID,
+     UserID,
+     Anonymous,
+     PostContent,
+     PostTime,
+     PostIP,
+     PostRevealedOP,
+     Bump
+   )
+   VALUES (
+     ?,                  --ThreadID
+     ?,                  --UserID
+     ?,                  --Anonymous
+     ?,                  --PostContent
+     current_timestamp,  --PostTime
+     ?,                  --PostIP
+     true,               --PostRevealedOP
+     true                --Bump
+   )"
         ((getf thread :|threadid|)
          (if (get-session-var 'userid)
              (get-session-var 'userid)
@@ -854,11 +854,11 @@ label{
 
 (defun print-username (post-id)
   (execute-query-one user "SELECT UserName,
-                                  Anonymous,
-                                  PostIP
-                           FROM posts
-                           LEFT JOIN users ON posts.UserID = users.UserID
-                           WHERE PostID = ?" (post-id)
+          Anonymous,
+          PostIP
+         FROM posts
+         LEFT JOIN users ON posts.UserID = users.UserID
+         WHERE PostID = ?" (post-id)
     (cond ((user-authority-check-p "Moderator")
            (if (not (is-null (getf user :|username|)))
                (values (getf user :|username|)
@@ -873,19 +873,19 @@ label{
 
 (defun print-post-options (post-id)
   (execute-query-one user "SELECT UserName,
-                                  Anonymous,
-                                  PostRevealedOP,
-                                  Bump,
-                                  PostIP,
-                                  ThreadID
-                           FROM posts
-                           LEFT JOIN users ON posts.UserID = users.UserID
-                           WHERE PostID = ?" (post-id)
+          Anonymous,
+          PostRevealedOP,
+          Bump,
+          PostIP,
+          ThreadID
+         FROM posts
+         LEFT JOIN users ON posts.UserID = users.UserID
+         WHERE PostID = ?" (post-id)
     (execute-query-one op "SELECT PostIP
-                           FROM posts
-                           WHERE ThreadID = ?
-                           ORDER BY PostID
-                           LIMIT 1"
+         FROM posts
+         WHERE ThreadID = ?
+         ORDER BY PostID
+         LIMIT 1"
         ((getf user :|threadid|))
       (let ((options '())
             (op-revealed (getf user :|postrevealedop|))
@@ -918,12 +918,12 @@ label{
 (defhtml print-link-to-thread (thread-id thread-title &key locked stickied)
   (execute-query-one op
       "SELECT CONCAT(LEFT(PostContent, 200),
-                 CASE
-                      WHEN LENGTH(PostContent) > 200 THEN '...'
-                      ELSE ''
-                 END) AS PostContent
-          FROM posts WHERE ThreadID = ?
-          ORDER BY PostTime ASC" (thread-id)
+     CASE
+          WHEN LENGTH(PostContent) > 200 THEN '...'
+          ELSE ''
+     END) AS PostContent
+    FROM posts WHERE ThreadID = ?
+    ORDER BY PostTime ASC" (thread-id)
     (if stickied
         (progn (:span :class "thread-icon glyphicon glyphicon-bookmark")
                (" ")))
@@ -952,8 +952,8 @@ label{
 
 (defhtml pagination ()
   (execute-query-one thread "SELECT count(1) AS PostCount
-                                FROM posts
-                                WHERE ThreadID = ?"
+        FROM posts
+        WHERE ThreadID = ?"
       ((get-parameter "thread"))
     ;; mobile
     (let ((num-of-pages (ceiling (/ (getf thread :|postcount|)
