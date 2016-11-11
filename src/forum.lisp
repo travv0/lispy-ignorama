@@ -13,9 +13,9 @@ body {
 .header {
     padding-top: 5px;
     padding-bottom: 5px;
-    -webkit-box-shadow: 0px -1px 5px 4px rgba(0,0,0,0.68);
-    -moz-box-shadow: 0px -1px 5px 4px rgba(0,0,0,0.68);
-    box-shadow: 0px -1px 5px 4px rgba(0,0,0,0.68);
+    -webkit-box-shadow: 0px 1.5px 3px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 1.5px 3px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 1.5px 3px 0px rgba(0,0,0,0.75);
 }
 
 a:link {
