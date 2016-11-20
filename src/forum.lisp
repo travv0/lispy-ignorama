@@ -5,184 +5,6 @@
 (defparameter *background-color* "#E8E8E8")
 (defparameter *header-text-color* "white")
 
-(defparameter *css* "
-body {
-    background-color: #E8E8E8;
-}
-
-.header {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    -webkit-box-shadow: 0px 1.5px 3px 0px rgba(0,0,0,0.75);
-    -moz-box-shadow: 0px 1.5px 3px 0px rgba(0,0,0,0.75);
-    box-shadow: 0px 1.5px 3px 0px rgba(0,0,0,0.75);
-}
-
-a:link {
-    color: #663399;
-}
-
-a:visited {
-    color: #663399;
-}
-
-a:hover {
-    color: #663399;
-}
-
-a:active {
-    color: #663399;
-}
-
-.header a:link {
-    text-decoration: none;
-    color: white;
-}
-
-.header a:visited {
-    text-decoration: none;
-    color: white;
-}
-
-.header a:hover {
-    text-decoration: none;
-    color: white;
-}
-
-.header a:active {
-    text-decoration: none;
-    color: white;
-}
-
-.header-link { padding: 3px; }
-
-ul.dropdown-menu-form {
-    padding: 5px 10px 0;
-    max-height: 300px;
-    overflow-y: scroll;
-}
-
-.btn-default {
-    text-shadow: 0px 1px 0px #FFF;
-    background-image: none;
-    background-repeat: repeat-x;
-    border-color: #CCC;
-    -webkit-border-radius: 0 !important;
-    -moz-border-radius: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none;
-    margin: 3px;
-}
-
-select {
-    height:30px;
-    text-shadow: 0px 1px 0px #FFF;
-    background-image: none;
-    background-repeat: repeat-x;
-    border-color: #CCC;
-    -webkit-border-radius: 0 !important;
-    -moz-border-radius: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none;
-}
-
-.pagination-sm > li > a, .pagination-sm > li > span,.pagination > .disabled > span, .pagination > .disabled > span:hover, .pagination > .disabled > span:focus, .pagination > .disabled > a, .pagination > .disabled > a:hover, .pagination > .disabled > a:focus {
-    text-shadow: 0px 1px 0px #FFF;
-    height: 30px;
-    background-image: none;
-    background-repeat: repeat-x;
-    border-color: #CCC;
-    -webkit-border-top-right-radius: 0 !important;
-    -moz-border-top-right-radius: 0 !important;
-    border-top-right-radius: 0 !important;
-    -webkit-border-top-left-radius: 0 !important;
-    -moz-border-top-left-radius: 0 !important;
-    border-top-left-radius: 0 !important;
-    -webkit-border-bottom-right-radius: 0 !important;
-    -moz-border-bottom-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-    -webkit-border-bottom-left-radius: 0 !important;
-    -moz-border-bottom-left-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
-    box-shadow: none;
-}
-
-select.pagination {
-    margin: -1px -5px 0px -1px;
-}
-
-.pagination {
-    margin: 0px;
-    margin-bottom: -9px;
-}
-
-.pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus {
-    background-color: #330066;
-    border-color: #663399;
-}
-
-.pagination>li>a, .pagination>li>span{
-    color: #663399;
-}
-
-.pagination>li>a:hover, .pagination>li>span:hover, .pagination>li>a:focus, .pagination>li>span:focus {
-    color: #663399;
-}
-
-.pagination>.disabled>span, .pagination>.disabled>span:hover, .pagination>.disabled>span:focus, .pagination>.disabled>a, .pagination>.disabled>a:hover, .pagination>.disabled>a:focus{
-    cursor: default;
-}
-
-.searchbox {
-    height:30px;
-    margin-right:-5px;
-    font-weight: normal;
-}
-
-.searchform {
-    display: inline-block;
-    float: right;
-}
-
-.searchbutton {
-    margin-top: -3px;
-    margin-right: 4px;
-    margin-bottom: 0px;
-}
-
-.dropdown-menu {
-    -webkit-border-radius: 0 !important;
-    -moz-border-radius: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.2);
-}
-
-.dropdown-item {
-    margin: 15px;
-    color: black !important;
-}
-
-input[type='checkbox']{
-    margin-right: 3px;
-}
-
-input[type='text']{
-    margin-bottom: 5px;
-}
-
-label{
-    font-weight: 400 !important;
-}
-
-.thread {
-    background-color: white;
-    padding: 10px;
-    outline-style: solid;
-    outline-color: #CCC;
-    outline-width: 1px;
-}
-")
-
 ;;; site setup
 (defun threads-query (condition)
   (format nil "SELECT *
@@ -241,7 +63,7 @@ label{
 
       (:script :src "//code.jquery.com/jquery-1.11.0.min.js")
       (:script :src "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
-      (:script :src "/static/script.js")
+      (:script :src "/script.js")
       (:script :src "/js/script.js"))))
 
 (defun generate-sociallinks (sites)
@@ -383,10 +205,6 @@ label{
        (with-db *conn*
          ,@body))))
 
-(hunchentoot:define-easy-handler (css :uri "/style.css") ()
-  (setf (hunchentoot:content-type*) "text/css")
-  (with-html-string (:raw *css*)))
-
 (publish-page index
   (multiple-value-bind (title condition)
       (index-params-by-type (get-parameter "f"))
@@ -511,10 +329,15 @@ label{
       (:div (format-post content)))))
 
 (defhtml thread-buttons ()
-  (:button :class "btn btn-default btn-sm"
-           :onclick (format nil "window.location='new-reply?thread=~d'"
-                            (get-parameter "thread"))
-           "Reply")
+  (let ((thread-id (get-parameter "thread")))
+    (if (thread-locked-p thread-id)
+        (:button :class "btn btn-default btn-sm"
+                 :disabled t
+                 "Locked")
+        (:button :class "btn btn-default btn-sm"
+                 :onclick (format nil "window.location='new-reply?thread=~d'"
+                                  (get-parameter "thread"))
+                 "Reply")))
   (:button :class "btn btn-default btn-sm"
            :onclick "window.location='/'"
            "Main Page")
