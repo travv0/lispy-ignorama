@@ -12,7 +12,7 @@
     (format t "Listening on port ~A~%" port)
     (funcall (symbol-function (find-symbol "START" (find-package "HUNCHENTOOT")))
              (setf hunchentoot:*acceptor* (funcall 'make-instance (find-symbol "EASY-ACCEPTOR" (find-package "HUNCHENTOOT")) :port port)))
-    (setf (hunchentoot:acceptor-document-root hunchentoot:*acceptor*) "./"))
+    (setf (hunchentoot:acceptor-document-root hunchentoot:*acceptor*) "./static/"))
   (loop (sleep 60)))
 
 (print ">>> Done building system")
