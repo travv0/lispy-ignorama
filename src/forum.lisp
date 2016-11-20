@@ -151,27 +151,27 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *header*
     '((row :class "header" :style (format nil "background-color: ~a" *ignorama-purple*)
-        (col 12
+           (col 12
 
-          ;; logo and slogans
-          (:div :class "container"
-                (row
-                  (desktop-only
-                    (col 6 :style "padding-top: 4px;"
-                      (:a :href "/"
-                          (:img :src *logo-path*))
-                      (if *slogans*
-                          (:b :style (format nil "position: absolute;
+             ;; logo and slogans
+             (:div :class "container"
+                   (row
+                     (desktop-only
+                       (col 6 :style "padding-top: 4px;"
+                            (:a :href "/"
+                                (:img :src *logo-path*))
+                            (if *slogans*
+                                (:b :style (format nil "position: absolute;
               top: 15px; color: ~a" *header-text-color*)
-                              (:raw (random-elt *slogans*))))))
-                  (mobile-only
-                    (col 6 :style "padding-top: 15px;"
-                      (:a :href "/"
-                          (:img :src *logo-path*))))
+                                    (:raw (random-elt *slogans*))))))
+                     (mobile-only
+                       (col 6 :style "padding-top: 15px;"
+                            (:a :href "/"
+                                (:img :src *logo-path*))))
 
-                  ;; right links
-                  (col 6
-                    (rightlinks *rightlinks* *sociallinks*)))))))))
+                     ;; right links
+                     (col 6
+                       (rightlinks *rightlinks* *sociallinks*)))))))))
 
 ;;; The basic format that every viewable page will follow.
 (defmacro standard-page ((&key title) &body body)
@@ -218,30 +218,30 @@
 (defhtml index-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
   (row :class "dropdown"
-    (col 12 :style "margin-top: 5px; margin-bottom: 5px;"
-      (:button :class "btn btn-default btn-sm threads"
-               :style "margin: 3px;"
-               :onclick "window.location='new-thread'"
-               "New Thread")
-
-      (:form :style "float: right;"
-             :action "b/apply-tags"
-             :method "post"
-
-             (:input :type "button"
+       (col 12 :style "margin-top: 5px; margin-bottom: 5px;"
+            (:button :class "btn btn-default btn-sm threads"
                      :style "margin: 3px;"
-                     :class "btn btn-default btn-sm"
-                     :onclick "window.location='b/reset-tags'"
-                     :value "Reset Boards")
-             (:input :type "submit"
-                     :style "margin: 3px;"
-                     :class "btn btn-default btn-sm threads"
-                     :value "Apply Boards")
+                     :onclick "window.location='new-thread'"
+                     "New Thread")
 
-             (tags-filter-dropdown))
+            (:form :style "float: right;"
+                   :action "b/apply-tags"
+                   :method "post"
 
-      (:span  :style "float: right; margin: 3px;"
-              (desktop-only (search-box))))))
+                   (:input :type "button"
+                           :style "margin: 3px;"
+                           :class "btn btn-default btn-sm"
+                           :onclick "window.location='b/reset-tags'"
+                           :value "Reset Boards")
+                   (:input :type "submit"
+                           :style "margin: 3px;"
+                           :class "btn btn-default btn-sm threads"
+                           :value "Apply Boards")
+
+                   (tags-filter-dropdown))
+
+            (:span  :style "float: right; margin: 3px;"
+                    (desktop-only (search-box))))))
 
 (defhtml search-box ()
   (:form :action "/"
@@ -272,26 +272,26 @@
 (defhtml thread-row (id op-id subject tag post-count latest-post-time locked stickied)
   (row
     (col 12 :class "thread"
-      (print-link-to-thread id subject :locked locked :stickied stickied)
-      (:br)
-      (:span :style "font-size: 12px; color: gray;"
-             (print-user-name-and-ip op-id)
-             (:br)
-             (:raw
-              (join-string-list
-               (list
-                (format nil "Board: ~a" tag)
-                (format nil "Replies: ~a" post-count)
-                (format nil "Last reply: ~a" (with-html-string
-                                               (:span :class "time"
-                                                      latest-post-time))))
-               " | "))))))
+         (print-link-to-thread id subject :locked locked :stickied stickied)
+         (:br)
+         (:span :style "font-size: 12px; color: gray;"
+                (print-user-name-and-ip op-id)
+                (:br)
+                (:raw
+                 (join-string-list
+                  (list
+                   (format nil "Board: ~a" tag)
+                   (format nil "Replies: ~a" post-count)
+                   (format nil "Last reply: ~a" (with-html-string
+                                                  (:span :class "time"
+                                                         latest-post-time))))
+                  " | "))))))
 
-(defun print-user-name-and-ip (post-id)
+(defhtml print-user-name-and-ip (post-id)
   (multiple-value-bind (user-name ip)
       (print-username post-id)
-    (concatenate 'string user-name (when ip
-                                     (format nil " (~a)" ip)))))
+    (:raw (concatenate 'string user-name (when ip
+                                           (format nil " (~a)" ip))))))
 
 (defun thread-url (id)
   (format nil "view-thread?thread=~d" id))
@@ -312,21 +312,21 @@
 (defhtml post-row (id time content)
   (row
     (col 12 :class "thread"
-      (:div :style "margin-bottom: -15px;"
-            (:span :style "font-size: 12px; color: gray;"
-                   (let ((options (print-post-options id)))
-                     (if (not (equal options ""))
-                         (:raw (join-string-list
-                                (list (with-html-string
-                                        (:b (print-user-name-and-ip id)))
-                                      (print-post-options id))
-                                " | "))
-                         (:b (print-user-name-and-ip id))))
-                   (:span :style "float: right;"
-                          :class "time"
-                          time)))
-      (:br)
-      (:div (format-post content)))))
+         (:div :style "margin-bottom: -15px;"
+               (:span :style "font-size: 12px; color: gray;"
+                      (let ((options (print-post-options id)))
+                        (if (not (equal options ""))
+                            (:raw (join-string-list
+                                   (list (with-html-string
+                                           (:b (print-user-name-and-ip id)))
+                                         (print-post-options id))
+                                   " | "))
+                            (:b (print-user-name-and-ip id))))
+                      (:span :style "float: right;"
+                             :class "time"
+                             time)))
+         (:br)
+         (:div (format-post content)))))
 
 (defhtml thread-buttons ()
   (let ((thread-id (get-parameter "thread")))
@@ -354,43 +354,57 @@
               "TODO - add stuff here")))
 
 (publish-page view-thread
-  ;; if passed "post" parameter, redirect to appropriate thread and highlight post
-  (if (get-parameter "post")
-      (execute-query-one thread
-          "SELECT ThreadID FROM posts WHERE PostID = ?"
-          ((get-parameter "post"))
-        (redirect (format nil
-                          "/view-thread?thread=~d&highlight=~d#post~d"
-                          (getf thread :|threadid|)
-                          (get-parameter "post")
-                          (get-parameter "post")))))
+  (let ((post-id (get-parameter "post"))
+        (thread-id (get-parameter "thread"))
+        (user-id (get-parameter "user"))
+        (user-ip (get-parameter "ip"))
+        (page (get-parameter "page")))
+    ;; if passed "post" parameter, redirect to appropriate thread and highlight post
+    (if post-id
+        (execute-query-one thread
+            "SELECT ThreadID FROM posts WHERE PostID = ?"
+            (post-id)
+          (redirect (format nil
+                            "/view-thread?thread=~d&highlight=~d#post~d"
+                            (getf thread :|threadid|)
+                            post-id
+                            post-id))))
 
-  (if (not (equal (empty-string-if-nil (get-parameter "thread"))
-                  ""))
-      (standard-page
-          (:title (get-thread-title (get-parameter "thread")))
-        (:body (:div :style "margin-bottom: 5px;"
-                     (thread-buttons)
-                     (thread-dropdown))
-               (posts-table "SELECT *
-           FROM posts
-           WHERE ThreadID = ?
-           ORDER BY PostTime
-           LIMIT ?
-           OFFSET ?"
-                            (get-parameter "thread")
-                            *posts-per-page*
-                            (if (get-parameter "page")
-                                (* (- (parse-integer
-                                       (get-parameter "page")) 1)
-                                   *posts-per-page*)
-                                0))
-               (:div :style "margin-top: 5px; margin-bottom: 5px;"
-                     (thread-buttons))
-               (:div :class "fake-copyright"
-                     (:raw *fake-copyright*))
-               (:script (view-thread-js))))
-      (redirect "/")))
+    (if (not (and (equal (empty-string-if-nil thread-id) "")
+                  (equal (empty-string-if-nil user-id) "")
+                  (equal (empty-string-if-nil user-ip) "")))
+        (standard-page
+            (:title (get-thread-title thread-id))
+          (:body (:div :style "margin-bottom: 5px;"
+                       (thread-buttons)
+                       (thread-dropdown))
+                 (posts-table
+                  (format nil "SELECT *
+                               FROM posts
+                               WHERE True
+                               ~a
+                               ORDER BY PostTime
+                               LIMIT ?
+                               OFFSET ?"
+                          (concatenate 'string
+                                       (unless (equal (empty-string-if-nil thread-id) "")
+                                         (format nil " AND ThreadID = ~d"
+                                                 (dbi.driver:escape-sql *conn* thread-id)))
+                                       (unless (equal (empty-string-if-nil user-id) "")
+                                         (format nil " AND UserID = ~d"
+                                                 (dbi.driver:escape-sql *conn* user-id)))))
+                  *posts-per-page*
+                  (if page
+                      (* (- (parse-integer
+                             page) 1)
+                         *posts-per-page*)
+                      0))
+                 (:div :style "margin-top: 5px; margin-bottom: 5px;"
+                       (thread-buttons))
+                 (:div :class "fake-copyright"
+                       (:raw *fake-copyright*))
+                 (:script (view-thread-js))))
+        (redirect "/"))))
 
 (publish-page login
   (standard-page
@@ -677,16 +691,32 @@
 
 (defun print-username (post-id)
   (execute-query-one user "SELECT UserName,
-          Anonymous,
-          PostIP
-         FROM posts
-         LEFT JOIN users ON posts.UserID = users.UserID
-         WHERE PostID = ?" (post-id)
+                                  users.UserID,
+                                  Anonymous,
+                                  PostIP
+                           FROM posts
+                           LEFT JOIN users ON posts.UserID = users.UserID
+                           WHERE PostID = ?"
+      (post-id)
     (cond ((user-authority-check-p "Moderator")
            (if (not (is-null (getf user :|username|)))
-               (values (getf user :|username|)
-                       (getf user :|postip|))
-               (getf user :|postip|)))
+               (values (with-html-string
+                         (:a :href (format nil
+                                           "view-thread?user=~a&ip=~a"
+                                           (getf user :|userid|)
+                                           (getf user :|postip|))
+                             (getf user :|username|)))
+                       (with-html-string
+                         (:a :href (format nil
+                                           "view-thread?user=~a&ip=~a"
+                                           (getf user :|userid|)
+                                           (getf user :|postip|))
+                             (getf user :|postip|))))
+               (with-html-string
+                 (:a :href (format nil
+                                   "view-thread?ip=~a"
+                                   (getf user :|postip|))
+                     (getf user :|postip|)))))
           (t (if (and (or (and (not *force-anonymity*)
                                (not (getf user :|anonymous|)))
                           (not *allow-anonymity*))
