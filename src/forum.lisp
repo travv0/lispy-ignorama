@@ -330,14 +330,15 @@
 
 (defhtml thread-buttons ()
   (let ((thread-id (get-parameter "thread")))
-    (if (thread-locked-p thread-id)
-        (:button :class "btn btn-default btn-sm"
-                 :disabled t
-                 "Locked")
-        (:button :class "btn btn-default btn-sm"
-                 :onclick (format nil "window.location='new-reply?thread=~d'"
-                                  (get-parameter "thread"))
-                 "Reply")))
+    (when thread-id
+      (if (thread-locked-p thread-id)
+          (:button :class "btn btn-default btn-sm"
+                   :disabled t
+                   "Locked")
+          (:button :class "btn btn-default btn-sm"
+                   :onclick (format nil "window.location='new-reply?thread=~d'"
+                                    (get-parameter "thread"))
+                   "Reply"))))
   (:button :class "btn btn-default btn-sm"
            :onclick "window.location='/'"
            "Main Page")
@@ -374,16 +375,24 @@
                   (equal (empty-string-if-nil user-id) "")
                   (equal (empty-string-if-nil user-ip) "")))
         (standard-page
-            (:title (get-thread-title thread-id))
+            (:title (cond (thread-id (get-thread-title thread-id))
+                          (user-id (execute-query-one
+                                       user
+                                       "SELECT UserName
+                                        FROM users
+                                        WHERE UserID = ?"
+                                       (user-id)
+                                     (getf user :|username|)))
+                          (user-ip user-ip)))
           (:body (:div :style "margin-bottom: 5px;"
                        (thread-buttons)
                        (thread-dropdown))
                  (posts-table
-                  (format nil "SELECT *
+                  (format nil "SELECT posts.*
                                FROM posts
                                WHERE True
                                ~a
-                               ORDER BY PostTime
+                               ORDER BY PostTime ~a
                                LIMIT ?
                                OFFSET ?"
                           (concatenate 'string
@@ -392,7 +401,13 @@
                                                  (dbi.driver:escape-sql *conn* thread-id)))
                                        (unless (equal (empty-string-if-nil user-id) "")
                                          (format nil " AND UserID = ~d"
-                                                 (dbi.driver:escape-sql *conn* user-id)))))
+                                                 (dbi.driver:escape-sql *conn* user-id)))
+                                       (unless (equal (empty-string-if-nil user-ip) "")
+                                         (format nil " AND PostIP = '~d'"
+                                                 (dbi.driver:escape-sql *conn* user-ip))))
+                          (if (or user-id user-ip)
+                              "DESC"
+                              "ASC"))
                   *posts-per-page*
                   (if page
                       (* (- (parse-integer
@@ -403,7 +418,8 @@
                        (thread-buttons))
                  (:div :class "fake-copyright"
                        (:raw *fake-copyright*))
-                 (:script (view-thread-js))))
+                 (if thread-id
+                     (:script (view-thread-js)))))
         (redirect "/"))))
 
 (publish-page login
@@ -702,14 +718,12 @@
            (if (not (is-null (getf user :|username|)))
                (values (with-html-string
                          (:a :href (format nil
-                                           "view-thread?user=~a&ip=~a"
-                                           (getf user :|userid|)
-                                           (getf user :|postip|))
+                                           "view-thread?user=~a"
+                                           (getf user :|userid|))
                              (getf user :|username|)))
                        (with-html-string
                          (:a :href (format nil
-                                           "view-thread?user=~a&ip=~a"
-                                           (getf user :|userid|)
+                                           "view-thread?ip=~a"
                                            (getf user :|postip|))
                              (getf user :|postip|))))
                (with-html-string
@@ -804,71 +818,94 @@
                (getf tag :|tagname|))))))
 
 (defhtml pagination ()
-  (execute-query-one thread "SELECT count(1) AS PostCount
-        FROM posts
-        WHERE ThreadID = ?"
-      ((get-parameter "thread"))
-    ;; mobile
-    (let ((num-of-pages (ceiling (/ (getf thread :|postcount|)
-                                    *posts-per-page*)))
-          (page (parse-integer (if (get-parameter "page")
-                                   (get-parameter "page")
-                                   "1"))))
-      (when (> num-of-pages 1)
-        (:div :class "visible-xs-inline"
-              :style "float: right;"
-              (:a :class "btn btn-sm btn-default"
-                  :href (format nil
-                                "view-thread?thread=~d&page=~d"
-                                (get-parameter "thread")
-                                (- page 1))
-                  ("<"))
-              (:select :name "Page"
-                       :class "pagination"
-                       :onchange "goToPage(this)"
-                       (do ((i 1 (1+ i)))
-                           ((> i num-of-pages))
-                         (:option :value (stringify i)
-                                  :selected (= i page)
-                                  i)))
-              (:a :class "btn btn-sm btn-default"
-                  :href (format nil
-                                "view-thread?thread=~d&page=~d"
-                                (get-parameter "thread")
-                                (+ page 1))
-                  (">")))
+  (let ((thread-id (get-parameter "thread"))
+        (user-id (get-parameter "user"))
+        (user-ip (get-parameter "ip")))
+    (execute-query-one thread
+        (format nil "SELECT count(1) AS PostCount
+                   FROM posts
+                   WHERE True
+                   ~a"
+                (concatenate 'string
+                             (unless (equal (empty-string-if-nil thread-id) "")
+                               (format nil " AND ThreadID = ~d"
+                                       (dbi.driver:escape-sql *conn* thread-id)))
+                             (unless (equal (empty-string-if-nil user-id) "")
+                               (format nil " AND UserID = ~d"
+                                       (dbi.driver:escape-sql *conn* user-id)))
+                             (unless (equal (empty-string-if-nil user-ip) "")
+                               (format nil " AND PostIP = '~d'"
+                                       (dbi.driver:escape-sql *conn* user-ip)))))
+        ()
+      ;; mobile
+      (let ((num-of-pages (ceiling (/ (getf thread :|postcount|)
+                                      *posts-per-page*)))
+            (page (parse-integer (if (get-parameter "page")
+                                     (get-parameter "page")
+                                     "1")))
+            (thread-param (cond (thread-id (format nil "&thread=~d" thread-id))
+                                (user-id (format nil "&user=~d" user-id))
+                                (user-ip (format nil "&ip=~d" user-ip)))))
+        (when (> num-of-pages 1)
+          (:div :class "visible-xs-inline"
+                :style "float: right;"
+                (:a :class "btn btn-sm btn-default"
+                    :href (format nil
+                                  (concatenate 'string
+                                               "view-thread?page=~d"
+                                               thread-param)
+                                  (- page 1))
+                    ("<"))
+                (:select :name "Page"
+                         :class "pagination"
+                         :onchange "goToPage(this)"
+                         (do ((i 1 (1+ i)))
+                             ((> i num-of-pages))
+                           (:option :value (stringify i)
+                                    :selected (= i page)
+                                    i)))
+                (:a :class "btn btn-sm btn-default"
+                    :href (format nil
+                                  (concatenate 'string
+                                               "view-thread?page=~d"
+                                               thread-param)
+                                  (+ page 1))
+                    (">")))
 
-        ;; non-mobile
-        (let ((start-page (- page 1)))
-          (:ul :style "float: right; margin: 3px;"
-               :class "pagination pagination-sm hidden-xs"
-               ;; if on page higher than 3, it'll look like
-               ;; < 1 ... (- 1 page) page (+ 1 page) ... num-of-pages >
-               (if (>= page 3)
-                   (:li :class (if (= page start-page) "active")
-                        (:a :href (format nil "view-thread?thread=~d&page=1"
-                                          (get-parameter "thread"))
-                            1)))
-               (if (>= page 4)
-                   (:li :class "disabled"
-                        (:a :href "#" "...")))
-               (do ((i 1 (1+ i))
-                    (j start-page (1+ j)))
-                   ((or (> i 3)
-                        (> j num-of-pages)))
-                 (if (and (> j 0)
-                          (<= j num-of-pages))
-                     (:li :class (if (= j page) "active")
-                          (:a :href (format nil "view-thread?thread=~d&page=~d"
-                                            (get-parameter "thread")
-                                            j)
-                              j))))
-               (if (< page (- num-of-pages 2))
-                   (:li :class "disabled"
-                        (:a :href "#" "...")))
-               (if (< page (- num-of-pages 1))
-                   (:li :class (if (= page num-of-pages) "active")
-                        (:a :href (format nil "view-thread?thread=~d&page=~d"
-                                          (get-parameter "thread")
-                                          num-of-pages)
-                            num-of-pages)))))))))
+          ;; non-mobile
+          (let ((start-page (- page 1)))
+            (:ul :style "float: right; margin: 3px;"
+                 :class "pagination pagination-sm hidden-xs"
+                 ;; if on page higher than 3, it'll look like
+                 ;; < 1 ... (- 1 page) page (+ 1 page) ... num-of-pages >
+                 (if (>= page 3)
+                     (:li :class (if (= page start-page) "active")
+                          (:a :href (concatenate 'string
+                                                 "view-thread?page=1"
+                                                 thread-param)
+                              1)))
+                 (if (>= page 4)
+                     (:li :class "disabled"
+                          (:a :href "#" "...")))
+                 (do ((i 1 (1+ i))
+                      (j start-page (1+ j)))
+                     ((or (> i 3)
+                          (> j num-of-pages)))
+                   (if (and (> j 0)
+                            (<= j num-of-pages))
+                       (:li :class (if (= j page) "active")
+                            (:a :href (format nil (concatenate 'string
+                                                               "view-thread?page=~d"
+                                                               thread-param)
+                                              j)
+                                j))))
+                 (if (< page (- num-of-pages 2))
+                     (:li :class "disabled"
+                          (:a :href "#" "...")))
+                 (if (< page (- num-of-pages 1))
+                     (:li :class (if (= page num-of-pages) "active")
+                          (:a :href (format nil (concatenate 'string
+                                                             "view-thread?page=~d"
+                                                             thread-param)
+                                            num-of-pages)
+                              num-of-pages))))))))))
