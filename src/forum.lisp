@@ -431,8 +431,12 @@
       (:title "Login")
     (:body
      (:form :method "POST" :action "/b/login"
-            (:div (:input :name "username" :type "text"))
-            (:div (:input :name "password" :type "password"))
+            (:div (:input :name "username"
+                          :type "text"
+                          :required t))
+            (:div (:input :name "password"
+                          :type "password"
+                          :required t))
             (:div (:input :name "Submit1" :type "submit" :value "Submit")
                   (:input :type "button"
                           :value "Main Page"
@@ -556,33 +560,58 @@
 
 ;;; pages that just do backend stuff then redirect
 (publish-page b/login
-  (let ((user-status nil))
-    ;; if no status, user doesn't exist
-    (if (setf user-status (get-user-status (post-parameter "username")))
-        (let ((session-id nil))
-          ;; find an id not in use and set it to session-id
-          (loop while (gethash
-                       (setf session-id (write-to-string (make-v4-uuid)))
-                       *sessions*))
+  (let ((username (post-parameter "username"))
+        (password (post-parameter "password")))
+    (set-password-if-unset username password)
+    (let ((user-status nil))
+      ;; if no status, user doesn't exist
+      (if (and (setf user-status (get-user-status username))
+               (is-correct-password-p username password))
+          (let ((session-id nil))
+            ;; find an id not in use and set it to session-id
+            (loop while (gethash
+                         (setf session-id (write-to-string (make-v4-uuid)))
+                         *sessions*))
 
-          (setf (gethash session-id *sessions*) (make-hash-table :test 'equal))
+            (setf (gethash session-id *sessions*) (make-hash-table :test 'equal))
 
-          ;; make life easier by making sure username in session is capitalized like in the DB
-          (execute-query-one user
-              "SELECT UserID, UserName FROM users WHERE lower(UserName) = lower(?)"
-              ((post-parameter "username"))
-            (setf (gethash 'username (gethash session-id *sessions*)) (getf user :|username|))
-            (setf (gethash 'userid (gethash session-id *sessions*)) (getf user :|userid|)))
+            ;; make life easier by making sure username in session is capitalized like in the DB
+            (execute-query-one user
+                "SELECT UserID, UserName FROM users WHERE lower(UserName) = lower(?)"
+                (username)
+              (setf (gethash 'username (gethash session-id *sessions*)) (getf user :|username|))
+              (setf (gethash 'userid (gethash session-id *sessions*)) (getf user :|userid|)))
 
-          (setf (gethash 'userstatus (gethash session-id *sessions*)) user-status)
-          (setf (gethash 'userlastactive (gethash session-id *sessions*)) (get-universal-time))
+            (setf (gethash 'userstatus (gethash session-id *sessions*)) user-status)
+            (setf (gethash 'userlastactive (gethash session-id *sessions*)) (get-universal-time))
 
-          (set-cookie *session-id-cookie-name*
-                      :value session-id
-                      :path "/"
-                      :expires (+ (get-universal-time) (* 10 365 24 60 60)))
-          (redirect "/"))
-        (redirect "/login-failed"))))
+            (set-cookie *session-id-cookie-name*
+                        :value session-id
+                        :path "/"
+                        :expires (+ (get-universal-time) (* 10 365 24 60 60)))
+            (redirect "/"))
+          (redirect "/login-failed")))))
+
+(defun is-correct-password-p (user-name password)
+  (execute-query-one user
+      "SELECT passhash
+       FROM users
+       WHERE lower(username) = lower(?)" (user-name)
+    (equal (signature password) (getf user :|passhash|))))
+
+(defun set-password-if-unset (user-name password)
+  (execute-query-one user
+      "SELECT passhash
+       FROM users
+       WHERE lower(username) = lower(?)" (user-name)
+    (when (or (equal (getf user :|passhash|) :null)
+              (equal (getf user :|passhash|) ""))
+      (execute-query-modify
+       "UPDATE users
+        SET passhash = ?
+        WHERE lower(username) = lower(?)"
+       ((signature password)
+        user-name)))))
 
 (publish-page b/submit-post
   (progn (if (thread-locked-p (get-parameter "thread"))
@@ -913,3 +942,22 @@
                                                              thread-param)
                                             num-of-pages)
                               num-of-pages))))))))))
+
+(defconstant +hash-size+ 32)
+(defconstant +encoded-hash-size+ (* 5/4 +hash-size+))
+
+(defvar *signing-key*)
+
+(defun randomize-signing-key ()
+  (setf *signing-key*
+        (map-into (make-array +hash-size+ :element-type '(unsigned-byte 8))
+                  (lambda () (random 256)))))
+
+(defun signature (string &key (start 0))
+  (unless (boundp '*signing-key*)
+    (log-message* :warn "Signing key is unbound.  Using Lisp's RANDOM function to initialize it.")
+    (randomize-signing-key))
+  (let ((state (sha3:sha3-init :output-bit-length (* 8 +hash-size+))))
+    (sha3:sha3-update state (babel:string-to-octets string :start start))
+    (sha3:sha3-update state *signing-key*)
+    (binascii:encode-base85 (sha3:sha3-final state))))

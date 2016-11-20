@@ -10,4 +10,6 @@
         :spinneret
         :local-time
         :uuid
+        :sha3
+        :binascii
         :web-util))
