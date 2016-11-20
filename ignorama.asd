@@ -10,6 +10,8 @@
                "parenscript"
                "cl-dbi"
                "local-time"
+               "sha3"
+               "binascii"
                "web-util")
   :components ((:file "packages")
                (:file "src/forum-util" :depends-on ("packages"))
