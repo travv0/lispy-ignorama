@@ -371,6 +371,10 @@
                             post-id
                             post-id))))
 
+    (unless (and (or user-id user-ip)
+                 (user-authority-check-p "Moderator"))
+      (redirect "/"))
+
     (if (not (and (equal (empty-string-if-nil thread-id) "")
                   (equal (empty-string-if-nil user-id) "")
                   (equal (empty-string-if-nil user-ip) "")))
