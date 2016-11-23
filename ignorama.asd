@@ -10,6 +10,7 @@
                "cl-ppcre"
                "parenscript"
                "cl-dbi"
+               "dbd-postgres"
                "local-time"
                "sha3"
                "binascii"
