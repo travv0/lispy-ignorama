@@ -3,7 +3,6 @@
 
 (SETF SB-IMPL::*DEFAULT-EXTERNAL-FORMAT* :UTF-8)
 
-(load "ignorama.asd")
 (ql:quickload "ignorama")
 
 (setf parenscript:*js-string-delimiter* #\')
