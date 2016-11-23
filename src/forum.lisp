@@ -271,6 +271,7 @@
 (defhtml thread-row (id op-id subject tag post-count latest-post-time locked stickied)
   (row
     (col 12 :class "thread"
+         (thread-row-dropdown id op-id :locked locked :stickied stickied)
          (print-link-to-thread id subject :locked locked :stickied stickied)
          (:br)
          (:span :style "font-size: 12px; color: gray;"
@@ -285,6 +286,34 @@
                                                   (:span :class "time"
                                                          latest-post-time))))
                   " | "))))))
+
+(defhtml thread-row-dropdown (thread-id user-id &key (locked nil) (stickied nil))
+  (:div :style "float: right;" :class "btn-group"
+        (:a :class "btn btn-default btn-xs dropdown-toggle"
+            :data-toggle "dropdown"
+            (:span :class "caret"))
+        (:ul :class "dropdown-menu pull-right"
+             (:li (:a :href (format nil "b/hide-thread?thread=~d" thread-id)
+                      "Hide thread"))
+             (when (user-authority-check-p "Moderator")
+               (:li (:a :href (format nil "a/edit-thread?thread=~d" thread-id)
+                        "Edit thread"))
+               (:li (:a :href (format nil "a/ban-user?user=~d" user-id)
+                        "Ban OP")))
+             (when (user-authority-check-p "Admin")
+               (:li (:a :href (format nil "a/thread-ban?thread=~d" thread-id)
+                        "Thread ban"))
+               (:li (:a :href (format nil "a/delete-thread?thread=~d" thread-id)
+                        "Delete thread"))
+               (:li (:a :href (format nil "a/purge-thread?thread=~d" thread-id)
+                        "Purge thread"))
+               (:li (:a :href (format nil "a/purge-duplicate?thread=~d" thread-id)
+                        "Purge duplicate (no ban)")))
+             (when (user-authority-check-p "Moderator")
+               (:li (:a :href (format nil "a/sticky-thread?thread=~d" thread-id)
+                        "Sticky thread"))
+               (:li (:a :href (format nil "a/lock-thread?thread=~d" thread-id)
+                        "Lock thread"))))))
 
 (defhtml print-user-name-and-ip (post-id)
   (multiple-value-bind (user-name ip)

@@ -32,8 +32,10 @@
    - [X] links
    - [X] youtube videos
 * TODO index page
-** TODO add dropdowns to index page
-   - [ ] per-thread dropdown
+** DONE add dropdowns to index page
+   CLOSED: [2016-11-22 Tue 22:03]
+   - State "DONE"       from "TODO"       [2016-11-22 Tue 22:03]
+   - [X] per-thread dropdown
 ** TODO tags filter
 ** DONE search box on mobile
    CLOSED: [2016-10-29 Sat 19:49]
