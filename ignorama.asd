@@ -3,6 +3,7 @@
   :version "0.0.1"
   :author "Travis"
   :licence "AGPL-3.0"
+  :serial t
   :depends-on ("hunchentoot"
                "spinneret"
                "uuid"
@@ -13,10 +14,9 @@
                "sha3"
                "binascii"
                "web-util")
+  :pathname "./"
   :components ((:file "packages")
-               (:file "src/forum-util" :depends-on ("packages"))
-               (:file "config" :depends-on ("packages"))
-               (:file "js/script" :depends-on ("packages"))
-               (:file "src/forum" :depends-on ("config"
-                                               "src/forum-util"
-                                               "js/script"))))
+               (:file "src/forum-util")
+               (:file "config")
+               (:file "js/script")
+               (:file "src/forum")))
