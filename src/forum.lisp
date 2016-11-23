@@ -370,8 +370,11 @@
                             post-id
                             post-id))))
 
-    (unless (and (or user-id user-ip)
-                 (user-authority-check-p "Moderator"))
+    ;; don't let people view post history if they aren't a moderator
+    (unless (or (and (or user-id user-ip)
+                     (user-authority-check-p "Moderator"))
+                (and thread-id
+                     (not (or user-id user-ip))))
       (redirect "/"))
 
     (if (not (and (equal (empty-string-if-nil thread-id) "")
