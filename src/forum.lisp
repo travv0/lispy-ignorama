@@ -942,6 +942,8 @@
                                             num-of-pages)
                               num-of-pages))))))))))
 
+;;; FIXME: i have no idea how password encryption works so i just copied this
+;;;        from somewhere, probably needs improved
 (defconstant +hash-size+ 32)
 (defconstant +encoded-hash-size+ (* 5/4 +hash-size+))
 
@@ -950,7 +952,7 @@
 (defun randomize-signing-key ()
   (setf *signing-key*
         (map-into (make-array +hash-size+ :element-type '(unsigned-byte 8))
-                  (lambda () (random 256)))))
+                  (lambda () 123))))
 
 (defun signature (string &key (start 0))
   (unless (boundp '*signing-key*)

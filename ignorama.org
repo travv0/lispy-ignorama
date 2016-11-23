@@ -61,7 +61,9 @@
   - [X] back-end
     - [X] global variable for whether this can be done anonymously or not
     - [X] check if banned before post
-* TODO post history page for mods/admins
+* DONE post history page for mods/admins
+  CLOSED: [2016-11-22 Tue 21:14]
+  - State "DONE"       from "TODO"       [2016-11-22 Tue 21:14]
 * TODO rules page
 * TODO ban log
 * TODO moderator dashboard
