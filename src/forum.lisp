@@ -1,4 +1,3 @@
-;; -*- coding:utf-8 -*-
 (in-package :net.ignorama.web)
 
 (defparameter *ignorama-purple* "#330066")
