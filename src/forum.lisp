@@ -218,10 +218,12 @@
   ;; dropdown only displays correctly when I wrap all the buttons in this div
   (row :class "dropdown"
     (col 12 :style "margin-top: 5px; margin-bottom: 5px;"
-      (:button :class "btn btn-default btn-sm threads"
-               :style "margin: 3px;"
-               :onclick "window.location='new-thread'"
-               "New Thread")
+      (if (or *allow-anonymity*
+              (logged-in-p))
+          (:button :class "btn btn-default btn-sm threads"
+                   :style "margin: 3px;"
+                   :onclick "window.location='new-thread'"
+                   "New Thread"))
 
       (:form :style "float: right;"
              :action "b/apply-tags"
@@ -378,10 +380,12 @@
           (:button :class "btn btn-default btn-sm"
                    :disabled t
                    "Locked")
-          (:button :class "btn btn-default btn-sm"
-                   :onclick (format nil "window.location='new-reply?thread=~d'"
-                                    (get-parameter "thread"))
-                   "Reply"))))
+          (if (or *allow-anonymity*
+                  (logged-in-p))
+              (:button :class "btn btn-default btn-sm"
+                       :onclick (format nil "window.location='new-reply?thread=~d'"
+                                        (get-parameter "thread"))
+                       "Reply")))))
   (:button :class "btn btn-default btn-sm"
            :onclick "window.location='/'"
            "Main Page")
@@ -667,6 +671,10 @@
         user-name)))))
 
 (publish-page b/submit-post
+  (unless (or *allow-anonymity*
+              (logged-in-p))
+    (redirect "/"))
+
   (progn (if (thread-locked-p (get-parameter "thread"))
              (redirect "/locked"))
          (execute-query-one post
@@ -706,6 +714,9 @@
          (redirect "/error")))
 
 (publish-page b/submit-thread
+  (unless (or *allow-anonymity*
+              (logged-in-p))
+    (redirect "/"))
   (execute-query-one thread
       "INSERT INTO threads (
    ThreadSubject,
