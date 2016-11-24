@@ -308,7 +308,7 @@
                                                       latest-post-time))))
                " | "))))))
 
-(defhtml thread-row-dropdown (thread-id user-id &key (locked nil) (stickied nil))
+(defhtml thread-row-dropdown (thread-id op-id &key (locked nil) (stickied nil))
   (:div :style "float: right;" :class "btn-group"
         (:a :class "btn btn-default btn-xs dropdown-toggle"
             :data-toggle "dropdown"
@@ -319,7 +319,7 @@
              (when (user-authority-check-p "Moderator")
                (:li (:a :href (format nil "a/edit-thread?thread=~d" thread-id)
                         "Edit thread"))
-               (:li (:a :href (format nil "a/ban-user?user=~d" user-id)
+               (:li (:a :href (format nil "a/ban-post?post=~d" op-id)
                         "Ban OP")))
              (when (user-authority-check-p "Admin")
                (:li (:a :href (format nil "a/thread-ban?thread=~d" thread-id)
@@ -1147,3 +1147,43 @@
     (sha3:sha3-update state (babel:string-to-octets string :start start))
     (sha3:sha3-update state *signing-key*)
     (binascii:encode-base85 (sha3:sha3-final state))))
+
+(publish-page a/ban-post
+  (unless (user-authority-check-p "Moderator")
+    (redirect "/"))
+
+  (ban-post (get-parameter "post") "2016-12-01" "test")
+  (redirect "/"))
+
+(defun ban-post (post-id ban-end-time ban-reason)
+  (execute-query-one post
+      "SELECT userid,
+              postip
+       FROM posts
+       WHERE postid = ?"
+      (post-id)
+    (execute-query-modify
+     "INSERT INTO bans (
+          bannerid,
+          banneeid,
+          banneeip,
+          bantime,
+          banend,
+          banreason,
+          postid
+      )
+      VALUES (
+          ?,
+          ?,
+          ?,
+          current_timestamp,
+          ?,
+          ?,
+          ?
+      )"
+     ((get-session-var 'userid)
+      (getf post :|userid|)
+      (getf post :|postip|)
+      ban-end-time
+      ban-reason
+      post-id))))
