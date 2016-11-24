@@ -56,8 +56,21 @@
                                    AND PostContent LIKE '%~a%'
                                  LIMIT 1) = 1
                                  OR ThreadSubject LIKE '%~a%'"
-                           (empty-string-if-nil search)
-                           (empty-string-if-nil search)))))
+                           (dbi.driver:escape-sql *conn* (empty-string-if-nil search))
+                           (dbi.driver:escape-sql *conn* (empty-string-if-nil search))))))
+        ((equal type "following")
+         (values "Following"
+                 (if (logged-in-p)
+                     (format nil "threadid IN (SELECT threadid
+                                               FROM following
+                                               WHERE userid = ~d)"
+                             (dbi.driver:escape-sql
+                              *conn* (stringify (get-session-var 'userid))))
+                     (format nil "threadid IN (SELECT threadid
+                                               FROM following
+                                               WHERE userip = '~a')"
+                             (dbi.driver:escape-sql
+                              *conn* (real-remote-addr))))))
         (t "")))
 
 (defun user-status-id ()

@@ -150,27 +150,27 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *header*
     '((row :class "header" :style (format nil "background-color: ~a" *ignorama-purple*)
-           (col 12
+        (col 12
 
-             ;; logo and slogans
-             (:div :class "container"
-                   (row
-                     (desktop-only
-                       (col 6 :style "padding-top: 4px;"
-                            (:a :href "/"
-                                (:img :src *logo-path*))
-                            (if *slogans*
-                                (:b :style (format nil "position: absolute;
+          ;; logo and slogans
+          (:div :class "container"
+                (row
+                  (desktop-only
+                    (col 6 :style "padding-top: 4px;"
+                      (:a :href "/"
+                          (:img :src *logo-path*))
+                      (if *slogans*
+                          (:b :style (format nil "position: absolute;
               top: 15px; color: ~a" *header-text-color*)
-                                    (:raw (random-elt *slogans*))))))
-                     (mobile-only
-                       (col 6 :style "padding-top: 15px;"
-                            (:a :href "/"
-                                (:img :src *logo-path*))))
+                              (:raw (random-elt *slogans*))))))
+                  (mobile-only
+                    (col 6 :style "padding-top: 15px;"
+                      (:a :href "/"
+                          (:img :src *logo-path*))))
 
-                     ;; right links
-                     (col 6
-                       (rightlinks *rightlinks* *sociallinks*)))))))))
+                  ;; right links
+                  (col 6
+                    (rightlinks *rightlinks* *sociallinks*)))))))))
 
 ;;; The basic format that every viewable page will follow.
 (defmacro standard-page ((&key title) &body body)
@@ -217,30 +217,30 @@
 (defhtml index-buttons ()
   ;; dropdown only displays correctly when I wrap all the buttons in this div
   (row :class "dropdown"
-       (col 12 :style "margin-top: 5px; margin-bottom: 5px;"
-            (:button :class "btn btn-default btn-sm threads"
+    (col 12 :style "margin-top: 5px; margin-bottom: 5px;"
+      (:button :class "btn btn-default btn-sm threads"
+               :style "margin: 3px;"
+               :onclick "window.location='new-thread'"
+               "New Thread")
+
+      (:form :style "float: right;"
+             :action "b/apply-tags"
+             :method "post"
+
+             (:input :type "button"
                      :style "margin: 3px;"
-                     :onclick "window.location='new-thread'"
-                     "New Thread")
+                     :class "btn btn-default btn-sm"
+                     :onclick "window.location='b/reset-tags'"
+                     :value "Reset Boards")
+             (:input :type "submit"
+                     :style "margin: 3px;"
+                     :class "btn btn-default btn-sm threads"
+                     :value "Apply Boards")
 
-            (:form :style "float: right;"
-                   :action "b/apply-tags"
-                   :method "post"
+             (tags-filter-dropdown))
 
-                   (:input :type "button"
-                           :style "margin: 3px;"
-                           :class "btn btn-default btn-sm"
-                           :onclick "window.location='b/reset-tags'"
-                           :value "Reset Boards")
-                   (:input :type "submit"
-                           :style "margin: 3px;"
-                           :class "btn btn-default btn-sm threads"
-                           :value "Apply Boards")
-
-                   (tags-filter-dropdown))
-
-            (:span  :style "float: right; margin: 3px;"
-                    (desktop-only (search-box))))))
+      (:span  :style "float: right; margin: 3px;"
+              (desktop-only (search-box))))))
 
 (defhtml search-box ()
   (:form :action "/"
@@ -271,21 +271,21 @@
 (defhtml thread-row (id op-id subject tag post-count latest-post-time locked stickied)
   (row
     (col 12 :class "thread"
-         (thread-row-dropdown id op-id :locked locked :stickied stickied)
-         (print-link-to-thread id subject :locked locked :stickied stickied)
-         (:br)
-         (:span :style "font-size: 12px; color: gray;"
-                (print-user-name-and-ip op-id)
-                (:br)
-                (:raw
-                 (join-string-list
-                  (list
-                   (format nil "Board: ~a" tag)
-                   (format nil "Replies: ~a" post-count)
-                   (format nil "Last reply: ~a" (with-html-string
-                                                  (:span :class "time"
-                                                         latest-post-time))))
-                  " | "))))))
+      (thread-row-dropdown id op-id :locked locked :stickied stickied)
+      (print-link-to-thread id subject :locked locked :stickied stickied)
+      (:br)
+      (:span :style "font-size: 12px; color: gray;"
+             (print-user-name-and-ip op-id)
+             (:br)
+             (:raw
+              (join-string-list
+               (list
+                (format nil "Board: ~a" tag)
+                (format nil "Replies: ~a" post-count)
+                (format nil "Last reply: ~a" (with-html-string
+                                               (:span :class "time"
+                                                      latest-post-time))))
+               " | "))))))
 
 (defhtml thread-row-dropdown (thread-id user-id &key (locked nil) (stickied nil))
   (:div :style "float: right;" :class "btn-group"
@@ -340,21 +340,21 @@
 (defhtml post-row (id time content)
   (row
     (col 12 :class "thread"
-         (:div :style "margin-bottom: -15px;"
-               (:span :style "font-size: 12px; color: gray;"
-                      (let ((options (print-post-options id)))
-                        (if (not (equal options ""))
-                            (:raw (join-string-list
-                                   (list (with-html-string
-                                           (:b (print-user-name-and-ip id)))
-                                         (print-post-options id))
-                                   " | "))
-                            (:b (print-user-name-and-ip id))))
-                      (:span :style "float: right;"
-                             :class "time"
-                             time)))
-         (:br)
-         (:div (format-post content)))))
+      (:div :style "margin-bottom: -15px;"
+            (:span :style "font-size: 12px; color: gray;"
+                   (let ((options (print-post-options id)))
+                     (if (not (equal options ""))
+                         (:raw (join-string-list
+                                (list (with-html-string
+                                        (:b (print-user-name-and-ip id)))
+                                      (print-post-options id))
+                                " | "))
+                         (:b (print-user-name-and-ip id))))
+                   (:span :style "float: right;"
+                          :class "time"
+                          time)))
+      (:br)
+      (:div (format-post content)))))
 
 (defhtml thread-buttons ()
   (let ((thread-id (get-parameter "thread")))
@@ -406,6 +406,8 @@
                      (not (or user-id user-ip))))
       (redirect "/"))
 
+    (follow-thread thread-id (get-session-var 'userid) (real-remote-addr))
+
     (if (not (and (equal (empty-string-if-nil thread-id) "")
                   (equal (empty-string-if-nil user-id) "")
                   (equal (empty-string-if-nil user-ip) "")))
@@ -456,6 +458,55 @@
                  (if thread-id
                      (:script (view-thread-js)))))
         (redirect "/"))))
+
+(defun follow-thread (thread-id user-id user-ip)
+  (if (logged-in-p)
+      (follow-thread-as-user thread-id user-id)
+      (follow-thread-as-anonymous thread-id user-ip)))
+
+(defun follow-thread-as-user (thread-id user-id)
+  (unless (user-following-thread-p thread-id user-id)
+    (execute-query-modify
+     "INSERT INTO following (
+          userid,
+          threadid
+      )
+      VALUES (
+          ?,
+          ?
+      )"
+     (user-id thread-id))))
+
+(defun follow-thread-as-anonymous (thread-id user-ip)
+  (unless (ip-following-thread-p thread-id user-ip)
+    (execute-query-modify
+     "INSERT INTO following (
+          userip,
+          threadid
+      )
+      VALUES (
+          ?,
+          ?
+      )"
+     (user-ip thread-id))))
+
+(defun user-following-thread-p (thread-id user-id)
+  (execute-query-one following
+      "SELECT true AS isfollowing
+       FROM following
+       WHERE userid = ?
+       AND threadid = ?"
+      (user-id thread-id)
+    (getf following :|isfollowing|)))
+
+(defun ip-following-thread-p (thread-id user-ip)
+  (execute-query-one following
+      "SELECT true AS isfollowing
+       FROM following
+       WHERE userip = ?
+       AND threadid = ?"
+      (user-ip thread-id)
+    (getf following :|isfollowing|)))
 
 (publish-page login
   (standard-page
