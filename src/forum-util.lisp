@@ -57,7 +57,8 @@
                                  LIMIT 1) = 1
                                  OR ThreadSubject LIKE '%~a%'"
                            (dbi.driver:escape-sql *conn* (empty-string-if-nil search))
-                           (dbi.driver:escape-sql *conn* (empty-string-if-nil search))))))
+                           (dbi.driver:escape-sql *conn* (empty-string-if-nil search)))
+                   nil)))
         ((equal type "following")
          (values "Following"
                  (if (logged-in-p)
@@ -70,7 +71,8 @@
                                                FROM following
                                                WHERE userip = '~a')"
                              (dbi.driver:escape-sql
-                              *conn* (real-remote-addr))))))
+                              *conn* (real-remote-addr))))
+                 "ORDER BY latestposttime DESC"))
         (t "")))
 
 (defun user-status-id ()
