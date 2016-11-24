@@ -828,9 +828,8 @@
                                    "view-thread?ip=~a"
                                    (getf user :|postip|))
                      (getf user :|postip|)))))
-          (t (if (and (or (and (not *force-anonymity*)
+          (t (if (and (and (not *force-anonymity*)
                                (not (getf user :|anonymous|)))
-                          (not *allow-anonymity*))
                       (not (null-p (getf user :|username|))))
                  (getf user :|username|)
                  *nameless-name*)))))
