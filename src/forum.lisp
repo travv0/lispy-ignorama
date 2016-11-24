@@ -198,7 +198,8 @@
                                      :uri ,(string-downcase
                                             (if (equal 'index name)
                                                 "/"
-                                                (concatenate 'string "/" (symbol-name name))))) ()
+                                                (concatenate 'string "/" (symbol-name name)))))
+       ()
      (setf (hunchentoot:content-type*) "text/html")
      (let ((*conn* *conn*))
        (with-db *conn*
@@ -262,6 +263,10 @@
                   (:span :class "glyphicon glyphicon-search"))))
 
 (defhtml threads-table (query)
+  (execute-query-loop bench
+      (concatenate 'string "EXPLAIN ANALYZE " query) ()
+    (log-message* "NOTE" "~a" bench))
+
   (execute-query-loop thread query ()
     (:div :style ""
           (thread-row (getf thread :|threadid|)
