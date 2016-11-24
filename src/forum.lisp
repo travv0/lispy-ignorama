@@ -527,7 +527,8 @@
              (:input :name "bump"
                      :type "checkbox"
                      "Bump! "))
-         (if (logged-in-p)
+         (if (and *allow-anonymity*
+                  (logged-in-p))
              (:input :name "anonymous"
                      :type "checkbox"
                      "Post Anonymously")))
@@ -703,7 +704,8 @@
               (if (get-session-var 'userid)
                   (get-session-var 'userid)
                   :null)
-              (post-parameter "anonymous")
+              (let ((anonymous (post-parameter "anonymous")))
+                (if *allow-anonymity* anonymous nil))
               (post-parameter "postcontent")
               (real-remote-addr)
               (post-parameter "reveal-op")
