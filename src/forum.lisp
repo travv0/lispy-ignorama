@@ -1157,6 +1157,8 @@
     (binascii:encode-base85 (sha3:sha3-final state))))
 
 (publish-page ban-post
+  (unless (user-authority-check-p "Moderator")
+    (redirect "/"))
   (let ((post-id (get-parameter "post")))
     (execute-query-one user
         "SELECT CASE WHEN users.userid IS NOT NULL THEN users.username
