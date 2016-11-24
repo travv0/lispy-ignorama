@@ -273,6 +273,11 @@
     (col 12 :class "thread"
       (thread-row-dropdown id op-id :locked locked :stickied stickied)
       (print-link-to-thread id subject :locked locked :stickied stickied)
+      (if (following-thread-p id (get-session-var 'userid) (real-remote-addr))
+          (:a :href (format nil "b/unfollow?thread=~d" id)
+              :title "Unfollow thread"
+              :style "float: right; padding-right: 5px;"
+              (:b :class "glyphicon glyphicon-eye-close")))
       (:br)
       (:span :style "font-size: 12px; color: gray;"
              (print-user-name-and-ip op-id)
@@ -490,6 +495,11 @@
           ?
       )"
      (user-ip thread-id))))
+
+(defun following-thread-p (thread-id user-id user-ip)
+  (if (logged-in-p)
+      (user-following-thread-p thread-id user-id)
+      (ip-following-thread-p thread-id user-ip)))
 
 (defun user-following-thread-p (thread-id user-id)
   (execute-query-one following
