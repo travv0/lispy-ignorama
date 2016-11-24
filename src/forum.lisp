@@ -5,16 +5,20 @@
 (defparameter *header-text-color* "white")
 
 ;;; site setup
-(defun threads-query (condition)
+(defun threads-query (condition &optional order-by)
   (format nil "SELECT *
                FROM IndexThreads
                WHERE (~a)
                  AND UserStatusID >= ~d
+               ~a
                LIMIT ~d"
           (if condition
               condition
               :true)
           (user-status-id)
+          (if order-by
+              order-by
+              "")
           *index-row-limit*))
 
 (defun tags-query ()
@@ -206,7 +210,7 @@
          ,@body))))
 
 (publish-page index
-  (multiple-value-bind (title condition)
+  (multiple-value-bind (title condition order-by)
       (index-params-by-type (get-parameter "f"))
     (standard-page
         (:title title)
@@ -214,7 +218,7 @@
              (log-message* "NOTE" "Stats for generating threads for main page:")
              (log-message* "NOTE"
                            (with-output-to-string (*trace-output*)
-                             (time (threads-table (threads-query condition)))))
+                             (time (threads-table (threads-query condition order-by)))))
              (:div :style "padding-top: 15px;"
                    (:raw *fake-copyright*))))))
 
