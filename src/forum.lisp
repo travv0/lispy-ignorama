@@ -289,7 +289,7 @@
                                                            (real-remote-addr))))
                                " newposts"
                                ""))
-      (thread-row-dropdown id op-id :locked locked :stickied stickied)
+      ;; (thread-row-dropdown id op-id :locked locked :stickied stickied)
       (print-link-to-thread id subject :locked locked :stickied stickied)
       (if (following-thread-p id (get-session-var 'userid) (real-remote-addr))
           (:a :href (format nil "b/unfollow?thread=~d&f=~a"
