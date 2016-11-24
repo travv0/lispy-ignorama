@@ -64,3 +64,12 @@ $(document).ready(function() {
         });
     });
 });
+
+function updateFilename(){
+    temp = $('#upload').val().split(".");
+    extension = temp[temp.length-1];
+    $('#filename').val(window.performance.now().toString().replace('.','') +
+                       '.' + extension);
+    document.getElementById("submitbutton").disabled = true;
+    $('#uploadsubmit').click();
+};
