@@ -1038,9 +1038,12 @@
                               num-of-pages))))))))))
 
 (publish-page b/unfollow
-  (let ((thread-id (get-parameter "thread")))
-    (unfollow-thread thread-id (get-session-var 'userid) (real-remote-addr)))
-  (redirect (format nil "/?f=~a" (get-parameter "f"))))
+  (let ((thread-id (get-parameter "thread"))
+        (f (get-parameter "f")))
+    (unfollow-thread thread-id (get-session-var 'userid) (real-remote-addr))
+    (redirect (format nil "/~a" (if (not (equal f "NIL"))
+                                    (format nil "?f=~a" f)
+                                    "")))))
 
 (defun unfollow-thread (thread-id user-id user-ip)
   (if (logged-in-p)
