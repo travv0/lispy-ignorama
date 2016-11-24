@@ -48,6 +48,16 @@
 ** DONE show reply button as "Thread Locked" when thread is locked
    CLOSED: [2016-11-20 Sun 00:25]
    - State "DONE"       from "TODO"       [2016-11-20 Sun 00:25]
+** TODO make sure all dropdown options have correct functionality
+   - [ ] Hide thread
+   - [ ] Edit thread
+   - [X] Ban OP
+   - [ ] Thread ban
+   - [ ] Delete thread
+   - [ ] Purge thread
+   - [ ] Purge duplicate
+   - [ ] Sticky thread
+   - [ ] Lock thread
 * DONE following page
   CLOSED: [2016-11-24 Thu 00:28]
   - State "DONE"       from "TODO"       [2016-11-24 Thu 00:28]
@@ -65,12 +75,14 @@
   - [ ] delete after a certain amount of time
   - [X] delete on log out
 * DONE ability to make new threads
-  CLOSED: [2016-10-30 Sun 22:46]
+  CLOSED: [2016-11-24 Thu 14:53]
+  - State "DONE"       from "TODO"       [2016-11-24 Thu 14:53]
   - State "DONE"       from "TODO"       [2016-10-30 Sun 22:46]
   - [X] front-end
   - [X] back-end
     - [X] global variable for whether this can be done anonymously or not
     - [X] check if banned before post
+    - [X] don't let banned people post
 * DONE post history page for mods/admins
   CLOSED: [2016-11-22 Tue 21:14]
   - State "DONE"       from "TODO"       [2016-11-22 Tue 21:14]
@@ -79,7 +91,7 @@
 * TODO moderator dashboard
 * TODO replying
   - [ ] let mods post even if thread is locked
-  - [ ] check if banned before post
+  - [X] check if banned before post
 * DONE header
   CLOSED: [2016-10-29 Sat 14:03]
   - State "DONE"       from "TODO"       [2016-10-29 Sat 14:03]

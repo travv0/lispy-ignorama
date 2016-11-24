@@ -319,7 +319,7 @@
              (when (user-authority-check-p "Moderator")
                (:li (:a :href (format nil "a/edit-thread?thread=~d" thread-id)
                         "Edit thread"))
-               (:li (:a :href (format nil "a/ban-post?post=~d" op-id)
+               (:li (:a :href (format nil "ban-post?post=~d" op-id)
                         "Ban OP")))
              (when (user-authority-check-p "Admin")
                (:li (:a :href (format nil "a/thread-ban?thread=~d" thread-id)
@@ -560,6 +560,8 @@
                                   (get-parameter "thread")))))
 
 (publish-page new-reply
+  (when (banned-p)
+    (redirect "/banned"))
   (if (thread-locked-p (get-parameter "thread"))
       (redirect "/locked")
       (standard-page
@@ -596,6 +598,8 @@
                             (getf tag :|tagname|))))))
 
 (publish-page new-thread
+  (when (banned-p)
+    (redirect "/banned"))
   (standard-page
       (:title "New Thread")
     (:body
@@ -687,6 +691,8 @@
         user-name)))))
 
 (publish-page b/submit-post
+  (when (banned-p)
+    (redirect "/banned"))
   (unless (or *allow-anonymity*
               (logged-in-p))
     (redirect "/"))
@@ -731,6 +737,8 @@
          (redirect "/error")))
 
 (publish-page b/submit-thread
+  (when (banned-p)
+    (redirect "/banned"))
   (unless (or *allow-anonymity*
               (logged-in-p))
     (redirect "/"))
@@ -1148,14 +1156,46 @@
     (sha3:sha3-update state *signing-key*)
     (binascii:encode-base85 (sha3:sha3-final state))))
 
+(publish-page ban-post
+  (let ((post-id (get-parameter "post")))
+    (execute-query-one user
+        "SELECT CASE WHEN users.userid IS NOT NULL THEN users.username
+                     ELSE postip
+                END AS username
+         FROM posts
+         LEFT JOIN users ON posts.userid = users.userid
+         WHERE postid = ?"
+        (post-id)
+      (standard-page
+          (:title (format nil "Ban User ~a" (getf user :|username|)))
+        (:body
+         (:form :method "post"
+                :action (format nil "a/ban-post?post=~d" post-id)
+                (row (col 12
+                       "Ban until: " (:input :name "bandate"
+                                             :id "datepicker"
+                                             :type "text"
+                                             :required t)))
+                (row (col 12
+                       "Ban reason:" (:br)
+                       (:textarea :name "banreason"
+                                  :rows 7
+                                  :cols 50
+                                  :required t)))
+                (:input :class "btn btn-default btn-sm"
+                        :type "submit"
+                        :value "Submit")))))))
+
 (publish-page a/ban-post
   (unless (user-authority-check-p "Moderator")
     (redirect "/"))
 
-  (ban-post (get-parameter "post") "2016-12-01" "test")
+  (ban-user-by-post (get-parameter "post")
+                    (post-parameter "bandate")
+                    (post-parameter "banreason"))
   (redirect "/"))
 
-(defun ban-post (post-id ban-end-time ban-reason)
+(defun ban-user-by-post (post-id ban-end-time ban-reason)
   (execute-query-one post
       "SELECT userid,
               postip
@@ -1187,3 +1227,40 @@
       ban-end-time
       ban-reason
       post-id))))
+
+(defun banned-p ()
+  (execute-query-one ban
+      "SELECT true AS banned
+       FROM bans
+       WHERE (banneeid = ? OR banneeip = ?)
+         AND banend > ?"
+      ((get-session-var 'userid)
+       (real-remote-addr)
+       (format-timestring nil (now)))
+    (getf ban :|banned|)))
+
+(publish-page banned
+  (unless (banned-p)
+    (redirect "/"))
+
+  (standard-page
+      (:title "Hey idiot, you're banned.")
+    (:body (:br)
+           (execute-query-loop bans
+                "SELECT banend,
+                        banreason,
+                        postcontent
+                 FROM bans
+                 JOIN posts ON bans.postid = posts.postid
+                 WHERE (banneeid = ? OR banneeip = ?)
+                   AND banend > ?
+                 ORDER BY banend DESC"
+               ((get-session-var 'userid)
+                (real-remote-addr)
+                (format-timestring nil (now)))
+             (:p "Your ban will expire on "
+                 (:span :class "time" (getf bans :|banend|)))
+             (:p (format nil "Reason for ban: ~a" (getf bans :|banreason|)))
+             (:p (format nil "Post that got you banned: \"~a\""
+                         (getf bans :|postcontent|)))
+             (:hr)))))
