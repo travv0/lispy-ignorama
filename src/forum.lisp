@@ -270,7 +270,16 @@
 
 (defhtml thread-row (id op-id subject tag post-count latest-post-time locked stickied)
   (row
-    (col 12 :class "thread"
+    (col 12 :class (format nil "thread~a"
+                           (if (and (following-thread-p id
+                                                        (get-session-var 'userid)
+                                                        (real-remote-addr))
+                                    (> (get-max-post-in-thread id)
+                                       (get-last-seen-post id
+                                                           (get-session-var 'userid)
+                                                           (real-remote-addr))))
+                               " newposts"
+                               ""))
       (thread-row-dropdown id op-id :locked locked :stickied stickied)
       (print-link-to-thread id subject :locked locked :stickied stickied)
       (if (following-thread-p id (get-session-var 'userid) (real-remote-addr))
@@ -1081,6 +1090,14 @@
       (thread-id
        (* *posts-per-page* (- page 1))
        *posts-per-page*)
+    (getf post :|maxpostid|)))
+
+(defun get-max-post-in-thread (thread-id)
+  (execute-query-one post
+      "SELECT MAX(postid) AS MaxPostID
+       FROM posts
+       WHERE threadid = ?"
+      (thread-id)
     (getf post :|maxpostid|)))
 
 ;;; FIXME: i have no idea how password encryption works so i just copied this
