@@ -263,20 +263,19 @@
                   (:span :class "glyphicon glyphicon-search"))))
 
 (defhtml threads-table (query)
-  (execute-query-loop bench
-      (concatenate 'string "EXPLAIN ANALYZE " query) ()
-    (log-message* "NOTE" "~a" bench))
-
   (execute-query-loop thread query ()
     (:div :style ""
-          (thread-row (getf thread :|threadid|)
-                      (getf thread :|postid|)
-                      (getf thread :|threadsubject|)
-                      (getf thread :|tag|)
-                      (getf thread :|postcount|)
-                      (getf thread :|latestposttime|)
-                      (getf thread :|locked|)
-                      (getf thread :|stickied|)))))
+          (log-message* "NOTE" "~d:~%~a"
+                        (getf thread :|threadid|)
+                        (with-output-to-string (*trace-output*)
+                          (time (thread-row (getf thread :|threadid|)
+                                            (getf thread :|postid|)
+                                            (getf thread :|threadsubject|)
+                                            (getf thread :|tag|)
+                                            (getf thread :|postcount|)
+                                            (getf thread :|latestposttime|)
+                                            (getf thread :|locked|)
+                                            (getf thread :|stickied|))))))))
 
 (defhtml thread-row (id op-id subject tag post-count latest-post-time locked stickied)
   (row
