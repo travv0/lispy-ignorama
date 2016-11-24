@@ -210,7 +210,10 @@
     (standard-page
         (:title title)
       (:body (index-buttons)
-             (threads-table (threads-query condition))
+             (log-message* "NOTE" "Stats for generating threads for main page:")
+             (log-message* "NOTE"
+                           (with-output-to-string (*trace-output*)
+                             (time (threads-table (threads-query condition)))))
              (:div :style "padding-top: 15px;"
                    (:raw *fake-copyright*))))))
 
