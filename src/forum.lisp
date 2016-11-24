@@ -545,7 +545,8 @@
          (:input :id "filename"
                  :type "hidden"
                  :name "filename"
-                 :value "none")))
+                 :value "none"))
+  (:script :src "/uploadfile.js"))
 
 (defhtml reply-buttons ()
   (:span :class "reply button-row checkboxes"
@@ -1331,9 +1332,9 @@
                         (:input :onclick "window.location='/'"
                                 :class "btn btn-default btn-sm"
                                 :type "button"
-                                :value "Back")))
-            (:div :class "row"
-                  (image-upload-form))))))
+                                :value "Back"))))
+     (:div :class "row"
+           (image-upload-form)))))
 
 (publish-page a/submit-post-edit
   (unless (user-authority-check-p "Moderator")
@@ -1350,3 +1351,13 @@
   (redirect (format nil
                     "/view-thread?post=~d"
                     (post-parameter "post"))))
+
+(publish-page b/upload-file
+  (let ((allowed-extensions '("gif" "jpeg" "jpg" "png" "webm"))
+        (allowed-types '("image/gif" "image/jpeg" "image/jpg" "image/pjpeg"
+                         "image/x-png" "image/png" "video/webm")))
+    (destructuring-bind
+        (path file-name content-type)
+        (post-parameter "upload")
+      (if (position content-type allowed-types)
+          t))))
