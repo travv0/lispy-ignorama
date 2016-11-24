@@ -352,11 +352,14 @@
      (execute-query-loop post ,query (,@params)
        (post-row (getf post :|postid|)
                  (getf post :|posttime|)
-                 (getf post :|postcontent|)))))
+                 (getf post :|postcontent|)
+                 (new-post-p (getf post :|threadid|)
+                             (getf post :|postid|))))))
 
-(defhtml post-row (id time content)
+(defhtml post-row (id time content new-post)
   (row
-    (col 12 :class "thread"
+    (col 12 :class (format nil "thread~a"
+                           (if (not new-post) " seen" ""))
       (:div :style "margin-bottom: -15px;"
             (:span :style "font-size: 12px; color: gray;"
                    (let ((options (print-post-options id)))
@@ -372,6 +375,14 @@
                           time)))
       (:br)
       (:div (format-post content)))))
+
+(defun new-post-p (thread-id post-id)
+  (let ((last-seen (get-last-seen-post thread-id
+                                       (get-session-var 'userid)
+                                       (real-remote-addr))))
+    (if last-seen
+        (> post-id last-seen)
+        t)))
 
 (defhtml thread-buttons ()
   (let ((thread-id (get-parameter "thread")))
@@ -425,13 +436,6 @@
                      (not (or user-id user-ip))))
       (redirect "/"))
 
-    (when (nil-if-empty-string thread-id)
-      (follow-thread thread-id (get-session-var 'userid) (real-remote-addr))
-      (set-last-seen-post thread-id
-                          (get-session-var 'userid)
-                          (real-remote-addr)
-                          (if page (parse-integer page) 1)))
-
     (if (not (and (equal (empty-string-if-nil thread-id) "")
                   (equal (empty-string-if-nil user-id) "")
                   (equal (empty-string-if-nil user-ip) "")))
@@ -480,7 +484,14 @@
                  (:div :class "fake-copyright"
                        (:raw *fake-copyright*))
                  (if thread-id
-                     (:script (view-thread-js)))))
+                     (:script (view-thread-js))))
+          (when (nil-if-empty-string thread-id)
+            (follow-thread thread-id (get-session-var 'userid) (real-remote-addr))
+            (set-last-seen-post thread-id
+                                (get-session-var 'userid)
+                                (real-remote-addr)
+                                (if page (parse-integer page) 1))))
+
         (redirect "/"))))
 
 (publish-page login
@@ -680,26 +691,26 @@
              (redirect "/locked"))
          (execute-query-one post
              "INSERT INTO posts (
-    ThreadID,
-    UserID,
-    Anonymous,
-    PostContent,
-    PostTime,
-    PostIP,
-    PostRevealedOP,
-    Bump
-        )
-        VALUES (
-    ?,                  --ThreadID
-    ?,                  --UserID
-    ?,                  --Anonymous
-    ?,                  --PostContent
-    current_timestamp,  --PostTime
-    ?,                  --PostIP
-    ?,                  --PostRevealedOP
-    ?                   --Bump
-        )
-        RETURNING PostID"
+                  ThreadID,
+                  UserID,
+                  Anonymous,
+                  PostContent,
+                  PostTime,
+                  PostIP,
+                  PostRevealedOP,
+                  Bump
+              )
+              VALUES (
+                  ?,                  --ThreadID
+                  ?,                  --UserID
+                  ?,                  --Anonymous
+                  ?,                  --PostContent
+                  current_timestamp,  --PostTime
+                  ?,                  --PostIP
+                  ?,                  --PostRevealedOP
+                  ?                   --Bump
+              )
+              RETURNING PostID"
              ((get-parameter "thread")
               (if (get-session-var 'userid)
                   (get-session-var 'userid)
@@ -721,22 +732,22 @@
     (redirect "/"))
   (execute-query-one thread
       "INSERT INTO threads (
-   ThreadSubject,
-   TagID,
-   Stickied,
-   Locked,
-   Deleted,
-   Banned,
-   LastEditBy
+           ThreadSubject,
+           TagID,
+           Stickied,
+           Locked,
+           Deleted,
+           Banned,
+           LastEditBy
        )
        VALUES (
-   ?,     --ThreadSubject,
-   ?,     --TagID,
-   false, --Stickied,
-   false, --Locked,
-   false, --Deleted,
-   false, --Banned,
-   ''     --LastEditBy
+           ?,     --ThreadSubject,
+           ?,     --TagID,
+           false, --Stickied,
+           false, --Locked,
+           false, --Deleted,
+           false, --Banned,
+           ''     --LastEditBy
        )
        RETURNING ThreadID"
       ((post-parameter "subject")
@@ -744,25 +755,25 @@
 
     (execute-query-one _
         "INSERT INTO posts (
-     ThreadID,
-     UserID,
-     Anonymous,
-     PostContent,
-     PostTime,
-     PostIP,
-     PostRevealedOP,
-     Bump
-   )
-   VALUES (
-     ?,                  --ThreadID
-     ?,                  --UserID
-     ?,                  --Anonymous
-     ?,                  --PostContent
-     current_timestamp,  --PostTime
-     ?,                  --PostIP
-     true,               --PostRevealedOP
-     true                --Bump
-   )"
+             ThreadID,
+             UserID,
+             Anonymous,
+             PostContent,
+             PostTime,
+             PostIP,
+             PostRevealedOP,
+             Bump
+         )
+         VALUES (
+             ?,                  --ThreadID
+             ?,                  --UserID
+             ?,                  --Anonymous
+             ?,                  --PostContent
+             current_timestamp,  --PostTime
+             ?,                  --PostIP
+             true,               --PostRevealedOP
+             true                --Bump
+         )"
         ((getf thread :|threadid|)
          (if (get-session-var 'userid)
              (get-session-var 'userid)
@@ -831,7 +842,7 @@
                                    (getf user :|postip|))
                      (getf user :|postip|)))))
           (t (if (and (and (not *force-anonymity*)
-                               (not (getf user :|anonymous|)))
+                           (not (getf user :|anonymous|)))
                       (not (null-p (getf user :|username|))))
                  (getf user :|username|)
                  *nameless-name*)))))
