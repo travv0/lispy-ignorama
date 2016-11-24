@@ -50,6 +50,7 @@
    - State "DONE"       from "TODO"       [2016-11-20 Sun 00:25]
 ** TODO make sure all dropdown options have correct functionality
    - [ ] Hide thread
+   - [X] Edit OP
    - [ ] Edit thread
    - [X] Ban OP
    - [ ] Thread ban
@@ -112,3 +113,4 @@
 * DONE ability to view usernames that have been used from an IP
   CLOSED: [2016-11-24 Thu 00:29]
   - State "DONE"       from "TODO"       [2016-11-24 Thu 00:29]
+* TODO fix invalid date on banned page

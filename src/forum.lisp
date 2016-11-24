@@ -317,8 +317,8 @@
              (:li (:a :href (format nil "b/hide-thread?thread=~d" thread-id)
                       "Hide thread"))
              (when (user-authority-check-p "Moderator")
-               (:li (:a :href (format nil "a/edit-thread?thread=~d" thread-id)
-                        "Edit thread"))
+               (:li (:a :href (format nil "edit-post?post=~d" op-id)
+                        "Edit OP"))
                (:li (:a :href (format nil "ban-post?post=~d" op-id)
                         "Ban OP")))
              (when (user-authority-check-p "Admin")
@@ -361,10 +361,11 @@
        (post-row (getf post :|postid|)
                  (getf post :|posttime|)
                  (getf post :|postcontent|)
+                 (getf post :|posteditcontent|)
                  (new-post-p (getf post :|threadid|)
                              (getf post :|postid|))))))
 
-(defhtml post-row (id time content new-post)
+(defhtml post-row (id time content edit-content new-post)
   (row
     (col 12 :class (format nil "thread~a"
                            (if (not new-post) " seen" ""))
@@ -382,7 +383,12 @@
                           :class "time"
                           time)))
       (:br)
-      (:div (format-post content)))))
+      (:div (when (nil-if-empty-string (empty-string-if-null edit-content))
+              (format-post edit-content)
+              (:hr)
+              (:b "Original post:")
+              (:br))
+            (format-post content)))))
 
 (defun new-post-p (thread-id post-id)
   (let ((last-seen (get-last-seen-post thread-id
@@ -1290,3 +1296,53 @@
     WHERE threadid = ?"
    ((get-parameter "thread")))
   (redirect "/"))
+
+(publish-page edit-post
+  (when (banned-p)
+    (redirect "/banned"))
+  (unless (user-authority-check-p "Moderator")
+    (redirect "/"))
+  (standard-page
+      (:title "Edit Thread")
+    (:body
+     (:form :action "/a/submit-post-edit"
+            :method "post"
+            (:input :type "hidden"
+                    :value (get-parameter "post")
+                    :name "post")
+            (:div :class "row"
+                  (:textarea :id "postfield"
+                             :name "body"
+                             :rows 7
+                             :cols 50
+                             :class "col-xs-12"
+                             :required t))
+            (:div :class "row"
+                  (:div :class "rightbuttons bottom"
+                        (:input :id "submitbutton"
+                                :class "btn btn-default btn-sm"
+                                :name "Submit"
+                                :type "submit"
+                                :value "Submit")
+                        (:input :onclick "window.location='/'"
+                                :class "btn btn-default btn-sm"
+                                :type "button"
+                                :value "Back")))
+            (:div :class "row"
+                  (image-upload-form))))))
+
+(publish-page a/submit-post-edit
+  (unless (user-authority-check-p "Moderator")
+    (redirect "/"))
+  (execute-query-modify
+   "UPDATE posts
+    SET
+        posteditcontent = ?,
+        postlasteditby = ?
+    WHERE postid = ?"
+   ((post-parameter "postfield")
+    (get-session-var 'userid)
+    (post-parameter "post")))
+  (redirect (format nil
+                    "/view-thread?post=~d"
+                    (post-parameter "post"))))
