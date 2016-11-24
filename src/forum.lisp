@@ -332,9 +332,13 @@
                         "Purge duplicate (no ban)")))
              (when (user-authority-check-p "Moderator")
                (:li (:a :href (format nil "a/sticky-thread?thread=~d" thread-id)
-                        "Sticky thread"))
+                        (if stickied
+                            "Unsticky thread"
+                            "Sticky thread")))
                (:li (:a :href (format nil "a/lock-thread?thread=~d" thread-id)
-                        "Lock thread"))))))
+                        (if locked
+                            "Unlock thread"
+                            "Lock thread")))))))
 
 (defhtml print-user-name-and-ip (post-id)
   (multiple-value-bind (user-name ip)
@@ -1249,7 +1253,7 @@
       (:title "Hey idiot, you're banned.")
     (:body (:br)
            (execute-query-loop bans
-                "SELECT banend,
+               "SELECT banend,
                         banreason,
                         postcontent
                  FROM bans
@@ -1266,3 +1270,23 @@
              (:p (format nil "Post that got you banned: \"~a\""
                          (getf bans :|postcontent|)))
              (:hr)))))
+
+(publish-page a/sticky-thread
+  (unless (user-authority-check-p "Moderator")
+    (redirect "/"))
+  (execute-query-modify
+   "UPDATE threads
+    SET stickied = NOT stickied
+    WHERE threadid = ?"
+   ((get-parameter "thread")))
+  (redirect "/"))
+
+(publish-page a/lock-thread
+  (unless (user-authority-check-p "Moderator")
+    (redirect "/"))
+  (execute-query-modify
+   "UPDATE threads
+    SET locked = NOT locked
+    WHERE threadid = ?"
+   ((get-parameter "thread")))
+  (redirect "/"))
