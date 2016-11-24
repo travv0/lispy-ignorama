@@ -413,7 +413,11 @@
       (redirect "/"))
 
     (when (nil-if-empty-string thread-id)
-      (follow-thread thread-id (get-session-var 'userid) (real-remote-addr)))
+      (follow-thread thread-id (get-session-var 'userid) (real-remote-addr))
+      (set-last-seen-post thread-id
+                          (get-session-var 'userid)
+                          (real-remote-addr)
+                          (if page (parse-integer page) 1)))
 
     (if (not (and (equal (empty-string-if-nil thread-id) "")
                   (equal (empty-string-if-nil user-id) "")
@@ -465,60 +469,6 @@
                  (if thread-id
                      (:script (view-thread-js)))))
         (redirect "/"))))
-
-(defun follow-thread (thread-id user-id user-ip)
-  (if (logged-in-p)
-      (user-follow-thread thread-id user-id)
-      (anonymous-follow-thread thread-id user-ip)))
-
-(defun user-follow-thread (thread-id user-id)
-  (unless (user-following-thread-p thread-id user-id)
-    (execute-query-modify
-     "INSERT INTO following (
-          userid,
-          threadid
-      )
-      VALUES (
-          ?,
-          ?
-      )"
-     (user-id thread-id))))
-
-(defun anonymous-follow-thread (thread-id user-ip)
-  (unless (ip-following-thread-p thread-id user-ip)
-    (execute-query-modify
-     "INSERT INTO following (
-          userip,
-          threadid
-      )
-      VALUES (
-          ?,
-          ?
-      )"
-     (user-ip thread-id))))
-
-(defun following-thread-p (thread-id user-id user-ip)
-  (if (logged-in-p)
-      (user-following-thread-p thread-id user-id)
-      (ip-following-thread-p thread-id user-ip)))
-
-(defun user-following-thread-p (thread-id user-id)
-  (execute-query-one following
-      "SELECT true AS isfollowing
-       FROM following
-       WHERE userid = ?
-       AND threadid = ?"
-      (user-id thread-id)
-    (getf following :|isfollowing|)))
-
-(defun ip-following-thread-p (thread-id user-ip)
-  (execute-query-one following
-      "SELECT true AS isfollowing
-       FROM following
-       WHERE userip = ?
-       AND threadid = ?"
-      (user-ip thread-id)
-    (getf following :|isfollowing|)))
 
 (publish-page login
   (standard-page
@@ -842,7 +792,7 @@
                            WHERE PostID = ?"
       (post-id)
     (cond ((user-authority-check-p "Moderator")
-           (if (not (is-null (getf user :|username|)))
+           (if (not (null-p (getf user :|username|)))
                (values (with-html-string
                          (:a :href (format nil
                                            "view-thread?user=~a"
@@ -861,7 +811,7 @@
           (t (if (and (or (and (not *force-anonymity*)
                                (not (getf user :|anonymous|)))
                           (not *allow-anonymity*))
-                      (not (is-null (getf user :|username|))))
+                      (not (null-p (getf user :|username|))))
                  (getf user :|username|)
                  *nameless-name*)))))
 
@@ -891,7 +841,7 @@
             (we-are-moderator (user-authority-check-p "Moderator")))
         (if (and we-are-moderator
                  anonymous
-                 (not (is-null username)))
+                 (not (null-p username)))
             (setf options (cons "Anonymous" options)))
         (cond (op-revealed
                (setf options (cons "OP" options)))
@@ -1045,24 +995,93 @@
                                     (format nil "?f=~a" f)
                                     "")))))
 
+(defun follow-thread (thread-id user-id user-ip)
+  (unless (following-thread-p thread-id user-id user-ip)
+    (execute-query-modify
+     (format nil
+             "INSERT INTO following (
+                  ~a,
+                  threadid
+              )
+              VALUES (
+                  ?,
+                  ?
+              )"
+             (if (logged-in-p) "userid" "userip"))
+     ((if (logged-in-p) user-id user-ip)
+      thread-id))))
+
+(defun following-thread-p (thread-id user-id user-ip)
+  (execute-query-one following
+      (format nil
+              "SELECT true AS isfollowing
+               FROM following
+               WHERE ~a = ?
+               AND threadid = ?"
+              (if (logged-in-p) "userid" "userip"))
+      ((if (logged-in-p) user-id user-ip)
+       thread-id)
+    (getf following :|isfollowing|)))
+
+(defun set-last-seen-post (thread-id user-id user-ip page)
+  (let ((last-seen (get-last-seen-post thread-id user-id user-ip)))
+    (if (or (null-p last-seen)
+            (< last-seen
+               (get-max-post-on-page thread-id page)))
+        (execute-query-modify
+         (format nil
+                 "UPDATE following
+                  SET lastseenpost = (SELECT MAX(postid)
+                                      FROM (SELECT postid
+                                            FROM posts
+                                            WHERE threadid = ?
+                                            ORDER BY posttime ASC
+                                            OFFSET ?
+                                            LIMIT ?) t1)
+                  WHERE threadid = ?
+                    AND ~a = ?"
+                 (if (logged-in-p) "userid" "userip"))
+         (thread-id
+          (* *posts-per-page* (- page 1))
+          *posts-per-page*
+          thread-id
+          (if (logged-in-p) user-id user-ip))))))
+
 (defun unfollow-thread (thread-id user-id user-ip)
-  (if (logged-in-p)
-      (user-unfollow-thread thread-id user-id)
-      (anonymous-unfollow-thread thread-id user-ip)))
-
-(defun user-unfollow-thread (thread-id user-id)
   (execute-query-modify
-   "DELETE FROM following
-    WHERE userid = ?
-    AND threadid = ?"
-   (user-id thread-id)))
+   (format nil
+           "DELETE FROM following
+            WHERE ~a = ?
+            AND threadid = ?"
+           (if (logged-in-p) "userid" "userip"))
+   ((if (logged-in-p) user-id user-ip)
+    thread-id)))
 
-(defun anonymous-unfollow-thread (thread-id user-ip)
-  (execute-query-modify
-   "DELETE FROM following
-    WHERE userip = ?
-    AND threadid = ?"
-   (user-ip thread-id)))
+(defun get-last-seen-post (thread-id user-id user-ip)
+  (execute-query-one post
+      (format nil
+              "SELECT lastseenpost
+               FROM following
+               WHERE ~a = ?
+                 AND threadid = ?"
+              (if (logged-in-p) "userid" "userip"))
+      ((if (logged-in-p) user-id user-ip)
+       thread-id)
+    (getf post :|lastseenpost|)))
+
+(defun get-max-post-on-page (thread-id page)
+  (execute-query-one post
+      "SELECT MAX(postid) AS MaxPostID
+       FROM (SELECT postid
+                    FROM posts
+                    WHERE threadid = ?
+                    ORDER BY posttime ASC
+                    OFFSET ?
+                    LIMIT ?) t1"
+      (thread-id
+       (* *posts-per-page* (- page 1))
+       *posts-per-page*)
+    (getf post :|maxpostid|)))
 
 ;;; FIXME: i have no idea how password encryption works so i just copied this
 ;;;        from somewhere, probably needs improved
