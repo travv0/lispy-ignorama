@@ -274,7 +274,8 @@
       (thread-row-dropdown id op-id :locked locked :stickied stickied)
       (print-link-to-thread id subject :locked locked :stickied stickied)
       (if (following-thread-p id (get-session-var 'userid) (real-remote-addr))
-          (:a :href (format nil "b/unfollow?thread=~d" id)
+          (:a :href (format nil "b/unfollow?thread=~d&f=~a"
+                            id (get-parameter "f"))
               :title "Unfollow thread"
               :style "float: right; padding-right: 5px;"
               (:b :class "glyphicon glyphicon-eye-close")))
@@ -467,10 +468,10 @@
 
 (defun follow-thread (thread-id user-id user-ip)
   (if (logged-in-p)
-      (follow-thread-as-user thread-id user-id)
-      (follow-thread-as-anonymous thread-id user-ip)))
+      (user-follow-thread thread-id user-id)
+      (anonymous-follow-thread thread-id user-ip)))
 
-(defun follow-thread-as-user (thread-id user-id)
+(defun user-follow-thread (thread-id user-id)
   (unless (user-following-thread-p thread-id user-id)
     (execute-query-modify
      "INSERT INTO following (
@@ -483,7 +484,7 @@
       )"
      (user-id thread-id))))
 
-(defun follow-thread-as-anonymous (thread-id user-ip)
+(defun anonymous-follow-thread (thread-id user-ip)
   (unless (ip-following-thread-p thread-id user-ip)
     (execute-query-modify
      "INSERT INTO following (
@@ -1035,6 +1036,30 @@
                                                              thread-param)
                                             num-of-pages)
                               num-of-pages))))))))))
+
+(publish-page b/unfollow
+  (let ((thread-id (get-parameter "thread")))
+    (unfollow-thread thread-id (get-session-var 'userid) (real-remote-addr)))
+  (redirect (format nil "/?f=~a" (get-parameter "f"))))
+
+(defun unfollow-thread (thread-id user-id user-ip)
+  (if (logged-in-p)
+      (user-unfollow-thread thread-id user-id)
+      (anonymous-unfollow-thread thread-id user-ip)))
+
+(defun user-unfollow-thread (thread-id user-id)
+  (execute-query-modify
+   "DELETE FROM following
+    WHERE userid = ?
+    AND threadid = ?"
+   (user-id thread-id)))
+
+(defun anonymous-unfollow-thread (thread-id user-ip)
+  (execute-query-modify
+   "DELETE FROM following
+    WHERE userip = ?
+    AND threadid = ?"
+   (user-ip thread-id)))
 
 ;;; FIXME: i have no idea how password encryption works so i just copied this
 ;;;        from somewhere, probably needs improved
