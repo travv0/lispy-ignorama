@@ -292,7 +292,7 @@
           (:a :href (format nil "b/unfollow?thread=~d&f=~a"
                             id (get-parameter "f"))
               :title "Unfollow thread"
-              :style "float: right; padding-right: 5px;"
+              :style "padding-right: 5px;"
               (:b :class "glyphicon glyphicon-eye-close")))
       (:br)
       (:span :style "font-size: 12px; color: gray;"
