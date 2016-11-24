@@ -20,7 +20,8 @@ CREATE OR REPLACE
   tags.UserStatusID,
   (SELECT COUNT(1)
    FROM posts
-   WHERE threads.ThreadID = posts.ThreadID) - 1 AS PostCount
+   WHERE threads.ThreadID = posts.ThreadID) - 1 AS PostCount,
+   MAX(PostID) AS MaxPostID
  FROM threads
  LEFT JOIN posts ON (threads.ThreadID = posts.ThreadID)
  LEFT JOIN tags ON tags.TagID = threads.TagID
