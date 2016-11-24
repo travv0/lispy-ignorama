@@ -265,17 +265,14 @@
 (defhtml threads-table (query)
   (execute-query-loop thread query ()
     (:div :style ""
-          (log-message* "NOTE" "~d:~%~a"
-                        (getf thread :|threadid|)
-                        (with-output-to-string (*trace-output*)
-                          (time (thread-row (getf thread :|threadid|)
-                                            (getf thread :|postid|)
-                                            (getf thread :|threadsubject|)
-                                            (getf thread :|tag|)
-                                            (getf thread :|postcount|)
-                                            (getf thread :|latestposttime|)
-                                            (getf thread :|locked|)
-                                            (getf thread :|stickied|))))))))
+          (thread-row (getf thread :|threadid|)
+                      (getf thread :|postid|)
+                      (getf thread :|threadsubject|)
+                      (getf thread :|tag|)
+                      (getf thread :|postcount|)
+                      (getf thread :|latestposttime|)
+                      (getf thread :|locked|)
+                      (getf thread :|stickied|)))))
 
 (defhtml thread-row (id op-id subject tag post-count latest-post-time locked stickied)
   (row
@@ -289,7 +286,7 @@
                                                            (real-remote-addr))))
                                " newposts"
                                ""))
-      ;; (thread-row-dropdown id op-id :locked locked :stickied stickied)
+      (thread-row-dropdown id op-id :locked locked :stickied stickied)
       (print-link-to-thread id subject :locked locked :stickied stickied)
       (if (following-thread-p id (get-session-var 'userid) (real-remote-addr))
           (:a :href (format nil "b/unfollow?thread=~d&f=~a"
