@@ -406,7 +406,8 @@
                      (not (or user-id user-ip))))
       (redirect "/"))
 
-    (follow-thread thread-id (get-session-var 'userid) (real-remote-addr))
+    (when (nil-if-empty-string thread-id)
+      (follow-thread thread-id (get-session-var 'userid) (real-remote-addr)))
 
     (if (not (and (equal (empty-string-if-nil thread-id) "")
                   (equal (empty-string-if-nil user-id) "")
