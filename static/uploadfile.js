@@ -8,7 +8,7 @@ $(document).ready(function() {
             $('body').append(iframeTemp);
             /* submit the uploadForm */
             $(this).attr({
-                action: 'php/uploadfile.php',
+                action: 'b/upload-file',
                 method: 'post',
                 enctype: 'multipart/form-data',
                 encoding: 'multipart/form-data',
@@ -44,10 +44,12 @@ $(document).ready(function() {
                     temp = $('#filename').val().split(".");
                     extension = temp[temp.length-1];
                     if (extension === 'webm'){
-                        document.getElementById('postfield').value += "[webm]"+window.location.origin+'/uploads/'+$('#filename').val()+"[/webm]";
+                        document.getElementById('postfield').value += "[webm]" +
+                            window.location.origin+'/uploads/'+$('#filename').val()+"[/webm]";
                     }
                     else{
-                        document.getElementById('postfield').value += "[img]"+window.location.origin+'/uploads/'+$('#filename').val()+"[/img]";
+                        document.getElementById('postfield').value += "[img]" +
+                            window.location.origin+'/uploads/'+$('#filename').val()+"[/img]";
                     }
                     var input = $("#postfield");
                     var len = input.val().length;

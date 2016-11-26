@@ -7,6 +7,9 @@
 (defparameter *logo-path* "/ignorama.png")
 (defparameter *small-logo-path* "/ignoramasmall.png")
 
+(defparameter *file-upload-path* #p"static/uploads/")
+(setf *tmp-directory* "tmp")
+
 ;;; will load random slogan on each page load
 ;;; for a single slogan, just include one string in the list
 ;;; for no slogan, leave it empty or nil
