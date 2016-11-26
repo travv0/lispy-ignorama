@@ -1,3 +1,11 @@
+html, body, div.main {
+    height: 100%;
+}
+
+div.main {
+    overflow-x: hidden;
+}
+
 body {
     background-color: #E8E8E8;
 }

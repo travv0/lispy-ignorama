@@ -189,7 +189,7 @@
                                   *site-name*))
              ,@*head*)
       (:body
-       (:div :style "overflow-x: hidden;"
+       (:div :class "main"
              ,@*header*
              (:div :class "container"
                    (unless (equal ,title "")
