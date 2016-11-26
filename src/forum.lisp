@@ -406,7 +406,8 @@
 (defhtml thread-buttons ()
   (let ((thread-id (get-parameter "thread")))
     (when thread-id
-      (if (thread-locked-p thread-id)
+      (if (and (thread-locked-p thread-id)
+               (not (user-authority-check-p "Moderator")))
           (:button :class "btn btn-default btn-sm"
                    :disabled t
                    "Locked")
@@ -575,7 +576,8 @@
 (publish-page new-reply
   (when (banned-p)
     (redirect "/banned"))
-  (if (thread-locked-p (get-parameter "thread"))
+  (if (and (thread-locked-p (get-parameter "thread"))
+           (not (user-authority-check-p "Moderator")))
       (redirect "/locked")
       (standard-page
           (:title "New Reply")
@@ -710,7 +712,8 @@
               (logged-in-p))
     (redirect "/"))
 
-  (progn (if (thread-locked-p (get-parameter "thread"))
+  (progn (if (and (thread-locked-p (get-parameter "thread"))
+                  (not (user-authority-check-p "Moderator")))
              (redirect "/locked"))
          (execute-query-one post
              "INSERT INTO posts (
