@@ -643,9 +643,9 @@
                         (:input :onclick "window.location='/'"
                                 :class "btn btn-default btn-sm"
                                 :type "button"
-                                :value "Back")))
-            (:div :class "row"
-                  (image-upload-form))))))
+                                :value "Back"))))
+     (:div :class "row"
+           (image-upload-form)))))
 
 ;;; pages that just do backend stuff then redirect
 (publish-page b/login

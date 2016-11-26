@@ -114,3 +114,7 @@
   CLOSED: [2016-11-24 Thu 00:29]
   - State "DONE"       from "TODO"       [2016-11-24 Thu 00:29]
 * TODO fix invalid date on banned page
+* TODO upload images
+  - [X] new thread
+  - [X] replies
+  - [ ] make persistent with amazon s3 or something
