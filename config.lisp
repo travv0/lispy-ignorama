@@ -9,6 +9,8 @@
 
 (defparameter *file-upload-path* #p"static/uploads/")
 (setf *tmp-directory* "tmp")
+(ensure-directories-exist *file-upload-path*)
+(ensure-directories-exist *tmp-directory*)
 
 ;;; will load random slogan on each page load
 ;;; for a single slogan, just include one string in the list
