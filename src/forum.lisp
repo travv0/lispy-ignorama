@@ -193,7 +193,8 @@
              ,@*header*
              (:div :class "container"
                    (unless (equal ,title "")
-                     (:h2 ,title))
+                     (:h2 :class "page-title"
+                          ,title))
                    ,@body))))))
 
 ;;; this macro creates and publishes page <name> at https://your-site.com/<name>
