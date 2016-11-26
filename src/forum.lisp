@@ -531,9 +531,6 @@
 (defhtml image-upload-form ()
   (:form :class "col-xs-12"
          :id "uploadForm"
-         :action "b/upload-file"
-         :method "post"
-         :enctype "mutlipart/form-data"
          (:input :id "upload"
                  :onchange "updateFilename();"
                  :type "file"
@@ -590,8 +587,8 @@
                            :rows "7"
                            :class "col-xs-12"
                            :required t)
-                (reply-buttons)
-                (image-upload-form))))))
+                (reply-buttons))
+         (image-upload-form)))))
 
 (publish-page locked
   (standard-page
@@ -1353,11 +1350,26 @@
                     (post-parameter "post"))))
 
 (publish-page b/upload-file
+  (destructuring-bind
+      (path file-name content-type)
+      (post-parameter "upload")
+    (upload-file path file-name content-type (post-parameter "filename") *file-upload-path*)))
+
+(defun upload-file (path file-name content-type upload-file-name upload-path)
   (let ((allowed-extensions '("gif" "jpeg" "jpg" "png" "webm"))
         (allowed-types '("image/gif" "image/jpeg" "image/jpg" "image/pjpeg"
-                         "image/x-png" "image/png" "video/webm")))
-    (destructuring-bind
-        (path file-name content-type)
-        (post-parameter "upload")
-      (if (position content-type allowed-types)
-          t))))
+                         "image/x-png" "image/png" "video/webm"))
+        (file-ext (second (split-sequence:split-sequence #\. file-name)))
+        (new-path (make-pathname :defaults path
+                                 :directory (pathname-directory upload-path)
+                                 :name upload-file-name)))
+    (log-message* "NOTE" "Uploading file ~a of content type ~a to server. (old path: ~a~tnew path: ~a)"
+                  file-name content-type path new-path)
+    (if (and (position content-type allowed-types :test 'equal)
+             (position file-ext allowed-extensions :test 'equal))
+        (progn (rename-file path new-path)
+               (log-message* "NOTE" "Successfully uploaded ~a" file-name)
+               ;; set error to none so uploadfile.js knows file has been uploaded
+               (with-html-string (:raw "<script>var error = 'none';</script>")))
+        (log-message* "WARN" "Did not upload file ~a because its content-type ~a or extension ~a are not allowed."
+                      file-name content-type file-ext))))

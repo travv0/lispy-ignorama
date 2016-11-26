@@ -5,3 +5,4 @@ quicklisp.lisp
 *.fasl
 .env
 env.lisp
+static/uploads/*
