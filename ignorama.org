@@ -91,7 +91,7 @@
 * TODO ban log
 * TODO moderator dashboard
 * TODO replying
-  - [ ] let mods post even if thread is locked
+  - [X] let mods post even if thread is locked
   - [X] check if banned before post
 * DONE header
   CLOSED: [2016-10-29 Sat 14:03]
@@ -119,3 +119,4 @@
   - [X] replies
   - [ ] make persistent with amazon s3 or something
 * TODO set up foreign keys, you lazy bum
+* TODO sign up
