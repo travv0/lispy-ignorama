@@ -118,3 +118,4 @@
   - [X] new thread
   - [X] replies
   - [ ] make persistent with amazon s3 or something
+* TODO set up foreign keys, you lazy bum

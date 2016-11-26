@@ -297,7 +297,7 @@
                             id (get-parameter "f"))
               :title "Unfollow thread"
               :style "padding-right: 5px;"
-              (:b :class "glyphicon glyphicon-eye-close")))
+              (:b :class "unfollow-link glyphicon glyphicon-eye-close")))
       (:br)
       (:span :style "font-size: 12px; color: gray;"
              (print-user-name-and-ip op-id)
