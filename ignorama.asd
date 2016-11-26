@@ -17,7 +17,6 @@
                "web-util")
   :pathname "./"
   :components ((:file "packages")
-               (:file "src/forum-util")
                (:file "config")
                (:file "js/script")
                (:file "src/forum")))
