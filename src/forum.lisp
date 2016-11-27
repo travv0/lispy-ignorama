@@ -4,14 +4,20 @@
 (defun threads-query (condition &optional order-by)
   (format nil "SELECT *
                FROM IndexThreads
-               WHERE (~a)
-                 AND UserStatusID >= ~d
+               WHERE IsGlobal = true
+                  OR ((~a)
+                      AND UserStatusID >= ~d
+                      AND tagid IN (SELECT tagid
+                                    FROM selectedtags
+                                    WHERE ~a = '~a'))
                ~a
                LIMIT ~d"
           (if condition
               condition
               :true)
           (user-status-id)
+          (if (logged-in-p) "userid" "userip")
+          (if (logged-in-p) (get-session-var 'userid) (real-remote-addr))
           (if order-by
               order-by
               "")
@@ -19,7 +25,10 @@
 
 (defun tags-query ()
   (let ((user-status-id (user-status-id)))
-    (format nil "SELECT TagID, TagName
+    (format nil "SELECT TagID, TagName, (SELECT true
+                                         FROM selectedtags
+                                         WHERE ~a = '~a'
+                                           AND selectedtags.tagid = tags.tagid) AS selected
           FROM tags
           WHERE (
            IsActive = true AND
@@ -34,6 +43,8 @@
           )
           ORDER BY UserStatusID ASC,
              TagName"
+            (if (logged-in-p) "userid" "userip")
+            (if (logged-in-p) (get-session-var 'userid) (real-remote-addr))
             user-status-id
             user-status-id)))
 
@@ -644,8 +655,9 @@
                  (:option :value ""
                           "- Select a tag - ")
                  (execute-query-loop tag (tags-query) ()
-                   (:option :value (getf tag :|tagid|)
-                            (getf tag :|tagname|))))))
+                   (when (nil-if-null (getf tag :|selected|))
+                     (:option :value (getf tag :|tagid|)
+                              (getf tag :|tagname|)))))))
 
 (publish-page new-thread
   (when (banned-p)
@@ -694,33 +706,33 @@
 
 (defun login-user (username password)
   (let ((user-status nil))
-      ;; if no status, user doesn't exist
-      (if (and (setf user-status (get-user-status username))
-               (is-correct-password-p username password))
-          (let ((session-id nil))
-            ;; find an id not in use and set it to session-id
-            (loop while (gethash
-                         (setf session-id (write-to-string (make-v4-uuid)))
-                         *sessions*))
+    ;; if no status, user doesn't exist
+    (if (and (setf user-status (get-user-status username))
+             (is-correct-password-p username password))
+        (let ((session-id nil))
+          ;; find an id not in use and set it to session-id
+          (loop while (gethash
+                       (setf session-id (write-to-string (make-v4-uuid)))
+                       *sessions*))
 
-            (setf (gethash session-id *sessions*) (make-hash-table :test 'equal))
+          (setf (gethash session-id *sessions*) (make-hash-table :test 'equal))
 
-            ;; make life easier by making sure username in session is capitalized like in the DB
-            (execute-query-one user
-                "SELECT UserID, UserName FROM users WHERE lower(UserName) = lower(?)"
-                (username)
-              (setf (gethash 'username (gethash session-id *sessions*)) (getf user :|username|))
-              (setf (gethash 'userid (gethash session-id *sessions*)) (getf user :|userid|)))
+          ;; make life easier by making sure username in session is capitalized like in the DB
+          (execute-query-one user
+              "SELECT UserID, UserName FROM users WHERE lower(UserName) = lower(?)"
+              (username)
+            (setf (gethash 'username (gethash session-id *sessions*)) (getf user :|username|))
+            (setf (gethash 'userid (gethash session-id *sessions*)) (getf user :|userid|)))
 
-            (setf (gethash 'userstatus (gethash session-id *sessions*)) user-status)
-            (setf (gethash 'userlastactive (gethash session-id *sessions*)) (get-universal-time))
+          (setf (gethash 'userstatus (gethash session-id *sessions*)) user-status)
+          (setf (gethash 'userlastactive (gethash session-id *sessions*)) (get-universal-time))
 
-            (set-cookie *session-id-cookie-name*
-                        :value session-id
-                        :path "/"
-                        :expires (+ (get-universal-time) (* 10 365 24 60 60)))
-            (redirect "/"))
-          (redirect "/login-failed"))))
+          (set-cookie *session-id-cookie-name*
+                      :value session-id
+                      :path "/"
+                      :expires (+ (get-universal-time) (* 10 365 24 60 60)))
+          (redirect "/"))
+        (redirect "/login-failed"))))
 
 (defun is-correct-password-p (user-name password)
   (execute-query-one user
@@ -989,7 +1001,8 @@
        (execute-query-loop tag (tags-query) ()
          (:li (:label
                (:input :type "checkbox"
-                       :name (getf tag :|tagid|))
+                       :name (getf tag :|tagid|)
+                       :checked (nil-if-null (getf tag :|selected|)))
                (getf tag :|tagname|))))))
 
 (defhtml pagination ()
@@ -1188,6 +1201,37 @@
        WHERE threadid = ?"
       (thread-id)
     (getf post :|maxpostid|)))
+
+(publish-page b/apply-tags
+  (let ((tags (loop for tag in (post-parameters*)
+                    collect (car tag))))
+    (set-tags tags (get-session-var 'userid) (real-remote-addr)))
+  (redirect "/"))
+
+(defun set-tags (tags user-id user-ip)
+  (clear-tags-for-user user-id user-ip)
+  (loop for tagid in tags
+        do (execute-query-modify
+            (format nil
+                    "INSERT INTO selectedtags (
+                         ~a,
+                         tagid
+                     )
+                     VALUES (
+                         ?,
+                         ?
+                     )"
+                    (if (logged-in-p) "userid" "userip"))
+            ((if (logged-in-p) user-id user-ip)
+             tagid))))
+
+(defun clear-tags-for-user (user-id user-ip)
+  (execute-query-modify
+   (format nil
+           "DELETE FROM selectedtags
+            WHERE ~a = ?"
+           (if (logged-in-p) "userid" "userip"))
+   ((if (logged-in-p) user-id user-ip))))
 
 ;;; FIXME: i have no idea how password encryption works so i just copied this
 ;;;        from somewhere, probably needs improved
