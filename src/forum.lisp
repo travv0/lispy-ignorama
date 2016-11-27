@@ -316,8 +316,13 @@
                 (format nil "Replies: ~a" post-count)
                 (format nil "Last reply: ~a" (with-html-string
                                                (:span :class "time"
-                                                      latest-post-time))))
+                                                      (format-date-for-display latest-post-time)))))
                " | "))))))
+
+(defun format-date-for-display (date)
+  (local-time:to-rfc3339-timestring
+   (local-time:parse-timestring
+    (substitute #\T #\  date))))
 
 (defhtml thread-row-dropdown (thread-id op-id &key (locked nil) (stickied nil))
   (:div :style "float: right;" :class "btn-group"
@@ -392,7 +397,7 @@
                          (:b (print-user-name-and-ip id))))
                    (:span :style "float: right;"
                           :class "time"
-                          time)))
+                          (format-date-for-display time))))
       (:br)
       (:div (when (nil-if-empty-string (empty-string-if-null edit-content))
               (format-post edit-content)
@@ -1384,7 +1389,9 @@
                 (real-remote-addr)
                 (format-timestring nil (now)))
              (:p "Your ban will expire on "
-                 (:span :class "time" (getf bans :|banend|)))
+                 (:span :class "time" (local-time:to-rfc3339-timestring
+                                       (local-time:universal-to-timestamp
+                                        (getf bans :|banend|)))))
              (:p (format nil "Reason for ban: ~a" (getf bans :|banreason|)))
              (:p (format nil "Post that got you banned: \"~a\""
                          (getf bans :|postcontent|)))
