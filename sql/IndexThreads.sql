@@ -18,6 +18,7 @@ CREATE OR REPLACE
      AND Bump = true) AS LatestBump,
   tags.TagName as Tag,
   tags.UserStatusID,
+  tags.IsGlobal,
   (SELECT COUNT(1)
    FROM posts
    WHERE threads.ThreadID = posts.ThreadID) - 1 AS PostCount,
@@ -28,5 +29,6 @@ CREATE OR REPLACE
  GROUP BY threads.ThreadID,
           tags.NSFW,
           tags.TagName,
+          tags.IsGlobal,
           tags.UserStatusID
  ORDER BY Stickied DESC, LatestBump DESC;
