@@ -322,7 +322,8 @@
 (defun format-date-for-display (date)
   (local-time:to-rfc3339-timestring
    (local-time:parse-timestring
-    (substitute #\T #\  date))))
+    (substitute #\T #\  date)
+    :fail-on-error nil)))
 
 (defhtml thread-row-dropdown (thread-id op-id &key (locked nil) (stickied nil))
   (:div :style "float: right;" :class "btn-group"
