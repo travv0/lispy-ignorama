@@ -808,6 +808,8 @@
   (unless (or *allow-anonymity*
               (logged-in-p))
     (redirect "/"))
+  (unless (has-right-to-tag-p (post-parameter "tag"))
+    (redirect "/"))
   (execute-query-one thread
       "INSERT INTO threads (
            ThreadSubject,
@@ -863,6 +865,28 @@
       (redirect (format nil
                         "/view-thread?thread=~d"
                         (getf thread :|threadid|))))))
+
+(defun has-right-to-tag-p (tag-id)
+  (execute-query-one tag
+      "SELECT true AS hasright
+       FROM tags
+       WHERE ((
+             IsActive = true AND
+             UserStatusID >= ? AND
+             IsGlobal = false
+            )
+               OR (
+             IsGlobal = true AND
+              ? <= (SELECT UserStatusID
+              FROM UserStatuses
+              WHERE UserStatusDesc = 'Admin')
+            )
+       )
+       AND tagid = ?"
+      ((get-session-var 'userstatus)
+       (get-session-var 'userstatus)
+       tag-id)
+    (getf tag :|hasright|)))
 
 (publish-page b/logout
   (remhash (cookie-in *session-id-cookie-name*) *sessions*)
