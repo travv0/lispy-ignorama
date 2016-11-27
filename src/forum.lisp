@@ -1,9 +1,5 @@
 (in-package :net.ignorama.web)
 
-(defparameter *ignorama-purple* "#330066")
-(defparameter *background-color* "#E8E8E8")
-(defparameter *header-text-color* "white")
-
 ;;; site setup
 (defun threads-query (condition &optional order-by)
   (format nil "SELECT *
@@ -153,7 +149,7 @@
 ;;; page skeleton
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *header*
-    '((row :class "header" :style (format nil "background-color: ~a" *ignorama-purple*)
+    '((row :class "header"
         (col 12
 
           ;; logo and slogans
@@ -164,8 +160,8 @@
                       (:a :href "/"
                           (:img :src *logo-path*))
                       (if *slogans*
-                          (:b :style (format nil "position: absolute;
-              top: 15px; color: ~a" *header-text-color*)
+                          (:b :class "slogan"
+                              :style "position: absolute; top: 15px;"
                               (:raw (random-elt *slogans*))))))
                   (mobile-only
                     (col 6 :style "padding-top: 15px;"
