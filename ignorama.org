@@ -38,7 +38,9 @@
    CLOSED: [2016-11-22 Tue 22:03]
    - State "DONE"       from "TODO"       [2016-11-22 Tue 22:03]
    - [X] per-thread dropdown
-** TODO tags filter
+** DONE tags filter
+   CLOSED: [2016-11-27 Sun 13:37]
+   - State "DONE"       from "TODO"       [2016-11-27 Sun 13:37]
 ** DONE search box on mobile
    CLOSED: [2016-10-29 Sat 19:49]
    - State "DONE"       from "TODO"       [2016-10-29 Sat 19:49]
