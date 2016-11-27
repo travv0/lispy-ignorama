@@ -654,7 +654,8 @@
                  (:option :value ""
                           "- Select a tag - ")
                  (execute-query-loop tag (tags-query) ()
-                   (when (nil-if-null (getf tag :|selected|))
+                   (when (or (nil-if-null (getf tag :|selected|))
+                             (getf tag :|isglobal|))
                      (:option :value (getf tag :|tagid|)
                               (getf tag :|tagname|)))))))
 
