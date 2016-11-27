@@ -92,7 +92,9 @@
 * TODO rules page
 * TODO ban log
 * TODO moderator dashboard
-* TODO replying
+* DONE replying
+  CLOSED: [2016-11-27 Sun 15:52]
+  - State "DONE"       from "TODO"       [2016-11-27 Sun 15:52]
   - [X] let mods post even if thread is locked
   - [X] check if banned before post
 * DONE header
@@ -110,16 +112,20 @@
 * DONE change "Tags" to "Boards" everywhere that is displayed to user
   CLOSED: [2016-10-30 Sun 11:04]
   - State "DONE"       from "TODO"       [2016-10-30 Sun 11:04]
-* TODO fix dates
-  - [ ] firefox
-  - [ ] iphone
+* DONE fix dates
+  CLOSED: [2016-11-27 Sun 16:09]
+  - State "DONE"       from "TODO"       [2016-11-27 Sun 16:09]
+  - [X] firefox
+  - [X] iphone
 * DONE convert spaces in search to wildcards
   CLOSED: [2016-11-27 Sun 12:40]
   - State "DONE"       from "TODO"       [2016-11-27 Sun 12:40]
 * DONE ability to view usernames that have been used from an IP
   CLOSED: [2016-11-24 Thu 00:29]
   - State "DONE"       from "TODO"       [2016-11-24 Thu 00:29]
-* TODO fix invalid date on banned page
+* DONE fix invalid date on banned page
+  CLOSED: [2016-11-27 Sun 16:09]
+  - State "DONE"       from "TODO"       [2016-11-27 Sun 16:09]
 * TODO upload images
   - [X] new thread
   - [X] replies
