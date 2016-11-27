@@ -141,7 +141,7 @@
                   (:a :class "header-link" :href "/b/logout"
                       "(logout)"))
             (:div (:a :class "header-link"
-                      :href "/signup" "Sign up")
+                      :href "/create-account" "Sign up")
                   (:span :class "header-link" :style "color: white;" "/")
                   (:a :class "header-link"
                       :href "/login" "Log in")))))
@@ -526,6 +526,45 @@
                           :value "Main Page"
                           :onclick "window.location='../'"))))))
 
+(publish-page create-account
+  (standard-page
+      (:title "Create Account")
+    (:body
+     (:form :id "loginForm" :method "POST" :action "/b/create-account"
+            (:div (:input :id "username" :name "username" :type "text" :required t))
+            (:div (:input :id "password" :name "password" :type "password" :required t))
+            (:div (:input :type "submit"
+                          :class "btn btn-sm btn-default"
+                          :value "Submit")
+                  (:input :type "button"
+                          :value "Main Page"
+                          :class "btn btn-sm btn-default"
+                          :onclick "window.location='../'"))))))
+
+(publish-page b/create-account
+  (let ((user-name (post-parameter "username"))
+        (password (post-parameter "password")))
+    (if (not (get-user-status user-name))
+        (create-user user-name password)
+        (with-html-string (:span "user already exists")))))
+
+(defun create-user (user-name password)
+  (execute-query-modify
+   "INSERT INTO users (
+        username,
+        passhash,
+        lastlogin,
+        userstatusid
+    )
+    VALUES (
+        ?,
+        ?,
+        current_timestamp,
+        (SELECT userstatusid FROM userstatuses WHERE userstatusdesc = 'User')
+    )"
+   (user-name (signature password)))
+  (login-user user-name password))
+
 (defhtml image-upload-form ()
   (:form :class "col-xs-12"
          :id "uploadForm"
@@ -651,7 +690,10 @@
   (let ((username (post-parameter "username"))
         (password (post-parameter "password")))
     (set-password-if-unset username password)
-    (let ((user-status nil))
+    (login-user username password)))
+
+(defun login-user (username password)
+  (let ((user-status nil))
       ;; if no status, user doesn't exist
       (if (and (setf user-status (get-user-status username))
                (is-correct-password-p username password))
@@ -678,7 +720,7 @@
                         :path "/"
                         :expires (+ (get-universal-time) (* 10 365 24 60 60)))
             (redirect "/"))
-          (redirect "/login-failed")))))
+          (redirect "/login-failed"))))
 
 (defun is-correct-password-p (user-name password)
   (execute-query-one user
