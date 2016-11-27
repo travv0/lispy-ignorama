@@ -111,7 +111,9 @@
 * TODO fix dates
   - [ ] firefox
   - [ ] iphone
-* TODO convert spaces in search to wildcards
+* DONE convert spaces in search to wildcards
+  CLOSED: [2016-11-27 Sun 12:40]
+  - State "DONE"       from "TODO"       [2016-11-27 Sun 12:40]
 * DONE ability to view usernames that have been used from an IP
   CLOSED: [2016-11-24 Thu 00:29]
   - State "DONE"       from "TODO"       [2016-11-24 Thu 00:29]
