@@ -245,11 +245,6 @@
              :action "b/apply-tags"
              :method "post"
 
-             (:input :type "button"
-                     :style "margin: 3px;"
-                     :class "btn btn-default btn-sm"
-                     :onclick "window.location='b/reset-tags'"
-                     :value "Reset Boards")
              (:input :type "submit"
                      :style "margin: 3px;"
                      :class "btn btn-default btn-sm threads"
@@ -993,7 +988,7 @@
 
 (defhtml tags-filter-dropdown ()
   (:a :class "dropdown-toggle btn btn-default btn-sm"
-      :style "margin-left: -1px;"
+      :style "margin-left: 3px;"
       :data-toggle "dropdown"
       "Boards " (:b :class "caret"))
   (:ul :class "dropdown-menu dropdown-menu-form pull-right"
