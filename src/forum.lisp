@@ -25,10 +25,13 @@
 
 (defun tags-query ()
   (let ((user-status-id (user-status-id)))
-    (format nil "SELECT TagID, TagName, (SELECT true
-                                         FROM selectedtags
-                                         WHERE ~a = '~a'
-                                           AND selectedtags.tagid = tags.tagid) AS selected
+    (format nil "SELECT TagID,
+                        TagName,
+                        (SELECT true
+                         FROM selectedtags
+                         WHERE ~a = '~a'
+                           AND selectedtags.tagid = tags.tagid) AS selected,
+                        IsGlobal
           FROM tags
           WHERE (
            IsActive = true AND
@@ -994,11 +997,12 @@
   (:ul :class "dropdown-menu dropdown-menu-form pull-right"
        :role "menu"
        (execute-query-loop tag (tags-query) ()
-         (:li (:label
-               (:input :type "checkbox"
-                       :name (getf tag :|tagid|)
-                       :checked (nil-if-null (getf tag :|selected|)))
-               (getf tag :|tagname|))))))
+         (unless (getf tag :|isglobal|)
+           (with-html (:li (:label
+                            (:input :type "checkbox"
+                                    :name (getf tag :|tagid|)
+                                    :checked (nil-if-null (getf tag :|selected|)))
+                            (getf tag :|tagname|))))))))
 
 (defhtml pagination ()
   (let ((thread-id (get-parameter "thread"))
