@@ -1463,7 +1463,12 @@
 
 (defun index-params-by-type (type)
   (cond ((equal type "search")
-         (let ((search (get-parameter "search")))
+         (let* ((search (get-parameter "search"))
+                (search-for-query (substitute-if #\%
+                                                 #'whitespacep
+                                                 (dbi.driver:escape-sql
+                                                  *conn*
+                                                  (empty-string-if-nil search)))))
            (values (format nil "Search for \"~a\""
                            (empty-string-if-nil search))
                    (format nil "(SELECT 1
@@ -1472,8 +1477,7 @@
                                    AND PostContent LIKE '%~a%'
                                  LIMIT 1) = 1
                                  OR ThreadSubject LIKE '%~a%'"
-                           (dbi.driver:escape-sql *conn* (empty-string-if-nil search))
-                           (dbi.driver:escape-sql *conn* (empty-string-if-nil search)))
+                           search-for-query search-for-query)
                    nil)))
         ((equal type "following")
          (values "Following"
@@ -1490,6 +1494,9 @@
                               *conn* (real-remote-addr))))
                  "ORDER BY latestposttime DESC"))
         (t "")))
+
+(defun whitespacep (c)
+  (member c '(#\  #\Tab #\Return #\Newline)))
 
 (defun user-status-id ()
   (let ((user-status (get-session-var 'userstatus)))
