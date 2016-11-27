@@ -179,12 +179,12 @@
                               :style "position: absolute; top: 15px;"
                               (:raw (random-elt *slogans*))))))
                   (mobile-only
-                    (col 6 :style "padding-top: 15px;"
+                    (col 3 :style "padding-top: 15px;"
                       (:a :href "/"
-                          (:img :src *logo-path*))))
+                          (:img :src *small-logo-path*))))
 
                   ;; right links
-                  (col 6
+                  (:span :class "col-xs-9 col-sm-6"
                     (rightlinks *rightlinks* *sociallinks*)))))))))
 
 ;;; The basic format that every viewable page will follow.
