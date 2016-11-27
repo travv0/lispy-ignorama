@@ -102,7 +102,9 @@
 * DONE make it so you need a password to log in
   CLOSED: [2016-11-24 Thu 00:28]
   - State "DONE"       from "TODO"       [2016-11-24 Thu 00:28]
-* TODO ability to create account
+* DONE ability to create account
+  CLOSED: [2016-11-27 Sun 12:24]
+  - State "DONE"       from "TODO"       [2016-11-27 Sun 12:24]
 * DONE change "Tags" to "Boards" everywhere that is displayed to user
   CLOSED: [2016-10-30 Sun 11:04]
   - State "DONE"       from "TODO"       [2016-10-30 Sun 11:04]
@@ -119,4 +121,3 @@
   - [X] replies
   - [ ] make persistent with amazon s3 or something
 * TODO set up foreign keys, you lazy bum
-* TODO sign up
