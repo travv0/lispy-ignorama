@@ -29,7 +29,8 @@
                         TagName,
                         (SELECT true
                          FROM selectedtags
-                         WHERE ~a = '~a'
+                         WHERE (~a = '~a'
+                                OR IsGlobal = true)
                            AND selectedtags.tagid = tags.tagid) AS selected,
                         IsGlobal
           FROM tags
