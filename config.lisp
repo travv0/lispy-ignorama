@@ -35,7 +35,7 @@
 
 ;;; allow-anonymity takes precedence over force-anonymity
 ;;; e.g. if allow is set to nil and force is set to t, you'll still see people's names
-(defparameter *allow-anonymity* nil)
+(defparameter *allow-anonymity* t)
 (defparameter *force-anonymity* nil)
 
 (defparameter *allow-anonymous-threads* t)
