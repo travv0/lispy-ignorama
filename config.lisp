@@ -3,6 +3,9 @@
 
 (defparameter *site-name* "Ignorama")
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defparameter *port* 4242))
+
 (defparameter *favicon-path* "/favicon.png")
 (defparameter *logo-path* "/ignorama.png")
 (defparameter *small-logo-path* "/ignoramasmall.png")
