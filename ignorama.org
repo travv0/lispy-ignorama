@@ -138,3 +138,4 @@
   - [ ] back button on threads
   - [ ] unfollow button
   - [ ] hide button
+* TODO allow user to post thread anonymously if *allow-anonymous-threads* is t
