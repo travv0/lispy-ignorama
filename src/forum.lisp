@@ -902,26 +902,37 @@
                         (getf thread :|threadid|))))))
 
 (defun has-right-to-tag-p (tag-id)
-  (execute-query-one tag
-      "SELECT true AS hasright
-       FROM tags
-       WHERE ((
-             IsActive = true AND
-             UserStatusID >= ? AND
-             IsGlobal = false
-            )
-               OR (
-             IsGlobal = true AND
-              ? <= (SELECT UserStatusID
-              FROM UserStatuses
-              WHERE UserStatusDesc = 'Admin')
-            )
-       )
-       AND tagid = ?"
-      ((get-session-var 'userstatus)
-       (get-session-var 'userstatus)
-       tag-id)
-    (getf tag :|hasright|)))
+  (let ((user-status (if (logged-in-p)
+                         (get-session-var 'userstatus)
+                         (get-user-status-code "User"))))
+    (execute-query-one tag
+        "SELECT true AS hasright
+         FROM tags
+         WHERE ((
+               IsActive = true AND
+               UserStatusID >= ? AND
+               IsGlobal = false
+              )
+                 OR (
+               IsGlobal = true AND
+                ? <= (SELECT UserStatusID
+                FROM UserStatuses
+                WHERE UserStatusDesc = 'Admin')
+              )
+         )
+         AND tagid = ?"
+        (user-status
+         user-status
+         tag-id)
+      (getf tag :|hasright|))))
+
+(defun get-user-status-code (status-name)
+  (execute-query-one status
+      "SELECT userstatusid
+       FROM userstatuses
+       WHERE userstatusdesc = ?"
+      (status-name)
+    (getf status :|userstatusid|)))
 
 (publish-page b/logout
   (remhash (cookie-in *session-id-cookie-name*) *sessions*)
@@ -1436,15 +1447,16 @@
       post-id))))
 
 (defun banned-p ()
-  (execute-query-one ban
-      "SELECT true AS banned
-       FROM bans
-       WHERE (banneeid = ? OR banneeip = ?)
-         AND banend > ?"
-      ((get-session-var 'userid)
-       (real-remote-addr)
-       (format-timestring nil (now)))
-    (getf ban :|banned|)))
+  (let ((user-id (get-session-var 'userid)))
+    (execute-query-one ban
+        "SELECT true AS banned
+         FROM bans
+         WHERE (banneeid = ? OR banneeip = ?)
+           AND banend > ?"
+        ((if user-id user-id 0)
+         (real-remote-addr)
+         (format-timestring nil (now)))
+      (getf ban :|banned|))))
 
 (publish-page banned
   (unless (banned-p)
@@ -1453,8 +1465,9 @@
   (standard-page
       (:title "Hey idiot, you're banned.")
     (:body (:br)
-           (execute-query-loop bans
-               "SELECT banend,
+           (let ((user-id (get-session-var 'userid)))
+             (execute-query-loop bans
+                 "SELECT banend,
                         banreason,
                         postcontent
                  FROM bans
@@ -1462,17 +1475,17 @@
                  WHERE (banneeid = ? OR banneeip = ?)
                    AND banend > ?
                  ORDER BY banend DESC"
-               ((get-session-var 'userid)
-                (real-remote-addr)
-                (format-timestring nil (now)))
-             (:p "Your ban will expire on "
-                 (:span :class "time" (local-time:to-rfc3339-timestring
-                                       (local-time:universal-to-timestamp
-                                        (getf bans :|banend|)))))
-             (:p (format nil "Reason for ban: ~a" (getf bans :|banreason|)))
-             (:p (format nil "Post that got you banned: \"~a\""
-                         (getf bans :|postcontent|)))
-             (:hr)))))
+                 ((if user-id user-id 0)
+                  (real-remote-addr)
+                  (format-timestring nil (now)))
+               (:p "Your ban will expire on "
+                   (:span :class "time" (local-time:to-rfc3339-timestring
+                                         (local-time:universal-to-timestamp
+                                          (getf bans :|banend|)))))
+               (:p (format nil "Reason for ban: ~a" (getf bans :|banreason|)))
+               (:p (format nil "Post that got you banned: \"~a\""
+                           (getf bans :|postcontent|)))
+               (:hr))))))
 
 (publish-page a/sticky-thread
   (unless (user-authority-check-p "Moderator")
