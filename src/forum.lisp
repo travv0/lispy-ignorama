@@ -76,7 +76,7 @@
             user-status-id
             user-status-id)))
 
-(defparameter *rightlinks* '("Following" "Hidden" "Rules" "Bans" "Settings"))
+(defparameter *rightlinks* '("Following" "Hidden")) ;"Rules" "Bans" "Settings"))
 
 ;;; stuff to go in the <head> tags (minus <title>)
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -366,15 +366,15 @@
                         "Edit OP"))
                (:li (:a :href (format nil "ban-post?post=~d" op-id)
                         "Ban OP")))
-             (when (user-authority-check-p "Admin")
-               (:li (:a :href (format nil "a/thread-ban?thread=~d" thread-id)
-                        "Thread ban"))
-               (:li (:a :href (format nil "a/delete-thread?thread=~d" thread-id)
-                        "Delete thread"))
-               (:li (:a :href (format nil "a/purge-thread?thread=~d" thread-id)
-                        "Purge thread"))
-               (:li (:a :href (format nil "a/purge-duplicate?thread=~d" thread-id)
-                        "Purge duplicate (no ban)")))
+             ;; (when (user-authority-check-p "Admin")
+             ;;   (:li (:a :href (format nil "a/thread-ban?thread=~d" thread-id)
+             ;;            "Thread ban"))
+             ;;   (:li (:a :href (format nil "a/delete-thread?thread=~d" thread-id)
+             ;;            "Delete thread"))
+             ;;   (:li (:a :href (format nil "a/purge-thread?thread=~d" thread-id)
+             ;;            "Purge thread"))
+             ;;   (:li (:a :href (format nil "a/purge-duplicate?thread=~d" thread-id)
+             ;;            "Purge duplicate (no ban)")))
              (when (user-authority-check-p "Moderator")
                (:li (:a :href (format nil "a/sticky-thread?thread=~d" thread-id)
                         (if stickied
@@ -464,13 +464,14 @@
   (pagination))
 
 (defhtml thread-dropdown ()
-  (:span :style "float: right;" :class "btn-group"
-         (:a :class "btn btn-default btn-sm dropdown-toggle"
-             :data-toggle "dropdown"
-             :href "#"
-             (:span :class "caret"))
-         (:ul :class "dropdown-menu pull-right"
-              "TODO - add stuff here")))
+  ;; (:span :style "float: right;" :class "btn-group"
+  ;;        (:a :class "btn btn-default btn-sm dropdown-toggle"
+  ;;            :data-toggle "dropdown"
+  ;;            :href "#"
+  ;;            (:span :class "caret"))
+  ;;        (:ul :class "dropdown-menu pull-right"
+  ;;             "TODO - add stuff here"))
+  )
 
 (publish-page view-thread
   (let ((post-id (get-parameter "post"))
@@ -1508,7 +1509,7 @@
                     :name "post")
             (:div :class "row"
                   (:textarea :id "postfield"
-                             :name "body"
+                             :name "postfield"
                              :rows 7
                              :cols 50
                              :class "col-xs-12"
