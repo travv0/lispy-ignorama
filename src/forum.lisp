@@ -2,26 +2,50 @@
 
 ;;; site setup
 (defun threads-query (condition &optional order-by)
-  (format nil "SELECT *
+  (let ((user-column (if (logged-in-p) "userid" "userip"))
+        (user-value (if (logged-in-p) (get-session-var 'userid) (real-remote-addr))))
+    (format nil "SELECT *
                FROM IndexThreads
-               WHERE IsGlobal = true
-                  OR ((~a)
-                      AND UserStatusID >= ~d
-                      AND tagid IN (SELECT tagid
-                                    FROM selectedtags
-                                    WHERE ~a = '~a'))
+               WHERE (IsGlobal = true
+                      OR ((~a)
+                          AND UserStatusID >= ~d
+                          AND tagid IN (SELECT tagid
+                                        FROM selectedtags
+                                        WHERE ~a = '~a')))
+                 AND threadid NOT IN (SELECT threadid
+                                      FROM hidden
+                                      WHERE ~a = '~a')
                ~a
                LIMIT ~d"
-          (if condition
-              condition
-              :true)
-          (user-status-id)
-          (if (logged-in-p) "userid" "userip")
-          (if (logged-in-p) (get-session-var 'userid) (real-remote-addr))
-          (if order-by
-              order-by
-              "")
-          *index-row-limit*))
+            (if condition
+                condition
+                :true)
+            (user-status-id)
+            user-column user-value
+            user-column user-value
+            (if order-by
+                order-by
+                "")
+            *index-row-limit*)))
+
+(defun hidden-query ()
+  (let ((user-column (if (logged-in-p) "userid" "userip"))
+        (user-value (if (logged-in-p) (get-session-var 'userid) (real-remote-addr))))
+    (format nil "SELECT *
+               FROM IndexThreads
+               WHERE (IsGlobal = true
+                      OR (UserStatusID >= ~d
+                          AND tagid IN (SELECT tagid
+                                        FROM selectedtags
+                                        WHERE ~a = '~a')))
+                 AND threadid IN (SELECT threadid
+                                  FROM hidden
+                                  WHERE ~a = '~a')
+               LIMIT ~d"
+            (user-status-id)
+            user-column user-value
+            user-column user-value
+            *index-row-limit*)))
 
 (defun tags-query ()
   (let ((user-status-id (user-status-id)))
@@ -185,7 +209,7 @@
 
                   ;; right links
                   (:span :class "col-xs-9 col-sm-6"
-                    (rightlinks *rightlinks* *sociallinks*)))))))))
+                         (rightlinks *rightlinks* *sociallinks*)))))))))
 
 ;;; The basic format that every viewable page will follow.
 (defmacro standard-page ((&key title) &body body)
@@ -230,7 +254,9 @@
              (log-message* "NOTE" "Stats for generating threads for main page:")
              (log-message* "NOTE"
                            (with-output-to-string (*trace-output*)
-                             (time (threads-table (threads-query condition order-by)))))
+                             (time (threads-table (if (equal (get-parameter "f") "hidden")
+                                                      (hidden-query)
+                                                      (threads-query condition order-by))))))
              (:div :style "padding-top: 15px;"
                    (:raw *fake-copyright*))))))
 
@@ -332,7 +358,9 @@
             (:span :class "caret"))
         (:ul :class "dropdown-menu pull-right"
              (:li (:a :href (format nil "b/hide-thread?thread=~d" thread-id)
-                      "Hide thread"))
+                      (if (equal (get-parameter "f") "hidden")
+                          "Unhide thread"
+                          "Hide thread")))
              (when (user-authority-check-p "Moderator")
                (:li (:a :href (format nil "edit-post?post=~d" op-id)
                         "Edit OP"))
@@ -1136,6 +1164,55 @@
     (redirect (format nil "/~a" (if (not (equal f "NIL"))
                                     (format nil "?f=~a" f)
                                     "")))))
+
+(publish-page b/hide-thread
+  (let ((thread-id (get-parameter "thread"))
+        (f (get-parameter "f"))
+        (user-id (get-session-var 'userid))
+        (user-ip (real-remote-addr)))
+    (if (hiding-thread-p thread-id user-id user-ip)
+        (unhide-thread thread-id user-id user-ip)
+        (hide-thread thread-id user-id user-ip))
+    (redirect (format nil "/~a" (if (not (equal f "NIL"))
+                                    (format nil "?f=~a" f)
+                                    "")))))
+
+(defun hide-thread (thread-id user-id user-ip)
+    (execute-query-modify
+     (format nil
+             "INSERT INTO hidden (
+                  ~a,
+                  threadid
+              )
+              VALUES (
+                  ?,
+                  ?
+              )"
+             (if (logged-in-p) "userid" "userip"))
+     ((if (logged-in-p) user-id user-ip)
+      thread-id)))
+
+(defun hiding-thread-p (thread-id user-id user-ip)
+  (execute-query-one hidden
+      (format nil
+              "SELECT true AS ishiding
+               FROM hidden
+               WHERE ~a = ?
+               AND threadid = ?"
+              (if (logged-in-p) "userid" "userip"))
+      ((if (logged-in-p) user-id user-ip)
+       thread-id)
+    (getf hidden :|ishiding|)))
+
+(defun unhide-thread (thread-id user-id user-ip)
+  (execute-query-modify
+   (format nil
+           "DELETE FROM hidden
+            WHERE ~a = ?
+            AND threadid = ?"
+           (if (logged-in-p) "userid" "userip"))
+   ((if (logged-in-p) user-id user-ip)
+    thread-id)))
 
 (defun follow-thread (thread-id user-id user-ip)
   (unless (following-thread-p thread-id user-id user-ip)
