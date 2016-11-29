@@ -1167,15 +1167,13 @@
 
 (publish-page b/hide-thread
   (let ((thread-id (get-parameter "thread"))
-        (f (get-parameter "f"))
         (user-id (get-session-var 'userid))
         (user-ip (real-remote-addr)))
     (if (hiding-thread-p thread-id user-id user-ip)
-        (unhide-thread thread-id user-id user-ip)
-        (hide-thread thread-id user-id user-ip))
-    (redirect (format nil "/~a" (if (not (equal f "NIL"))
-                                    (format nil "?f=~a" f)
-                                    "")))))
+        (progn (unhide-thread thread-id user-id user-ip)
+               (redirect "/?f=hidden"))
+        (progn (hide-thread thread-id user-id user-ip)
+               (redirect "/")))))
 
 (defun hide-thread (thread-id user-id user-ip)
     (execute-query-modify
