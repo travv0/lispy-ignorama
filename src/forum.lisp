@@ -6,12 +6,12 @@
         (user-value (if (logged-in-p) (get-session-var 'userid) (real-remote-addr))))
     (format nil "SELECT *
                FROM IndexThreads
-               WHERE (IsGlobal = true
-                      OR ((~a)
-                          AND UserStatusID >= ~d
-                          AND tagid IN (SELECT tagid
-                                        FROM selectedtags
-                                        WHERE ~a = '~a')))
+               WHERE (~a)
+                 AND (IsGlobal = true
+                  OR (UserStatusID >= ~d
+                      AND tagid IN (SELECT tagid
+                                    FROM selectedtags
+                                    WHERE ~a = '~a')))
                  AND threadid NOT IN (SELECT threadid
                                       FROM hidden
                                       WHERE ~a = '~a')
