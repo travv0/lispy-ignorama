@@ -51,7 +51,7 @@
    CLOSED: [2016-11-20 Sun 00:25]
    - State "DONE"       from "TODO"       [2016-11-20 Sun 00:25]
 ** TODO make sure all dropdown options have correct functionality
-   - [ ] Hide thread
+   - [X] Hide thread
    - [X] Edit OP
    - [ ] Edit thread
    - [X] Ban OP
@@ -67,7 +67,9 @@
 * DONE search results page
   CLOSED: [2016-10-30 Sun 01:22]
   - State "DONE"       from "TODO"       [2016-10-30 Sun 01:22]
-* TODO hidden threads page
+* DONE hidden threads page
+  CLOSED: [2016-11-28 Mon 21:07]
+  - State "DONE"       from "TODO"       [2016-11-28 Mon 21:07]
 * DONE backend code to follow and unfollow threads
   CLOSED: [2016-11-24 Thu 00:28]
   - State "DONE"       from "TODO"       [2016-11-24 Thu 00:28]
