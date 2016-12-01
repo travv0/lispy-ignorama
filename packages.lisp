@@ -12,4 +12,5 @@
         :uuid
         :sha3
         :binascii
-        :web-util))
+        :web-util)
+  (:export :*port*))
