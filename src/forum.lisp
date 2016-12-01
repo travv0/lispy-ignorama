@@ -1659,6 +1659,7 @@
                              (dbi.driver:escape-sql
                               *conn* (real-remote-addr))))
                  "ORDER BY latestposttime DESC"))
+        ((equal type "hidden") (values "Hidden" nil))
         (t "")))
 
 (defun whitespacep (c)
