@@ -92,7 +92,9 @@
   CLOSED: [2016-11-22 Tue 21:14]
   - State "DONE"       from "TODO"       [2016-11-22 Tue 21:14]
 * TODO rules page
-* TODO ban log
+* DONE ban log
+  CLOSED: [2016-12-03 Sat 16:18]
+  - State "DONE"       from "TODO"       [2016-12-03 Sat 16:18]
 * TODO moderator dashboard
 * DONE replying
   CLOSED: [2016-11-27 Sun 15:52]
