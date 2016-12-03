@@ -346,10 +346,12 @@
                " | "))))))
 
 (defun format-date-for-display (date)
-  (local-time:to-rfc3339-timestring
-   (local-time:parse-timestring
-    (substitute #\T #\  date)
-    :fail-on-error nil)))
+  (stringify date)
+  ;; (local-time:to-rfc3339-timestring
+  ;;  (local-time:parse-timestring
+  ;;   (substitute #\T #\  (stringify date))
+  ;;   :fail-on-error nil))
+  )
 
 (defhtml thread-row-dropdown (thread-id op-id &key (locked nil) (stickied nil))
   (:div :style "float: right;" :class "btn-group"
@@ -357,33 +359,36 @@
             :data-toggle "dropdown"
             (:span :class "caret"))
         (:ul :class "dropdown-menu pull-right"
-             (:li (:a :href (format nil "b/hide-thread?thread=~d" thread-id)
-                      (if (equal (get-parameter "f") "hidden")
-                          "Unhide thread"
-                          "Hide thread")))
-             (when (user-authority-check-p "Moderator")
-               (:li (:a :href (format nil "edit-post?post=~d" op-id)
-                        "Edit OP"))
-               (:li (:a :href (format nil "ban-post?post=~d" op-id)
-                        "Ban OP")))
-             ;; (when (user-authority-check-p "Admin")
-             ;;   (:li (:a :href (format nil "a/thread-ban?thread=~d" thread-id)
-             ;;            "Thread ban"))
-             ;;   (:li (:a :href (format nil "a/delete-thread?thread=~d" thread-id)
-             ;;            "Delete thread"))
-             ;;   (:li (:a :href (format nil "a/purge-thread?thread=~d" thread-id)
-             ;;            "Purge thread"))
-             ;;   (:li (:a :href (format nil "a/purge-duplicate?thread=~d" thread-id)
-             ;;            "Purge duplicate (no ban)")))
-             (when (user-authority-check-p "Moderator")
-               (:li (:a :href (format nil "a/sticky-thread?thread=~d" thread-id)
-                        (if stickied
-                            "Unsticky thread"
-                            "Sticky thread")))
-               (:li (:a :href (format nil "a/lock-thread?thread=~d" thread-id)
-                        (if locked
-                            "Unlock thread"
-                            "Lock thread")))))))
+             (thread-dropdown-contents thread-id op-id locked stickied))))
+
+(defhtml thread-dropdown-contents (thread-id op-id locked stickied)
+  (:li (:a :href (format nil "b/hide-thread?thread=~d" thread-id)
+           (if (equal (get-parameter "f") "hidden")
+               "Unhide thread"
+               "Hide thread")))
+  (when (user-authority-check-p "Moderator")
+    (:li (:a :href (format nil "edit-post?post=~d" op-id)
+             "Edit OP"))
+    (:li (:a :href (format nil "ban-post?post=~d" op-id)
+             "Ban OP")))
+  ;; (when (user-authority-check-p "Admin")
+  ;;   (:li (:a :href (format nil "a/thread-ban?thread=~d" thread-id)
+  ;;            "Thread ban"))
+  ;;   (:li (:a :href (format nil "a/delete-thread?thread=~d" thread-id)
+  ;;            "Delete thread"))
+  ;;   (:li (:a :href (format nil "a/purge-thread?thread=~d" thread-id)
+  ;;            "Purge thread"))
+  ;;   (:li (:a :href (format nil "a/purge-duplicate?thread=~d" thread-id)
+  ;;            "Purge duplicate (no ban)")))
+  (when (user-authority-check-p "Moderator")
+    (:li (:a :href (format nil "a/sticky-thread?thread=~d" thread-id)
+             (if stickied
+                 "Unsticky thread"
+                 "Sticky thread")))
+    (:li (:a :href (format nil "a/lock-thread?thread=~d" thread-id)
+             (if locked
+                 "Unlock thread"
+                 "Lock thread")))))
 
 (defhtml print-user-name-and-ip (post-id)
   (multiple-value-bind (user-name ip)
@@ -477,15 +482,26 @@
 
   (pagination))
 
-(defhtml thread-dropdown ()
-  ;; (:span :style "float: right;" :class "btn-group"
-  ;;        (:a :class "btn btn-default btn-sm dropdown-toggle"
-  ;;            :data-toggle "dropdown"
-  ;;            :href "#"
-  ;;            (:span :class "caret"))
-  ;;        (:ul :class "dropdown-menu pull-right"
-  ;;             "TODO - add stuff here"))
-  )
+(defhtml thread-dropdown (thread-id)
+  (:span :style "float: right;" :class "btn-group"
+         (:a :class "btn btn-default btn-sm dropdown-toggle"
+             :data-toggle "dropdown"
+             :href "#"
+             (:span :class "caret"))
+         (:ul :class "dropdown-menu pull-right"
+              (execute-query-one thread
+                  "SELECT (SELECT MIN(postid)
+                           FROM posts
+                           WHERE threadid = threads.threadid) AS opid,
+                          locked,
+                          stickied
+                   FROM threads
+                   WHERE threadid = ?"
+                  (thread-id)
+                (thread-dropdown-contents thread-id
+                                          (getf thread :|opid|)
+                                          (getf thread :|locked|)
+                                          (getf thread :|stickied|))))))
 
 (publish-page view-thread
   (let ((post-id (get-parameter "post"))
@@ -526,7 +542,8 @@
                           (user-ip user-ip)))
           (:body (:div :style "margin-bottom: 5px;"
                        (thread-buttons)
-                       (thread-dropdown))
+                       (when thread-id
+                         (thread-dropdown thread-id)))
                  (posts-table
                   (format nil "SELECT posts.*
                                FROM posts
