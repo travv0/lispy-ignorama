@@ -60,6 +60,7 @@
    - [ ] Purge duplicate
    - [X] Sticky thread
    - [X] Lock thread
+** TODO show (Thread Banned) if thread banned
 * DONE following page
   CLOSED: [2016-11-24 Thu 00:28]
   - State "DONE"       from "TODO"       [2016-11-24 Thu 00:28]

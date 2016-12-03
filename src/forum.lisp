@@ -433,7 +433,21 @@
               (:hr)
               (:b "Original post:")
               (:br))
-            (format-post content)))))
+            (format-post content))
+      (when (post-banned-p id)
+        (:br)
+        (:div (:b (:a :href (format nil "/bans?post=~d" id)
+                      "(User was banned for this post)")))))))
+
+(defun post-banned-p (post-id)
+  (execute-query-one ban
+      "SELECT CASE WHEN COUNT(1) >= 1 THEN TRUE END AS isbanned
+       FROM bans
+       WHERE COALESCE(unbanned, false) = false
+         AND postid = ?"
+      (post-id)
+    (unless (null-p (getf ban :|isbanned|))
+      t)))
 
 (defun new-post-p (thread-id post-id)
   (let ((last-seen (get-last-seen-post thread-id
@@ -997,6 +1011,7 @@
 
 (defun print-post-options (post-id)
   (execute-query-one user "SELECT UserName,
+          posts.UserID,
           Anonymous,
           PostRevealedOP,
           Bump,
@@ -1014,15 +1029,19 @@
       (let ((options '())
             (op-revealed (getf user :|postrevealedop|))
             (username (getf user :|username|))
+            (user-id (getf user :|userid|))
             (anonymous (getf user :|anonymous|))
             (bump (getf user :|bump|))
             (post-ip (getf user :|postip|))
             (op-post-ip (getf op :|postip|))
             (we-are-moderator (user-authority-check-p "Moderator")))
-        (if (and we-are-moderator
-                 anonymous
-                 (not (null-p username)))
-            (setf options (cons "Anonymous" options)))
+        (when (user-is-banned-p user-id post-ip)
+          (setf options (cons "Banned" options)))
+
+        (when (and we-are-moderator
+                   anonymous
+                   (not (null-p username)))
+          (setf options (cons "Anonymous" options)))
         (cond (op-revealed
                (setf options (cons "OP" options)))
               ((and we-are-moderator
@@ -1038,6 +1057,19 @@
         (if options
             (join-string-list options " | ")
             "")))))
+
+(defun user-is-banned-p (user-id user-ip)
+  (execute-query-one ban
+      "SELECT CASE WHEN COUNT(1) >= 1 THEN TRUE END AS isbanned
+       FROM bans
+       WHERE COALESCE(unbanned, false) = false
+         AND (banneeid = ? OR banneeip = ?)
+         AND banend > ?"
+      ((if user-id user-id 0)
+       user-ip
+       (format-timestring nil (now)))
+    (unless (null-p (getf ban :|isbanned|))
+      t)))
 
 (defhtml print-link-to-thread (thread-id thread-title &key locked stickied)
   (execute-query-one op
@@ -1452,6 +1484,7 @@
         "SELECT true AS banned
          FROM bans
          WHERE (banneeid = ? OR banneeip = ?)
+           AND COALESCE(unbanned, false) = false
            AND banend > ?"
         ((if user-id user-id 0)
          (real-remote-addr)
