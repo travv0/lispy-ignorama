@@ -346,12 +346,12 @@
                " | "))))))
 
 (defun format-date-for-display (date)
-  (stringify date)
-  ;; (local-time:to-rfc3339-timestring
-  ;;  (local-time:parse-timestring
-  ;;   (substitute #\T #\  (stringify date))
-  ;;   :fail-on-error nil))
-  )
+  (local-time:to-rfc3339-timestring
+   (if (numberp date)
+       (local-time:universal-to-timestamp date)
+       (local-time:parse-timestring
+        (substitute #\T #\  date)
+        :fail-on-error nil))))
 
 (defhtml thread-row-dropdown (thread-id op-id &key (locked nil) (stickied nil))
   (:div :style "float: right;" :class "btn-group"
@@ -429,6 +429,17 @@
                                       (print-post-options id))
                                 " | "))
                          (:b (print-user-name-and-ip id))))
+                   (when (user-authority-check-p "Moderator")
+                     (:span :style "float: right; padding-left: 5px;"
+                            :class "btn-group"
+                            (:a :class "btn btn-default btn-xs dropdown-toggle"
+                                :data-toggle "dropdown"
+                                :href "#"
+                                (:span :class "caret"))
+                            (:ul :class "dropdown-menu pull-right"
+                                 (:li (:a :href (format nil "ban-post?post=~d"
+                                                        id)
+                                          "Ban user")))))
                    (:span :style "float: right;"
                           :class "time"
                           (format-date-for-display time))))
@@ -1518,20 +1529,19 @@
            (let ((user-id (get-session-var 'userid)))
              (execute-query-loop bans
                  "SELECT banend,
-                        banreason,
-                        postcontent
-                 FROM bans
-                 JOIN posts ON bans.postid = posts.postid
-                 WHERE (banneeid = ? OR banneeip = ?)
-                   AND banend > ?
-                 ORDER BY banend DESC"
+                         banreason,
+                         postcontent
+                  FROM bans
+                  JOIN posts ON bans.postid = posts.postid
+                  WHERE (banneeid = ? OR banneeip = ?)
+                    AND banend > ?
+                  ORDER BY banend DESC"
                  ((if user-id user-id 0)
                   (real-remote-addr)
                   (format-timestring nil (now)))
                (:p "Your ban will expire on "
-                   (:span :class "time" (local-time:to-rfc3339-timestring
-                                         (local-time:universal-to-timestamp
-                                          (getf bans :|banend|)))))
+                   (:span :class "time"
+                          (format-date-for-display (getf bans :|banend|))))
                (:p (format nil "Reason for ban: ~a" (getf bans :|banreason|)))
                (:p (format nil "Post that got you banned: \"~a\""
                            (getf bans :|postcontent|)))
@@ -1812,13 +1822,9 @@
         (:b (getf bans :|banreason|))
         (:br)
         "They were banned on "
-        (:b :class "time" (local-time:to-rfc3339-timestring
-                           (local-time:universal-to-timestamp
-                            (getf bans :|bantime|))))
+        (:b :class "time" (format-date-for-display (getf bans :|bantime|)))
         " and their ban expires on "
-        (:b :class "time" (local-time:to-rfc3339-timestring
-                           (local-time:universal-to-timestamp
-                            (getf bans :|banend|))))
+        (:b :class "time" (format-date-for-display (getf bans :|banend|)))
         (:br)
         (:a :href (format nil "view-thread?post=~d"
                           (getf bans :|postid|))

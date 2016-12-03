@@ -10,9 +10,11 @@
    CLOSED: [2016-10-29 Sat 12:43]
    - State "DONE"       from "TODO"       [2016-10-29 Sat 12:43]
    - [X] show username and post time on mobile
-** TODO add dropdowns to thread page
-   - [ ] dropdown in top right for whole thread
-   - [ ] per-post dropdown
+** DONE add dropdowns to thread page
+   CLOSED: [2016-12-03 Sat 17:34]
+   - State "DONE"       from "TODO"       [2016-12-03 Sat 17:34]
+   - [X] dropdown in top right for whole thread
+   - [X] per-post dropdown
 ** TODO highlight and jump to specified post
    - State "DONE"       from "TODO"       [2016-10-30 Sun 19:11]
 ** DONE pagination
