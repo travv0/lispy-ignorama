@@ -76,7 +76,7 @@
             user-status-id
             user-status-id)))
 
-(defparameter *rightlinks* '("Following" "Hidden")) ;"Rules" "Bans" "Settings"))
+(defparameter *rightlinks* '("Following" "Hidden" "Bans")) ;"Rules" "Settings"))
 
 ;;; stuff to go in the <head> tags (minus <title>)
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -1729,3 +1729,47 @@
                                        :multi-line-mode t)
                        post replacement))))
        post))))
+
+(publish-page bans
+  (standard-page
+      (:title "Bans")
+    (:div :style "margin-bottom: 5px;" (ban-buttons))
+    (ban-table)
+    (:div :style "margin-top: 5px;" (ban-buttons))))
+
+(defhtml ban-buttons ()
+  (:input :type "button"
+          :class "btn btn-default btn-sm"
+          :value "Back"
+          :onclick "window.location='./"))
+
+(defhtml ban-table ()
+  (execute-query-loop bans
+      "SELECT banner.username AS banneruser,
+              bantime,
+              banend,
+              banreason,
+              postid
+       FROM bans
+       JOIN users AS banner ON banner.userid = bans.bannerid
+       WHERE COALESCE(unbanned, false) <> true" ()
+    (row
+      (col 12 :class "thread"
+        (:b (print-user-name-and-ip (getf bans :|postid|)))
+        " was banned by "
+        (:b (getf bans :|banneruser|))
+        " for the following reason: "
+        (:b (getf bans :|banreason|))
+        (:br)
+        "They were banned on "
+        (:b :class "time" (local-time:to-rfc3339-timestring
+                           (local-time:universal-to-timestamp
+                            (getf bans :|bantime|))))
+        " and their ban expires on "
+        (:b :class "time" (local-time:to-rfc3339-timestring
+                           (local-time:universal-to-timestamp
+                            (getf bans :|banend|))))
+        (:br)
+        (:a :href (format nil "view-thread?post=~d"
+                          (getf bans :|postid|))
+            "view post")))))
