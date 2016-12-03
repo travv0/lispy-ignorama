@@ -13,8 +13,7 @@
 ** TODO add dropdowns to thread page
    - [ ] dropdown in top right for whole thread
    - [ ] per-post dropdown
-** DONE highlight and jump to specified post
-   CLOSED: [2016-10-30 Sun 19:11]
+** TODO highlight and jump to specified post
    - State "DONE"       from "TODO"       [2016-10-30 Sun 19:11]
 ** DONE pagination
    CLOSED: [2016-10-30 Sun 19:10]
