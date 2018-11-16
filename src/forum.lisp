@@ -264,7 +264,7 @@
   ;; dropdown only displays correctly when I wrap all the buttons in this div
   (row :class "dropdown"
     (col 12 :style "margin-top: 5px; margin-bottom: 5px;"
-      (if (or *allow-anonymity*
+      (if (or *allow-anonymous-threads*
               (logged-in-p))
           (:button :class "btn btn-default btn-sm threads"
                    :style "margin: 3px;"
@@ -739,6 +739,9 @@
 (publish-page new-thread
   (when (banned-p)
     (redirect "/banned"))
+  (unless (or *allow-anonymous-threads*
+              (logged-in-p))
+    (redirect "/"))
   (standard-page
       (:title "New Thread")
     (:body
@@ -882,7 +885,7 @@
 (publish-page b/submit-thread
   (when (banned-p)
     (redirect "/banned"))
-  (unless (or *allow-anonymity*
+  (unless (or *allow-anonymous-threads*
               (logged-in-p))
     (redirect "/"))
   (unless (has-right-to-tag-p (post-parameter "tag"))
