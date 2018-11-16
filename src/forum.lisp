@@ -1693,20 +1693,21 @@
 (defun index-params-by-type (type)
   (cond ((equal type "search")
          (let* ((search (get-parameter "search"))
-                (search-for-query (substitute-if #\%
-                                                 #'whitespacep
-                                                 (dbi.driver:escape-sql
-                                                  *conn*
-                                                  (empty-string-if-nil search)))))
+                (search-for-query (string-downcase
+                                   (substitute-if #\%
+                                                  #'whitespacep
+                                                  (dbi.driver:escape-sql
+                                                   *conn*
+                                                   (empty-string-if-nil search))))))
            (values (format nil "Search for \"~a\""
                            (empty-string-if-nil search))
                    (format nil "(SELECT 1
                                  FROM posts
                                  WHERE posts.ThreadID = IndexThreads.ThreadID
-                                   AND PostContent LIKE '%~a%'
+                                   AND lower(PostContent) LIKE '%~a%'
                                  LIMIT 1) = 1
-                                 OR ThreadSubject LIKE '%~a%'"
-                           search-for-query search-for-query)
+                                 OR lower(ThreadSubject) LIKE '%~:*~a%'"
+                           search-for-query)
                    nil)))
         ((equal type "following")
          (values "Following"
